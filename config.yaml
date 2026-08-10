@@ -1,0 +1,19 @@
+# config.yaml
+models:
+  gpt_4o:
+    provider: "openai"
+    model_id: "gpt-4o"
+    cost_per_mtok: 0.0025  # input, cached
+    api_key: "sk-..."
+    
+  claude_3_7_sonnet:
+    provider: "anthropic"
+    model_id: "claude-3-5-sonnet-20241022"
+    cost_per_mtok: 0.003  # input
+    api_key: "sk-ant-..."
+    
+  gemini_2_0:
+    provider: "google"
+    model_id: "gemini-2.0-flash"
+    cost_per_mtok: 0.001  # aggressive pricing
+    api_key: "AIza..."
