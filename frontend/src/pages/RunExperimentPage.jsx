@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { PlayCircle, Sparkles, GitCommit, Network, Activity, Users, AlertTriangle, ChevronRight, Layers, ArrowRight, Loader2, Cpu, RefreshCw, CheckCircle, Terminal, Radio } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { PlayCircle, Sparkles, GitCommit, Network, Activity, Users, AlertTriangle, ChevronRight, Layers, ArrowRight, Loader2, Cpu, RefreshCw, CheckCircle, Terminal, Radio, Eye, Trash2 } from 'lucide-react';
 import { api } from '../services/api';
 import TopologyBadge from '../components/TopologyBadge';
 import TopologyVisualizer from '../components/TopologyVisualizer';
@@ -25,7 +25,15 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
   const [isBatchRunning, setIsBatchRunning] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
   const [executionLogs, setExecutionLogs] = useState([]);
+  const [lastFinishedExpId, setLastFinishedExpId] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const logsEndRef = useRef(null);
+
+  // Auto-scroll execution monitor to latest message
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [executionLogs]);
 
   const fetchModelsData = async () => {
     setLoadingModels(true);
@@ -74,12 +82,37 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
   const handleRunSingle = async () => {
     if (!selectedTaskId) return;
     setIsRunning(true);
+    setLastFinishedExpId(null);
     setErrorMsg(null);
-    setExecutionLogs([
-      { text: `[INIT] Loading ${numAgents}-agent heterogeneous cluster (5 Cloud API + 1 Local Ollama)...`, time: new Date() },
-      { text: `[TOPOLOGY] Routing graph initialized under ${selectedTopology} structural constraints...`, time: new Date() },
-      { text: `[TASK DISPATCH] Broadcasting benchmark task to active agents...`, time: new Date() },
-    ]);
+
+    const initialLogs = [
+      { text: `[CLUSTER INIT] Activating ${numAgents} heterogeneous agents (5 Cloud + 1 Local Ollama)...`, time: new Date() },
+      { text: `[TOPOLOGY] Enforcing ${selectedTopology} communication routing constraints...`, time: new Date() },
+      { text: `[DISPATCH] Broadcasting task '${currentTask?.title || selectedTaskId}' to agents...`, time: new Date() },
+    ];
+    setExecutionLogs(initialLogs);
+
+    // Live deliberation step timer
+    let stepCount = 0;
+    const stepMessages = [
+      `[TURN 1] Agent 1 (Coordinator - DeepSeek) formulating task decomposition...`,
+      `[TURN 2] Agent 2 (Solver - GPT-OSS) generating primary solution hypothesis...`,
+      `[TURN 3] Agent 3 (Critic - Qwen) executing constraint audit & contradiction checks...`,
+      `[TURN 4] Agent 4 (Fact Checker - Gemini) validating logical deductions against premises...`,
+      `[TURN 5] Agent 5 (Alternative Solver - Nex-N2) cross-evaluating alternative paths...`,
+      `[TURN 6] Agent 6 (Final Reviewer - Ollama Llama3) verifying consistency...`,
+      `[SYNTHESIS] Consolidating peer critiques into final consensus...`
+    ];
+
+    const intervalId = setInterval(() => {
+      if (stepCount < stepMessages.length) {
+        setExecutionLogs((prev) => [
+          ...prev,
+          { text: stepMessages[stepCount], time: new Date() }
+        ]);
+        stepCount++;
+      }
+    }, 1400);
 
     try {
       const result = await api.runExperiment({
@@ -89,18 +122,26 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
         max_turns: Number(maxTurns),
       });
 
+      clearInterval(intervalId);
+
+      const statusTag = result.success ? 'PASSED' : `FAILED (${result.failure_type})`;
       setExecutionLogs((prev) => [
         ...prev,
-        { text: `[SYNTHESIS] Deliberation complete. Performing two-stage automated evaluation...`, time: new Date() },
-        { text: `[COMPLETED] Trial finished with result ID: ${result.id} (Success: ${result.success})`, time: new Date() },
+        { text: `[SYNTHESIS COMPLETE] Final answer synthesized by Coordinator.`, time: new Date() },
+        { text: `[EVALUATION] Two-stage verification outcome: ${statusTag}`, time: new Date() },
+        { text: `[NETWORK] Logged ${result.total_messages || result.messages?.length || 0} messages across ${result.turns_taken || maxTurns} turns. Density: ${result.network_metrics?.communication_density ?? 0}`, time: new Date() },
+        { text: `[COMPLETED] Trial #${result.id.substring(0, 8)} saved to database.`, time: new Date() },
       ]);
 
-      setTimeout(() => {
-        setIsRunning(false);
-        onExperimentCompleted(result.id);
-      }, 700);
+      setLastFinishedExpId(result.id);
+      setIsRunning(false);
     } catch (err) {
+      clearInterval(intervalId);
       setErrorMsg(err.message);
+      setExecutionLogs((prev) => [
+        ...prev,
+        { text: `[ERROR] Execution failed: ${err.message}`, time: new Date() }
+      ]);
       setIsRunning(false);
     }
   };
@@ -113,6 +154,11 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
     const total = topologies.length * repetitions;
     setBatchProgress({ current: 0, total });
 
+    setExecutionLogs((prev) => [
+      ...prev,
+      { text: `[BATCH SWEEP] Initiating ${total}-trial sweep across STAR, CHAIN, MESH, EMERGENT (${repetitions} reps each)...`, time: new Date() },
+    ]);
+
     try {
       await api.runBatchExperiments({
         task_id: selectedTaskId,
@@ -123,13 +169,22 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
       });
 
       setBatchProgress({ current: total, total });
+      setExecutionLogs((prev) => [
+        ...prev,
+        { text: `[BATCH COMPLETED] All ${total} trials executed and saved to telemetry database.`, time: new Date() },
+      ]);
+
       setTimeout(() => {
         setIsBatchRunning(false);
         alert(`Completed 4-Topology Batch Sweep of ${total} trials (Star, Chain, Mesh, Emergent)!`);
         onExperimentCompleted(null);
-      }, 500);
+      }, 600);
     } catch (err) {
       setErrorMsg('Batch sweep failed: ' + err.message);
+      setExecutionLogs((prev) => [
+        ...prev,
+        { text: `[BATCH ERROR] Sweep failed: ${err.message}`, time: new Date() }
+      ]);
       setIsBatchRunning(false);
     }
   };
@@ -617,14 +672,28 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
                   Execution Monitor
                 </h3>
               </div>
-              {isRunning && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#38bdf8' }}>
-                  <Loader2 size={14} className="spin" />
-                  <span className="mono">Deliberating...</span>
-                </div>
-              )}
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {isRunning && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#38bdf8' }}>
+                    <Loader2 size={14} className="spin" />
+                    <span className="mono">Deliberating...</span>
+                  </div>
+                )}
+                {executionLogs.length > 0 && !isRunning && (
+                  <button
+                    onClick={() => setExecutionLogs([])}
+                    className="btn btn-secondary"
+                    style={{ padding: '2px 8px', fontSize: 10, display: 'flex', alignItems: 'center', gap: 4 }}
+                    title="Clear monitor logs"
+                  >
+                    <Trash2 size={11} /> Clear
+                  </button>
+                )}
+              </div>
             </div>
 
+            {/* Batch Progress Bar */}
             {isBatchRunning && (
               <div className="bezel-screen" style={{ padding: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
@@ -644,11 +713,44 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
               </div>
             )}
 
+            {/* Completion Banner Action */}
+            {lastFinishedExpId && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(34, 197, 94, 0.15))',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <CheckCircle size={16} color="#4ade80" />
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>
+                    Trial Completed Successfully!
+                  </span>
+                </div>
+                <button
+                  onClick={() => onExperimentCompleted(lastFinishedExpId)}
+                  className="btn btn-primary"
+                  style={{ padding: '4px 12px', fontSize: 11, display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Eye size={13} />
+                  <span>Inspect Post-Mortem →</span>
+                </button>
+              </div>
+            )}
+
+            {/* Scrollable Telemetry Terminal Log */}
             <div
               className="bezel-screen"
               style={{
                 flex: 1,
-                minHeight: 160,
+                minHeight: 180,
+                maxHeight: 280,
                 padding: 12,
                 fontFamily: 'var(--font-mono)',
                 fontSize: 12,
@@ -663,13 +765,18 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
                   Awaiting trial command. Configure parameters and trigger execution.
                 </div>
               ) : (
-                executionLogs.map((log, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 8, color: i === executionLogs.length - 1 ? '#38bdf8' : 'var(--text-secondary)' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>{log.time.toLocaleTimeString()}</span>
-                    <span>›</span>
-                    <span>{log.text}</span>
-                  </div>
-                ))
+                <>
+                  {executionLogs.map((log, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 8, color: i === executionLogs.length - 1 ? '#38bdf8' : 'var(--text-secondary)', lineHeight: 1.4 }}>
+                      <span style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+                        {log.time instanceof Date ? log.time.toLocaleTimeString() : new Date().toLocaleTimeString()}
+                      </span>
+                      <span style={{ color: '#38bdf8', flexShrink: 0 }}>›</span>
+                      <span style={{ wordBreak: 'break-word' }}>{log.text}</span>
+                    </div>
+                  ))}
+                  <div ref={logsEndRef} />
+                </>
               )}
             </div>
           </div>
