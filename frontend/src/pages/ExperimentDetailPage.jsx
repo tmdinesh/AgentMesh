@@ -5,6 +5,7 @@ import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
 import TopologyVisualizer from '../components/TopologyVisualizer';
 import MessageFeed from '../components/MessageFeed';
+import { formatDateTime } from '../utils/date';
 
 export default function ExperimentDetailPage({ experimentId, onBack }) {
   const [experiment, setExperiment] = useState(null);
@@ -70,7 +71,7 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
               <FailureBadge failureType={experiment.failure_type} success={experiment.success} />
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3 }}>
-              Executed: {new Date(experiment.created_at).toLocaleString()} • {experiment.num_agents} Agents • {experiment.turns_taken} Turns • {experiment.total_messages} Messages
+              Executed: {formatDateTime(experiment.created_at)} • {experiment.num_agents} Agents • {experiment.turns_taken} Turns • {experiment.total_messages} Messages
             </div>
           </div>
         </div>

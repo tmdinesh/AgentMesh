@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, Filter, MessageSquare, Search, Cpu } from 'lucide-react';
+import { formatTime } from '../utils/date';
 
 export default function MessageFeed({ messages = [] }) {
   const [filterRole, setFilterRole] = useState('ALL');
@@ -195,7 +196,7 @@ export default function MessageFeed({ messages = [] }) {
                   </div>
 
                   <span className="mono" style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                    {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}
+                    {formatTime(msg.timestamp)}
                   </span>
                 </div>
 

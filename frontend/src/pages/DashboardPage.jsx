@@ -5,6 +5,7 @@ import StatCard from '../components/StatCard';
 import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
 import { api } from '../services/api';
+import { formatDateTime } from '../utils/date';
 
 export default function DashboardPage({ onSelectExperiment, onRunNew }) {
   const [summary, setSummary] = useState(null);
@@ -343,7 +344,7 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
                       <FailureBadge failureType={exp.failure_type} success={exp.success} />
                     </td>
                     <td className="mono" style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                      {exp.created_at ? new Date(exp.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : ''}
+                      {formatDateTime(exp.created_at)}
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
