@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.models.experiment import Experiment
 from app.models.message import Message
@@ -48,7 +48,7 @@ def list_experiments(
     db: Session = Depends(get_db)
 ):
     """Lists all past experimental runs with optional filtering."""
-    query = db.query(Experiment)
+    query = db.query(Experiment).options(joinedload(Experiment.task))
     if topology:
         query = query.filter(Experiment.topology == topology.upper())
     if success is not None:
@@ -59,7 +59,7 @@ def list_experiments(
 @router.get("/{experiment_id}", response_model=ExperimentDetailResponse)
 def get_experiment_details(experiment_id: str, db: Session = Depends(get_db)):
     """Returns details and message transcript for an experiment."""
-    exp = db.query(Experiment).filter(Experiment.id == experiment_id).first()
+    exp = db.query(Experiment).options(joinedload(Experiment.task), joinedload(Experiment.messages)).filter(Experiment.id == experiment_id).first()
     if not exp:
         raise HTTPException(status_code=404, detail=f"Experiment '{experiment_id}' not found.")
     return exp

@@ -307,7 +307,12 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
                       </span>
                     </td>
                     <td>
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>{exp.task_title || exp.task_id}</div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>
+                        {exp.task?.title || exp.task_title || exp.task_id}
+                      </div>
+                      {exp.task?.category && (
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{exp.task.category}</div>
+                      )}
                     </td>
                     <td>
                       <TopologyBadge topology={exp.topology} />
@@ -316,7 +321,7 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
                       {exp.num_agents}
                     </td>
                     <td className="mono" style={{ fontSize: 12 }}>
-                      {exp.total_turns}
+                      {exp.turns_taken ?? exp.total_turns ?? exp.max_turns ?? 0}
                     </td>
                     <td>
                       <span
