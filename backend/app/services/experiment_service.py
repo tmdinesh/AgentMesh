@@ -70,7 +70,8 @@ class ExperimentService:
                     visible_dialogue=visible_history,
                     turn=turn_idx + 1,
                     topology_name=topo_name,
-                    is_final_turn=is_final
+                    is_final_turn=is_final,
+                    use_mock=payload.use_mock
                 )
 
                 msg_id = f"msg_{uuid.uuid4().hex[:10]}"
@@ -95,7 +96,8 @@ class ExperimentService:
         final_answer = await llm_service.synthesize_final_answer(
             task_question=task.question,
             all_messages=recorded_messages,
-            topology_name=topo_name
+            topology_name=topo_name,
+            use_mock=payload.use_mock
         )
 
         # 5. Two-Stage Evaluation & Failure Classification

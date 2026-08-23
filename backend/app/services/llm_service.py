@@ -71,10 +71,11 @@ class LLMService:
         messages: List[Dict[str, str]],
         temperature: Optional[float] = None,
         max_tokens: int = 800,
-        response_format: Optional[Dict[str, Any]] = None
+        response_format: Optional[Dict[str, Any]] = None,
+        use_mock: bool = False
     ) -> str:
         """Invokes a specific LLM endpoint (Cloud or Ollama) using OpenAI-compatible chat format."""
-        if settings.is_mock_enabled:
+        if settings.is_mock_enabled or use_mock:
             return self._generate_fallback_mock_response(messages)
 
         # If it's a cloud provider without an API key configured, fall back to mock
@@ -101,7 +102,8 @@ class LLMService:
         url = f"{config.base_url}/chat/completions"
 
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            req_timeout = httpx.Timeout(self.timeout, connect=4.0)
+            async with httpx.AsyncClient(timeout=req_timeout) as client:
                 response = await client.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 data = response.json()
@@ -125,7 +127,8 @@ class LLMService:
         visible_dialogue: List[Dict[str, Any]],
         turn: int,
         topology_name: str,
-        is_final_turn: bool = False
+        is_final_turn: bool = False,
+        use_mock: bool = False
     ) -> Tuple[str, str, str]:
         """
         Generates a contextual response from a specific agent using its assigned LLM model.
@@ -133,7 +136,7 @@ class LLMService:
         """
         config = self.get_agent_config(agent_id)
 
-        if settings.is_mock_enabled or (not config.is_local and not config.api_key):
+        if settings.is_mock_enabled or use_mock or (not config.is_local and not config.api_key):
             simulated_text = self._simulate_agent_turn(
                 agent_role=agent_role,
                 task_question=task_question,
@@ -176,20 +179,21 @@ class LLMService:
         )
 
         prompt_messages.append({"role": "user", "content": user_content})
-        content = await self.call_llm_endpoint(config, prompt_messages, temperature=config.temperature)
+        content = await self.call_llm_endpoint(config, prompt_messages, temperature=config.temperature, use_mock=use_mock)
         return content, config.model, config.provider
 
     async def synthesize_final_answer(
         self,
         task_question: str,
         all_messages: List[Dict[str, Any]],
-        topology_name: str
+        topology_name: str,
+        use_mock: bool = False
     ) -> str:
         """Asks the Coordinator / Team to synthesize the final verified answer from the dialogue history."""
         # Coordinator is Agent 1
         config = self.get_agent_config("agent_1")
 
-        if settings.is_mock_enabled or (not config.is_local and not config.api_key):
+        if settings.is_mock_enabled or use_mock or (not config.is_local and not config.api_key):
             return self._simulate_final_answer(task_question, all_messages, topology_name)
 
         messages_summary = "\n".join([
