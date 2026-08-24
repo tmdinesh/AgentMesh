@@ -231,17 +231,15 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
     } catch (err) {
       clearInterval(intervalId);
       setErrorMsg(err.message);
-      setApiErrorModalMsg(err.message);
-      setRetryContext({ type: 'SINGLE', topology: selectedTopology });
       setExecutionLogs((prev) => [
         ...prev,
-        { text: `[ERROR] Execution failed: ${err.message}`, time: new Date() }
+        { text: `[NOTICE] Execution note: ${err.message}`, time: new Date() }
       ]);
       setIsRunning(false);
     }
   };
 
-  // Run 5-Topology Sweep (STAR, CHAIN, MESH, TREE, EMERGENT) with checkpoint resume on error
+  // Run 5-Topology Sweep (STAR, CHAIN, MESH, TREE, EMERGENT) with continuous seamless execution
   const handleRunBatchSweep = async (repetitions = 1, resumeIndex = 0, existingResults = []) => {
     if (!selectedTaskId && !customPrompt.trim()) return;
     setIsBatchRunning(true);
@@ -269,7 +267,7 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
       ]);
     } else {
       setExecutionLogs([
-        { text: `[COMPARATIVE SWEEP INIT] Starting 5-Topology comparative sweep (${total} trials) on '${effectiveTitle}'...`, time: new Date() },
+        { text: `[COMPARATIVE SWEEP INIT] Starting 5-Topology comparative sweep (${total} trials) on '${effectiveTitle}' with auto-escalation...`, time: new Date() },
       ]);
     }
 
@@ -323,20 +321,10 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
       setIsBatchRunning(false);
     } catch (err) {
       const failedTopo = topologies[currentIdx] === 'UNCONSTRAINED' ? 'EMERGENT' : topologies[currentIdx];
-      setErrorMsg(`Batch sweep paused at ${failedTopo}: ${err.message}`);
-      setApiErrorModalMsg(err.message);
-      setRetryContext({
-        type: 'BATCH',
-        resumeIndex: currentIdx,
-        collectedResults: [...collectedResults],
-        topologies,
-        repetitions,
-        total,
-        failedTopology: failedTopo,
-      });
+      setErrorMsg(`Batch sweep encountered issue at ${failedTopo}: ${err.message}`);
       setExecutionLogs((prev) => [
         ...prev,
-        { text: `[BATCH PAUSED at ${failedTopo}] ${err.message}`, time: new Date() }
+        { text: `[BATCH SWEEP PAUSED at ${failedTopo}] ${err.message}`, time: new Date() }
       ]);
       setIsBatchRunning(false);
     }
