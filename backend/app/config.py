@@ -33,44 +33,44 @@ class Settings(BaseSettings):
 
     # Default / Fallback LLM Settings
     LLM_API_KEY: str = ""
-    LLM_MODEL: str = "deepseek/deepseek-v3.2"
+    LLM_MODEL: str = "openai/gpt-oss-120b"
     LLM_BASE_URL: str = "https://aicredits.in/v1"
     USE_MOCK_LLM: bool = False
     LLM_TEMPERATURE: float = 0.7
     LLM_TIMEOUT_SECONDS: float = 45.0
 
     # ----------------------------------------------------
-    # Agent 1 (Coordinator) - Cloud LLM 1: deepseek/deepseek-v3.2
+    # Agent 1 (Coordinator) - Cloud LLM 1: openai/gpt-oss-120b
     # ----------------------------------------------------
     AGENT_1_PROVIDER: str = "aicredits"
-    AGENT_1_MODEL: str = "deepseek/deepseek-v3.2"
+    AGENT_1_MODEL: str = "openai/gpt-oss-120b"
     AGENT_1_API_KEY: str = ""
     AGENT_1_BASE_URL: str = "https://aicredits.in/v1"
     AGENT_1_TEMPERATURE: float = 0.7
 
     # ----------------------------------------------------
-    # Agent 2 (Solver) - Cloud LLM 2: openai/gpt-oss-120b
+    # Agent 2 (Solver) - Cloud LLM 2: qwen/qwen3-30b-a3b-instruct-2507
     # ----------------------------------------------------
     AGENT_2_PROVIDER: str = "aicredits"
-    AGENT_2_MODEL: str = "openai/gpt-oss-120b"
+    AGENT_2_MODEL: str = "qwen/qwen3-30b-a3b-instruct-2507"
     AGENT_2_API_KEY: str = ""
     AGENT_2_BASE_URL: str = "https://aicredits.in/v1"
     AGENT_2_TEMPERATURE: float = 0.7
 
     # ----------------------------------------------------
-    # Agent 3 (Critic) - Cloud LLM 3: qwen/qwen3-30b-a3b-instruct-2507
+    # Agent 3 (Critic) - Cloud LLM 3: deepseek/deepseek-v3.2
     # ----------------------------------------------------
     AGENT_3_PROVIDER: str = "aicredits"
-    AGENT_3_MODEL: str = "qwen/qwen3-30b-a3b-instruct-2507"
+    AGENT_3_MODEL: str = "deepseek/deepseek-v3.2"
     AGENT_3_API_KEY: str = ""
     AGENT_3_BASE_URL: str = "https://aicredits.in/v1"
     AGENT_3_TEMPERATURE: float = 0.7
 
     # ----------------------------------------------------
-    # Agent 4 (Fact Checker) - Cloud LLM 4: google/gemini-2.0-flash-lite-001
+    # Agent 4 (Fact Checker) - Cloud LLM 4: google/gemini-2.0-flash
     # ----------------------------------------------------
     AGENT_4_PROVIDER: str = "aicredits"
-    AGENT_4_MODEL: str = "google/gemini-2.0-flash-lite-001"
+    AGENT_4_MODEL: str = "google/gemini-2.0-flash"
     AGENT_4_API_KEY: str = ""
     AGENT_4_BASE_URL: str = "https://aicredits.in/v1"
     AGENT_4_TEMPERATURE: float = 0.7
@@ -88,7 +88,7 @@ class Settings(BaseSettings):
     # Agent 6 (Final Reviewer) - Local Ollama LLM
     # ----------------------------------------------------
     AGENT_6_PROVIDER: str = "ollama"
-    AGENT_6_MODEL: str = "llama3:8b"
+    AGENT_6_MODEL: str = "llama3:latest"
     AGENT_6_API_KEY: str = "ollama"
     AGENT_6_BASE_URL: str = "http://localhost:11434/v1"
     AGENT_6_TEMPERATURE: float = 0.7

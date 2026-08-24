@@ -40,6 +40,27 @@ export default function TopologyVisualizer({
         };
       }
     });
+  } else if (topoName === 'TREE') {
+    // Hierarchical Tree layout: Root at top, branches middle, leaves bottom
+    const treeCoords = {
+      agent_1: { x: cx, y: 55 },
+      agent_2: { x: cx - 110, y: 165 },
+      agent_3: { x: cx + 110, y: 165 },
+      agent_4: { x: cx - 150, y: 285 },
+      agent_5: { x: cx + 150, y: 285 },
+      agent_6: { x: cx, y: 285 },
+    };
+    nodes.forEach((n, idx) => {
+      if (treeCoords[n.id]) {
+        nodePositions[n.id] = treeCoords[n.id];
+      } else {
+        const angle = (idx * 2 * Math.PI) / nodeCount - Math.PI / 2;
+        nodePositions[n.id] = {
+          x: cx + radius * Math.cos(angle),
+          y: cy + radius * Math.sin(angle),
+        };
+      }
+    });
   } else {
     // Chain, Mesh, and Emergent: Regular polygon ring around center
     nodes.forEach((n, idx) => {
@@ -75,6 +96,34 @@ export default function TopologyVisualizer({
         out_degree: 1,
         betweenness: 0.0,
         role_desc: 'Peripheral Agent (Communicates exclusively with Coordinator)',
+      };
+    }
+
+    if (topoName === 'TREE') {
+      if (node.id === 'agent_1') {
+        return {
+          degree: 6,
+          in_degree: 3,
+          out_degree: 3,
+          betweenness: 0.75,
+          role_desc: 'Root Supervisor (Coordinates branches and audits leaf outputs)',
+        };
+      }
+      if (node.id === 'agent_2' || node.id === 'agent_3') {
+        return {
+          degree: 4,
+          in_degree: 2,
+          out_degree: 2,
+          betweenness: 0.45,
+          role_desc: 'Branch Supervisor (Decomposes task to leaf specialist)',
+        };
+      }
+      return {
+        degree: 2,
+        in_degree: 1,
+        out_degree: 1,
+        betweenness: 0.0,
+        role_desc: 'Leaf Specialist (Reports findings vertically to Branch Supervisor)',
       };
     }
 

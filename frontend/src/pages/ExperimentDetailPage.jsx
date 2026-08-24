@@ -5,6 +5,7 @@ import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
 import TopologyVisualizer from '../components/TopologyVisualizer';
 import MessageFeed from '../components/MessageFeed';
+import LoadingState from '../components/LoadingState';
 import { formatDateTime } from '../utils/date';
 
 export default function ExperimentDetailPage({ experimentId, onBack }) {
@@ -37,8 +38,8 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
-        Loading trial post-mortem telemetry...
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '100px 0' }}>
+        <LoadingState label="Loading Trial Post-Mortem Telemetry" variant="Drive" size="lg" />
       </div>
     );
   }

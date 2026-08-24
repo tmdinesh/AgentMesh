@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, PlayCircle, Search, Filter, CheckCircle2, HelpCircle } from 'lucide-react';
 import { api } from '../services/api';
+import LoadingState from '../components/LoadingState';
 
 export default function TasksPage({ onRunTask }) {
   const [tasks, setTasks] = useState([]);
@@ -36,6 +37,14 @@ export default function TasksPage({ onRunTask }) {
     if (diff === 'Hard') return <span className="badge badge-danger">Hard</span>;
     return <span className="badge badge-warning">Medium</span>;
   };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '100px 0' }}>
+        <LoadingState label="Loading Benchmark Tasks Catalog" variant="Dots" size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>

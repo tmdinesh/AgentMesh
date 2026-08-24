@@ -12,15 +12,25 @@ class ExperimentCreate(BaseModel):
     num_agents: int = Field(5, ge=4, le=6, description="Number of agents: 4, 5, or 6")
     max_turns: int = Field(10, ge=1, le=25, description="Maximum communication turns")
     use_mock: Optional[bool] = None
+    custom_prompt: Optional[str] = None
+    custom_title: Optional[str] = None
+    custom_criteria: Optional[str] = None
+    custom_expected_answer: Optional[str] = None
+    agent_models: Optional[Dict[str, str]] = None
 
 
 class BatchExperimentCreate(BaseModel):
     task_id: str
-    topologies: List[str] = ["STAR", "CHAIN", "MESH", "UNCONSTRAINED"]
+    topologies: List[str] = ["STAR", "CHAIN", "MESH", "TREE", "UNCONSTRAINED"]
     num_agents: int = 5
     max_turns: int = 8
     repetitions: int = Field(3, ge=1, le=10, description="Repetitions per topology")
     use_mock: Optional[bool] = None
+    custom_prompt: Optional[str] = None
+    custom_title: Optional[str] = None
+    custom_criteria: Optional[str] = None
+    custom_expected_answer: Optional[str] = None
+    agent_models: Optional[Dict[str, str]] = None
 
 
 class ExperimentResponse(BaseModel):

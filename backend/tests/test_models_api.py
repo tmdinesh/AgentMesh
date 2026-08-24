@@ -18,8 +18,8 @@ async def test_models_config_endpoint():
         agent_1 = data["agents"][0]
         assert agent_1["agent_id"] == "agent_1"
         assert agent_1["role"] == "Coordinator"
-        assert agent_1["provider"] == "aicredits"
-        assert agent_1["model"] == "deepseek/deepseek-v3.2"
+        assert agent_1["provider"] == settings.AGENT_1_PROVIDER
+        assert agent_1["model"] == settings.AGENT_1_MODEL
         
         # Check Agent 6 (Final Reviewer - Ollama Local)
         agent_6 = data["agents"][5]

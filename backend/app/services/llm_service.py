@@ -78,10 +78,11 @@ class LLMService:
         if settings.is_mock_enabled or use_mock:
             return self._generate_fallback_mock_response(messages)
 
-        # If it's a cloud provider without an API key configured, fall back to mock
+        # If it's a cloud provider without an API key configured and not in mock mode, raise error
         if not config.is_local and (not config.api_key or config.api_key.strip() == ""):
-            logger.info(f"No API key set for {config.agent_id} ({config.provider} - {config.model}). Using simulation.")
-            return self._generate_fallback_mock_response(messages)
+            if settings.is_mock_enabled or use_mock:
+                return self._generate_fallback_mock_response(messages)
+            raise ValueError(f"No API key configured for {config.agent_id} ({config.provider} - {config.model}).")
 
         headers = {
             "Content-Type": "application/json"
@@ -102,19 +103,25 @@ class LLMService:
         url = f"{config.base_url}/chat/completions"
 
         try:
-            req_timeout = httpx.Timeout(self.timeout, connect=4.0)
+            req_timeout = httpx.Timeout(self.timeout, connect=6.0)
             async with httpx.AsyncClient(timeout=req_timeout) as client:
                 response = await client.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 data = response.json()
-                content = data["choices"][0]["message"]["content"]
-                return content
+                msg_obj = data.get("choices", [{}])[0].get("message", {})
+                content = msg_obj.get("content") or msg_obj.get("reasoning_content") or ""
+                if not content:
+                    if settings.is_mock_enabled or use_mock:
+                        return self._generate_fallback_mock_response(messages)
+                    raise RuntimeError(f"Received empty response content from model {config.model}")
+                return str(content)
         except Exception as e:
-            logger.warning(
-                f"LLM call failed for {config.agent_id} ({config.provider} - {config.model}) at {url}: {e}. "
-                f"Falling back to persona simulation."
-            )
-            return self._generate_fallback_mock_response(messages)
+            if settings.is_mock_enabled or use_mock:
+                logger.warning(f"LLM call failed for {config.agent_id} in mock mode: {e}. Using fallback.")
+                return self._generate_fallback_mock_response(messages)
+            err_msg = f"LLM API Error for {config.agent_id} ({config.provider} - {config.model}) at {url}: {e}"
+            logger.error(err_msg)
+            raise RuntimeError(err_msg) from e
 
     async def generate_agent_message(
         self,
@@ -128,15 +135,44 @@ class LLMService:
         turn: int,
         topology_name: str,
         is_final_turn: bool = False,
-        use_mock: bool = False
+        use_mock: bool = False,
+        model_override: Optional[str] = None,
+        provider_override: Optional[str] = None,
+        is_local_override: Optional[bool] = None
     ) -> Tuple[str, str, str]:
         """
         Generates a contextual response from a specific agent using its assigned LLM model.
         Returns: (content, model_name, provider)
         """
-        config = self.get_agent_config(agent_id)
+        if model_override:
+            m_lower = model_override.lower()
+            if is_local_override is not None:
+                is_local = is_local_override
+            elif m_lower.startswith("meta-llama/"):
+                is_local = False
+            elif "ollama" in m_lower or "localhost" in m_lower or m_lower.startswith("llama3:") or m_lower.startswith("llama3.") or m_lower == "llama3" or m_lower == "llama3:latest":
+                is_local = True
+            else:
+                is_local = False
 
-        if settings.is_mock_enabled or use_mock or (not config.is_local and not config.api_key):
+            provider = provider_override or ("ollama" if is_local else "aicredits")
+            base_url = settings.AGENT_6_BASE_URL if is_local else settings.AICREDITS_BASE_URL
+            api_key = "ollama" if is_local else (settings.AICREDITS_API_KEY or settings.LLM_API_KEY)
+            config = AgentModelConfig(
+                agent_id=agent_id,
+                role=agent_role,
+                provider=provider,
+                model=model_override,
+                base_url=base_url,
+                api_key=api_key,
+                temperature=0.7,
+                is_local=is_local,
+                description=""
+            )
+        else:
+            config = self.get_agent_config(agent_id)
+
+        if settings.is_mock_enabled or use_mock:
             simulated_text = self._simulate_agent_turn(
                 agent_role=agent_role,
                 task_question=task_question,
@@ -148,6 +184,10 @@ class LLMService:
                 is_final_turn=is_final_turn
             )
             return simulated_text, config.model, config.provider
+
+        # If cloud model without API key and not mock mode, raise error
+        if not config.is_local and (not config.api_key or config.api_key.strip() == ""):
+            raise ValueError(f"No API key provided for {config.agent_id} ({config.provider} - {config.model}).")
 
         # Construct prompt for LLM
         prompt_messages = [
@@ -166,14 +206,10 @@ class LLMService:
             dialogue_text += f"\n[Turn {msg.get('turn')} from {sender_tag} to {msg.get('receiver_role')}]:\n{msg.get('content')}\n"
 
         user_content = (
-            f"CURRENT TASK:\n{task_question}\n\n"
-            f"COMMUNICATION CONTEXT:\n"
-            f"- Your Role: {agent_role}\n"
-            f"- Assigned Model: {config.model} ({config.provider.upper()})\n"
-            f"- Communicating with: {receiver_role}\n"
-            f"- Current Turn: {turn}\n\n"
-            f"RECENT VISIBLE MESSAGES:\n{dialogue_text if dialogue_text else 'No previous messages.'}\n\n"
-            f"INSTRUCTION:\n"
+            f"PRIMARY TASK QUESTION / PREMISES:\n{task_question}\n\n"
+            f"COMMUNICATION TOPOLOGY: {topology_name} (Current Turn: {turn})\n"
+            f"TARGET RECIPIENT: {receiver_role}\n\n"
+            f"PRIOR CONTEXT & TEAM MESSAGES:\n{dialogue_text if dialogue_text else '(No prior dialogue yet - you are initiating this round)'}\n\n"
             f"Provide your response/analysis according to your specialized role as {agent_role}. "
             f"Be precise, constructive, and adhere strictly to problem constraints."
         )
@@ -187,14 +223,32 @@ class LLMService:
         task_question: str,
         all_messages: List[Dict[str, Any]],
         topology_name: str,
-        use_mock: bool = False
+        use_mock: bool = False,
+        coordinator_model: Optional[str] = None
     ) -> str:
         """Asks the Coordinator / Team to synthesize the final verified answer from the dialogue history."""
         # Coordinator is Agent 1
-        config = self.get_agent_config("agent_1")
+        if coordinator_model:
+            is_local = "ollama" in coordinator_model.lower() or "llama" in coordinator_model.lower()
+            config = AgentModelConfig(
+                agent_id="agent_1",
+                role="Coordinator",
+                provider="ollama" if is_local else "aicredits",
+                model=coordinator_model,
+                base_url=settings.AGENT_6_BASE_URL if is_local else settings.AICREDITS_BASE_URL,
+                api_key="ollama" if is_local else (settings.AICREDITS_API_KEY or settings.LLM_API_KEY),
+                temperature=0.2,
+                is_local=is_local,
+                description=""
+            )
+        else:
+            config = self.get_agent_config("agent_1")
 
-        if settings.is_mock_enabled or use_mock or (not config.is_local and not config.api_key):
+        if settings.is_mock_enabled or use_mock:
             return self._simulate_final_answer(task_question, all_messages, topology_name)
+
+        if not config.is_local and (not config.api_key or config.api_key.strip() == ""):
+            raise ValueError(f"No API key configured for Coordinator ({config.model}).")
 
         messages_summary = "\n".join([
             f"- Turn {m.get('turn')} [{m.get('sender_role')} ({m.get('model_name', config.model)}) -> {m.get('receiver_role')}]: {m.get('content')}"

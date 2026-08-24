@@ -25,12 +25,27 @@ class ExperimentService:
     """
 
     async def run_experiment(self, payload: ExperimentCreate, db: Session) -> Experiment:
-        task = db.query(Task).filter(Task.id == payload.task_id).first()
-        if not task:
-            raise ValueError(f"Task with ID '{payload.task_id}' not found.")
+        if payload.custom_prompt and payload.custom_prompt.strip():
+            custom_id = f"custom_{uuid.uuid4().hex[:8]}"
+            task = Task(
+                id=custom_id,
+                title=payload.custom_title.strip() if payload.custom_title else "Custom User Prompt",
+                category="Custom",
+                difficulty="Custom",
+                question=payload.custom_prompt.strip(),
+                expected_answer=payload.custom_expected_answer or "User-defined logical solution.",
+                evaluation_criteria=payload.custom_criteria or "Logical consistency, factual validity, problem constraint adherence."
+            )
+            db.add(task)
+            db.commit()
+            db.refresh(task)
+        else:
+            task = db.query(Task).filter(Task.id == payload.task_id).first()
+            if not task:
+                raise ValueError(f"Task with ID '{payload.task_id}' not found.")
 
-        # 1. Initialize Agents with dedicated model configurations
-        agents = create_agent_team(num_agents=payload.num_agents)
+        # 1. Initialize Agents with dedicated/custom model configurations
+        agents = create_agent_team(num_agents=payload.num_agents, custom_models=payload.agent_models)
 
         # 2. Initialize Topology Engine
         topo_name = payload.topology.upper()
@@ -71,7 +86,10 @@ class ExperimentService:
                     turn=turn_idx + 1,
                     topology_name=topo_name,
                     is_final_turn=is_final,
-                    use_mock=payload.use_mock
+                    use_mock=payload.use_mock,
+                    model_override=sender.model_name,
+                    provider_override=sender.provider,
+                    is_local_override=sender.is_local
                 )
 
                 msg_id = f"msg_{uuid.uuid4().hex[:10]}"
@@ -97,7 +115,8 @@ class ExperimentService:
             task_question=task.question,
             all_messages=recorded_messages,
             topology_name=topo_name,
-            use_mock=payload.use_mock
+            use_mock=payload.use_mock,
+            coordinator_model=agents[0].model_name if agents else None
         )
 
         # 5. Two-Stage Evaluation & Failure Classification
@@ -132,10 +151,10 @@ class ExperimentService:
             failure_type=failure_type,
             failure_reason=failure_reason,
             total_messages=len(recorded_messages),
+            network_metrics_json=json.dumps(network_metrics.model_dump()),
             is_mock=settings.is_mock_enabled if payload.use_mock is None else payload.use_mock,
             created_at=created_at
         )
-        exp.network_metrics = network_metrics.model_dump()
 
         db.add(exp)
         for msg in db_messages:
@@ -147,15 +166,34 @@ class ExperimentService:
 
     async def run_batch_experiments(self, payload: BatchExperimentCreate, db: Session) -> List[Experiment]:
         """Runs batch repetitions across selected topologies for statistical power."""
+        # If custom prompt, create task once so all topologies share the same task ID
+        target_task_id = payload.task_id
+        if payload.custom_prompt and payload.custom_prompt.strip():
+            custom_id = f"custom_{uuid.uuid4().hex[:8]}"
+            task = Task(
+                id=custom_id,
+                title=payload.custom_title.strip() if payload.custom_title else "Custom User Prompt",
+                category="Custom",
+                difficulty="Custom",
+                question=payload.custom_prompt.strip(),
+                expected_answer=payload.custom_expected_answer or "User-defined logical solution.",
+                evaluation_criteria=payload.custom_criteria or "Logical consistency, factual validity, problem constraint adherence."
+            )
+            db.add(task)
+            db.commit()
+            db.refresh(task)
+            target_task_id = task.id
+
         results = []
         for topo in payload.topologies:
             for rep in range(payload.repetitions):
                 single_req = ExperimentCreate(
-                    task_id=payload.task_id,
+                    task_id=target_task_id,
                     topology=topo,
                     num_agents=payload.num_agents,
                     max_turns=payload.max_turns,
-                    use_mock=payload.use_mock
+                    use_mock=payload.use_mock,
+                    agent_models=payload.agent_models
                 )
                 exp = await self.run_experiment(single_req, db)
                 results.append(exp)

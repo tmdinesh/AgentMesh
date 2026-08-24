@@ -2,12 +2,14 @@ from app.topologies.base import BaseTopology, AgentInfo
 from app.topologies.star import StarTopology
 from app.topologies.chain import ChainTopology
 from app.topologies.mesh import MeshTopology
+from app.topologies.tree import TreeTopology
 from app.topologies.emergent import EmergentTopology
 
 TOPOLOGY_MAP = {
     "STAR": StarTopology,
     "CHAIN": ChainTopology,
     "MESH": MeshTopology,
+    "TREE": TreeTopology,
     "UNCONSTRAINED": EmergentTopology,
     "EMERGENT": EmergentTopology
 }

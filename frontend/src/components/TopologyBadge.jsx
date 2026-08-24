@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, GitCommit, Network, Activity } from 'lucide-react';
+import { Star, GitCommit, Network, Activity, GitBranch } from 'lucide-react';
 
 export default function TopologyBadge({ topology }) {
   const norm = (topology || '').toUpperCase();
@@ -7,7 +7,7 @@ export default function TopologyBadge({ topology }) {
   if (norm === 'STAR') {
     return (
       <span className="badge badge-star">
-        <Sparkles size={13} />
+        <Star size={13} fill="currentColor" fillOpacity={0.2} />
         Star
       </span>
     );
@@ -31,11 +31,20 @@ export default function TopologyBadge({ topology }) {
     );
   }
 
+  if (norm === 'TREE') {
+    return (
+      <span className="badge" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899', border: '1px solid rgba(236, 72, 153, 0.4)' }}>
+        <GitBranch size={13} />
+        Tree
+      </span>
+    );
+  }
+
   if (norm === 'UNCONSTRAINED' || norm === 'EMERGENT') {
     return (
       <span className="badge badge-unconstrained">
         <Activity size={13} />
-        Unconstrained / Emergent
+        Emergent
       </span>
     );
   }

@@ -59,8 +59,8 @@ ROLE_HIERARCHY: List[str] = [
 ]
 
 
-def create_agent_team(num_agents: int = 5) -> List[AgentInfo]:
-    """Creates a team of 4, 5, or 6 agents based on standardized roles with dedicated LLM model bindings."""
+def create_agent_team(num_agents: int = 5, custom_models: Optional[Dict[str, str]] = None) -> List[AgentInfo]:
+    """Creates a team of 4, 5, or 6 agents based on standardized roles with dedicated or user-selected LLM model bindings."""
     if num_agents < 4 or num_agents > 6:
         raise ValueError(f"Agent count must be 4, 5, or 6. Received: {num_agents}")
 
@@ -72,8 +72,28 @@ def create_agent_team(num_agents: int = 5) -> List[AgentInfo]:
         agent_name = f"{role} ({agent_id})"
         is_central = (idx == 0)  # Agent 1 (Coordinator) is central in Star
         
-        # Retrieve agent-specific model configuration
+        # Retrieve agent-specific default configuration
         agent_cfg = settings.get_agent_config(agent_idx)
+        model_name = agent_cfg.model
+        provider = agent_cfg.provider
+        is_local = agent_cfg.is_local
+
+        # Allow per-query model override if provided
+        if custom_models and agent_id in custom_models and custom_models[agent_id]:
+            user_model = custom_models[agent_id].strip()
+            if user_model:
+                model_name = user_model
+                m_lower = user_model.lower()
+                # meta-llama/... is a Cloud API on AICredits, not local
+                if m_lower.startswith("meta-llama/"):
+                    provider = "aicredits"
+                    is_local = False
+                elif "ollama" in m_lower or "localhost" in m_lower or m_lower.startswith("llama3:") or m_lower.startswith("llama3.") or m_lower == "llama3" or m_lower == "llama3:latest":
+                    provider = "ollama"
+                    is_local = True
+                else:
+                    provider = "aicredits"
+                    is_local = False
         
         agents.append(
             AgentInfo(
@@ -81,9 +101,9 @@ def create_agent_team(num_agents: int = 5) -> List[AgentInfo]:
                 name=agent_name,
                 role=role,
                 is_central=is_central,
-                model_name=agent_cfg.model,
-                provider=agent_cfg.provider,
-                is_local=agent_cfg.is_local
+                model_name=model_name,
+                provider=provider,
+                is_local=is_local
             )
         )
     return agents

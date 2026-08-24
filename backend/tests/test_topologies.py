@@ -1,6 +1,6 @@
 import pytest
 from app.services.agent_service import create_agent_team
-from app.topologies import StarTopology, ChainTopology, MeshTopology, EmergentTopology
+from app.topologies import StarTopology, ChainTopology, MeshTopology, TreeTopology, EmergentTopology
 
 
 def test_star_topology_permissions():
@@ -72,3 +72,27 @@ def test_emergent_topology_permissions():
     plan = emergent.plan_turn(0, [])
     assert len(plan) == 1
     assert plan[0][0].id == "agent_1"
+
+
+def test_tree_topology_permissions():
+    agents = create_agent_team(num_agents=6)
+    tree = TreeTopology(agents)
+
+    assert tree.name == "TREE"
+
+    # Parent-child vertical links allowed
+    assert tree.is_allowed_communication("agent_1", "agent_2") is True
+    assert tree.is_allowed_communication("agent_2", "agent_1") is True
+    assert tree.is_allowed_communication("agent_2", "agent_4") is True
+    assert tree.is_allowed_communication("agent_4", "agent_2") is True
+    assert tree.is_allowed_communication("agent_3", "agent_5") is True
+    assert tree.is_allowed_communication("agent_1", "agent_6") is True
+
+    # Lateral cross-branch disallowed
+    assert tree.is_allowed_communication("agent_4", "agent_5") is False
+    assert tree.is_allowed_communication("agent_2", "agent_3") is False
+    assert tree.is_allowed_communication("agent_4", "agent_3") is False
+
+    # Allowed receivers
+    assert set(tree.get_allowed_receivers("agent_2")) == {"agent_4", "agent_1"}
+    assert set(tree.get_allowed_receivers("agent_4")) == {"agent_2"}

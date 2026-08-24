@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, RefreshCw, Sparkles, GitCommit, Network, AlertCircle, CheckCircle2, TrendingUp, HelpCircle, BarChart3, Activity } from 'lucide-react';
+import { Layers, RefreshCw, Star, GitCommit, Network, AlertCircle, CheckCircle2, TrendingUp, HelpCircle, BarChart3, Activity } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { api } from '../services/api';
 import TopologyBadge from '../components/TopologyBadge';
+import LoadingState from '../components/LoadingState';
 
 export default function ComparisonPage({ onRunBatch }) {
   const [statsData, setStatsData] = useState(null);
@@ -70,6 +71,14 @@ export default function ComparisonPage({ onRunBatch }) {
     'Premature Agreement': '#f59e0b',
     'Information Loss': '#fb923c',
   };
+
+  if (loading && !statsData) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '100px 0' }}>
+        <LoadingState label="Computing Chi-Square & Empirical Topology Metrics" variant="Orbit" size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>

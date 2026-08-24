@@ -4,6 +4,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Cell
 import StatCard from '../components/StatCard';
 import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
+import LoadingState from '../components/LoadingState';
 import { api } from '../services/api';
 import { formatDateTime } from '../utils/date';
 
@@ -90,6 +91,14 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
     if (filterSuccess === 'FAILED' && e.success) return false;
     return true;
   });
+
+  if (loading && !summary) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '100px 0' }}>
+        <LoadingState label="Loading Research Telemetry & Trial Records" variant="Orbit" size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>

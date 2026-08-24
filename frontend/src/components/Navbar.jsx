@@ -137,25 +137,7 @@ export default function Navbar({ activeTab, setActiveTab, healthInfo, theme = 'd
         </nav>
 
         {/* Telemetry Indicator & Theme Switch */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Theme Switch Button */}
-          <button
-            onClick={onToggleTheme}
-            className="btn btn-secondary"
-            style={{
-              padding: '6px 12px',
-              borderRadius: 8,
-              fontSize: 12,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          >
-            {theme === 'dark' ? <Sun size={14} color="#fbbf24" /> : <Moon size={14} color="#6366f1" />}
-            <span style={{ fontWeight: 600 }}>{theme === 'dark' ? 'Light' : 'Dark'}</span>
-          </button>
-
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 16 }}>
           {/* Engine Status Pill */}
           {healthInfo ? (
             <div
@@ -195,6 +177,25 @@ export default function Navbar({ activeTab, setActiveTab, healthInfo, theme = 'd
               <span>Connecting Backend...</span>
             </div>
           )}
+
+          {/* Theme Switch Button with generous spacing */}
+          <button
+            onClick={onToggleTheme}
+            className="btn btn-secondary"
+            style={{
+              padding: '7px 14px',
+              borderRadius: 8,
+              fontSize: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: 'pointer',
+            }}
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          >
+            {theme === 'dark' ? <Sun size={15} color="#fbbf24" /> : <Moon size={15} color="#6366f1" />}
+            <span style={{ fontWeight: 600 }}>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+          </button>
         </div>
       </div>
     </header>

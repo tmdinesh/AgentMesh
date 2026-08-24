@@ -435,3 +435,26 @@ body {
 .spin {
   animation: spin 0.8s linear infinite;
 }
+
+/* Pixel-Grid Loader Keyframes */
+@keyframes pixel-on {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+    background-color: var(--accent-star);
+    box-shadow: 0 0 5px var(--accent-star);
+  }
+}
+
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
