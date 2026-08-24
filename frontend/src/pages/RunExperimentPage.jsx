@@ -1130,21 +1130,23 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
                 </div>
               ) : (
                 executionLogs.map((log, index) => {
+                  const rawText = typeof log === 'string' ? log : (log?.text || '');
+                  const logTime = log?.time instanceof Date ? log.time : (log?.time ? new Date(log.time) : new Date());
                   let color = 'var(--text-secondary)';
-                  if (log.text.includes('[CLUSTER INIT]') || log.text.includes('[COMPARATIVE SWEEP INIT]')) color = '#38bdf8';
-                  else if (log.text.includes('[TOPOLOGY]')) color = '#a855f7';
-                  else if (log.text.includes('[DISPATCH]')) color = '#f59e0b';
-                  else if (log.text.includes('[EVALUATION]')) color = log.text.includes('PASSED') ? '#22c55e' : '#f43f5e';
-                  else if (log.text.includes('[NETWORK]') || log.text.includes('[COMPLETED]') || log.text.includes('DONE]')) color = '#38bdf8';
-                  else if (log.text.includes('[ERROR]') || log.text.includes('[BATCH ERROR]')) color = '#ef4444';
-                  else if (log.text.includes('[SYNTHESIS')) color = '#10b981';
+                  if (rawText.includes('[CLUSTER INIT]') || rawText.includes('[COMPARATIVE SWEEP INIT]')) color = '#38bdf8';
+                  else if (rawText.includes('[TOPOLOGY]')) color = '#a855f7';
+                  else if (rawText.includes('[DISPATCH]')) color = '#f59e0b';
+                  else if (rawText.includes('[EVALUATION]')) color = rawText.includes('PASSED') ? '#22c55e' : '#f43f5e';
+                  else if (rawText.includes('[NETWORK]') || rawText.includes('[COMPLETED]') || rawText.includes('DONE]')) color = '#38bdf8';
+                  else if (rawText.includes('[ERROR]') || rawText.includes('[BATCH ERROR]') || rawText.includes('PAUSED')) color = '#ef4444';
+                  else if (rawText.includes('[SYNTHESIS') || rawText.includes('[ESCALATION') || rawText.includes('[NOTICE]')) color = '#10b981';
 
                   return (
                     <div key={index} style={{ display: 'flex', gap: 8 }}>
                       <span style={{ color: 'var(--text-muted)', minWidth: 70, userSelect: 'none' }}>
-                        {log.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}›
+                        {logTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}›
                       </span>
-                      <span style={{ color, wordBreak: 'break-word' }}>{log.text}</span>
+                      <span style={{ color, wordBreak: 'break-word' }}>{rawText}</span>
                     </div>
                   );
                 })
