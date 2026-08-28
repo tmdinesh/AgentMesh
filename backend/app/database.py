@@ -42,6 +42,17 @@ def migrate_columns():
                 if "provider" not in existing_cols:
                     conn.execute(text("ALTER TABLE messages ADD COLUMN provider VARCHAR(32);"))
                     conn.commit()
+
+            # Check columns in experiments table
+            exp_res = conn.execute(text("PRAGMA table_info(experiments);")).fetchall()
+            existing_exp_cols = [r[1] for r in exp_res]
+            if existing_exp_cols:
+                if "human_audited" not in existing_exp_cols:
+                    conn.execute(text("ALTER TABLE experiments ADD COLUMN human_audited BOOLEAN DEFAULT 0;"))
+                    conn.commit()
+                if "human_notes" not in existing_exp_cols:
+                    conn.execute(text("ALTER TABLE experiments ADD COLUMN human_notes TEXT;"))
+                    conn.commit()
         except Exception as e:
             logger.debug(f"Column migration check note: {e}")
 

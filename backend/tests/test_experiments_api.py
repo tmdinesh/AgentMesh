@@ -101,3 +101,42 @@ def test_results_summary_and_statistics():
     assert stats_res.status_code == 200
     stats_data = stats_res.json()
     assert "chi_square_analysis" in stats_data
+
+
+def test_human_audit_experiment():
+    # Run a test experiment first
+    exp_res = client.post("/api/experiments", json={
+        "task_id": "reasoning_01_knights_knaves",
+        "topology": "STAR",
+        "num_agents": 4,
+        "max_turns": 2,
+        "use_mock": True
+    })
+    assert exp_res.status_code == 200
+    exp_id = exp_res.json()["id"]
+
+    # Audit as Correct
+    audit_res = client.patch(f"/api/experiments/{exp_id}/audit", json={
+        "success": True,
+        "failure_type": "No Failure",
+        "failure_reason": "Verified manually by researcher.",
+        "human_notes": "All steps checked out fine."
+    })
+    assert audit_res.status_code == 200
+    audited_data = audit_res.json()
+    assert audited_data["success"] is True
+    assert audited_data["human_audited"] is True
+    assert audited_data["human_notes"] == "All steps checked out fine."
+
+    # Audit as Failed with specific taxonomy
+    audit_fail_res = client.patch(f"/api/experiments/{exp_id}/audit", json={
+        "success": False,
+        "failure_type": "Contradiction",
+        "failure_reason": "Manual review detected contradiction in Step 3.",
+        "human_notes": "Step 3 contradicts Step 1."
+    })
+    assert audit_fail_res.status_code == 200
+    audited_fail_data = audit_fail_res.json()
+    assert audited_fail_data["success"] is False
+    assert audited_fail_data["failure_type"] == "Contradiction"
+    assert audited_fail_data["human_audited"] is True

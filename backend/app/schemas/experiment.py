@@ -33,6 +33,13 @@ class BatchExperimentCreate(BaseModel):
     agent_models: Optional[Dict[str, str]] = None
 
 
+class HumanAuditRequest(BaseModel):
+    success: bool = Field(..., description="Human-verified outcome: True (Pass) or False (Fail)")
+    failure_type: Optional[str] = Field("No Failure", description="Failure taxonomy classification if incorrect")
+    failure_reason: Optional[str] = Field(None, description="Detailed explanation of failure cause")
+    human_notes: Optional[str] = Field(None, description="Researcher/auditor commentary and notes")
+
+
 class ExperimentResponse(BaseModel):
     id: str
     task_id: str
@@ -45,6 +52,8 @@ class ExperimentResponse(BaseModel):
     expected_answer: Optional[str] = None
     failure_type: str
     failure_reason: Optional[str] = None
+    human_audited: Optional[bool] = False
+    human_notes: Optional[str] = None
     total_messages: int
     is_mock: bool
     created_at: datetime

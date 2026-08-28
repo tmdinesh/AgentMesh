@@ -88,6 +88,19 @@ export const api = {
     return res.json();
   },
 
+  async auditExperiment(experimentId, payload) {
+    const res = await fetch(`${API_BASE_URL}/api/experiments/${experimentId}/audit`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to submit human audit' }));
+      throw new Error(err.detail || 'Human audit submission failed');
+    }
+    return res.json();
+  },
+
   async deleteExperiment(experimentId) {
     const res = await fetch(`${API_BASE_URL}/api/experiments/${experimentId}`, {
       method: 'DELETE',

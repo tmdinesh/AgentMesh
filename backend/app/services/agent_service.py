@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from app.topologies.base import AgentInfo
 from app.config import settings
 

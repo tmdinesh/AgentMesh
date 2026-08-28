@@ -9,6 +9,7 @@ from app.schemas.experiment import (
     BatchExperimentCreate,
     ExperimentResponse,
     ExperimentDetailResponse,
+    HumanAuditRequest,
 )
 from app.schemas.message import MessageResponse
 from app.schemas.network import NetworkMetrics
@@ -84,6 +85,36 @@ def get_experiment_network(experiment_id: str, db: Session = Depends(get_db)):
     if not metrics_data:
         raise HTTPException(status_code=404, detail="Network metrics unavailable for this experiment.")
     return metrics_data
+
+
+@router.patch("/{experiment_id}/audit", response_model=ExperimentDetailResponse)
+def audit_experiment(
+    experiment_id: str,
+    payload: HumanAuditRequest,
+    db: Session = Depends(get_db)
+):
+    """Allows a human researcher to audit and verify or override experiment evaluation results."""
+    exp = db.query(Experiment).options(
+        joinedload(Experiment.task),
+        joinedload(Experiment.messages)
+    ).filter(Experiment.id == experiment_id).first()
+    
+    if not exp:
+        raise HTTPException(status_code=404, detail=f"Experiment '{experiment_id}' not found.")
+    
+    exp.success = payload.success
+    exp.failure_type = "No Failure" if payload.success else (payload.failure_type or "Wrong Final Answer")
+    if payload.failure_reason:
+        exp.failure_reason = payload.failure_reason
+    elif payload.success:
+        exp.failure_reason = "Verified correct by human auditor."
+    
+    exp.human_audited = True
+    exp.human_notes = payload.human_notes
+    
+    db.commit()
+    db.refresh(exp)
+    return exp
 
 
 @router.delete("/{experiment_id}")

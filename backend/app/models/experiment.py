@@ -21,6 +21,9 @@ class Experiment(Base):
     failure_type = Column(String(64), nullable=False, default="No Failure", index=True)
     failure_reason = Column(Text, nullable=True)
     
+    human_audited = Column(Boolean, default=False)
+    human_notes = Column(Text, nullable=True)
+    
     total_messages = Column(Integer, default=0)
     network_metrics_json = Column(Text, nullable=True)
     is_mock = Column(Boolean, default=False)

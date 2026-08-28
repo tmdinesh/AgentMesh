@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, AlertTriangle, Layers, MessageSquare, Network, Clock, ShieldAlert, Cpu, Activity } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertTriangle, Layers, MessageSquare, Network, Clock, ShieldAlert, Cpu, Activity, UserCheck, ShieldCheck } from 'lucide-react';
 import { api } from '../services/api';
 import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
 import TopologyVisualizer from '../components/TopologyVisualizer';
 import MessageFeed from '../components/MessageFeed';
 import LoadingState from '../components/LoadingState';
+import HumanVerificationModal from '../components/HumanVerificationModal';
 import { formatDateTime } from '../utils/date';
 
 export default function ExperimentDetailPage({ experimentId, onBack }) {
@@ -14,6 +15,7 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
   const [network, setNetwork] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -35,6 +37,10 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
     };
     if (experimentId) fetchDetails();
   }, [experimentId]);
+
+  const handleAuditComplete = (updatedExp) => {
+    setExperiment(updatedExp);
+  };
 
   if (loading) {
     return (
@@ -70,13 +76,81 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
               <h1 style={{ fontSize: 18, fontWeight: 800 }} className="mono">Trial #{experiment.id.substring(0, 12)}</h1>
               <TopologyBadge topology={experiment.topology} />
               <FailureBadge failureType={experiment.failure_type} success={experiment.success} />
+              {experiment.human_audited && (
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    background: 'rgba(168, 85, 247, 0.15)',
+                    color: '#c084fc',
+                    border: '1px solid rgba(168, 85, 247, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4
+                  }}
+                >
+                  <UserCheck size={11} />
+                  <span>HUMAN AUDITED</span>
+                </span>
+              )}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3 }}>
               Executed: {formatDateTime(experiment.created_at)} • {experiment.num_agents} Agents • {experiment.turns_taken} Turns • {experiment.total_messages} Messages
             </div>
           </div>
         </div>
+
+        {/* Human Audit Button */}
+        <button
+          onClick={() => setIsAuditModalOpen(true)}
+          className="btn btn-primary"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 18px',
+            fontSize: 13,
+            background: experiment.human_audited ? 'rgba(168, 85, 247, 0.2)' : undefined,
+            borderColor: experiment.human_audited ? '#a855f7' : undefined
+          }}
+        >
+          <UserCheck size={16} />
+          <span>{experiment.human_audited ? 'Re-Audit Outcome' : 'Audit Outcome'}</span>
+        </button>
       </div>
+
+      {/* Human Audit Notes Banner if audited */}
+      {experiment.human_audited && (
+        <div
+          style={{
+            background: 'rgba(168, 85, 247, 0.08)',
+            border: '1px solid rgba(168, 85, 247, 0.3)',
+            borderRadius: 10,
+            padding: '12px 18px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 12
+          }}
+        >
+          <ShieldCheck size={20} color="#c084fc" style={{ marginTop: 2, flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Human Auditor Verification Applied
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-primary)', marginTop: 2 }}>
+              Status verified as <strong>{experiment.success ? 'CORRECT (PASS)' : `FAILED (${experiment.failure_type})`}</strong>.
+              {experiment.human_notes && (
+                <div style={{ marginTop: 4, color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                  "{experiment.human_notes}"
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Task Summary Banner */}
       <div className="card" style={{ borderLeft: '4px solid var(--accent-star)', padding: 18 }}>
@@ -235,6 +309,14 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
       <div className="card">
         <MessageFeed messages={messages} />
       </div>
+
+      {/* Human Verification & Audit Modal */}
+      <HumanVerificationModal
+        experiment={experiment}
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
+        onAuditComplete={handleAuditComplete}
+      />
     </div>
   );
 }

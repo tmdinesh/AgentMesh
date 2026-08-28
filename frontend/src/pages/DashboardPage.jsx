@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { PlayCircle, Zap, RefreshCw, Trash2, ArrowUpRight, BarChart2, Layers, CheckCircle, ShieldAlert, Activity, Eye } from 'lucide-react';
+import { PlayCircle, Zap, RefreshCw, Trash2, ArrowUpRight, BarChart2, Layers, CheckCircle, ShieldAlert, Activity, Eye, UserCheck, ShieldCheck } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Cell, PieChart, Pie } from 'recharts';
 import StatCard from '../components/StatCard';
 import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
 import LoadingState from '../components/LoadingState';
+import HumanVerificationModal from '../components/HumanVerificationModal';
 import { api } from '../services/api';
 import { formatDateTime } from '../utils/date';
 
@@ -15,6 +16,7 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterTopology, setFilterTopology] = useState('ALL');
   const [filterSuccess, setFilterSuccess] = useState('ALL');
+  const [auditExperiment, setAuditExperiment] = useState(null);
 
   const loadData = async (manual = false) => {
     if (manual) setIsRefreshing(true);
@@ -39,6 +41,18 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleOpenAudit = (exp, e) => {
+    if (e) e.stopPropagation();
+    setAuditExperiment(exp);
+  };
+
+  const handleAuditComplete = (updatedExp) => {
+    setExperiments((prev) =>
+      prev.map((e) => (e.id === updatedExp.id ? { ...e, ...updatedExp } : e))
+    );
+    loadData(true);
+  };
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
@@ -334,20 +348,43 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
                       {exp.turns_taken ?? exp.total_turns ?? exp.max_turns ?? 0}
                     </td>
                     <td>
-                      <span
-                        className="mono"
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: '2px 8px',
-                          borderRadius: 4,
-                          background: exp.success ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                          color: exp.success ? '#4ade80' : '#f87171',
-                          border: `1px solid ${exp.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                        }}
-                      >
-                        {exp.success ? 'SUCCESS' : 'FAILED'}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+                        <span
+                          className="mono"
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            background: exp.success ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                            color: exp.success ? '#4ade80' : '#f87171',
+                            border: `1px solid ${exp.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                          }}
+                        >
+                          {exp.success ? 'SUCCESS' : 'FAILED'}
+                        </span>
+                        {exp.human_audited && (
+                          <span
+                            className="mono"
+                            style={{
+                              fontSize: 9,
+                              fontWeight: 700,
+                              padding: '1px 5px',
+                              borderRadius: 3,
+                              background: 'rgba(168, 85, 247, 0.15)',
+                              color: '#c084fc',
+                              border: '1px solid rgba(168, 85, 247, 0.35)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 3
+                            }}
+                            title={exp.human_notes ? `Auditor Notes: ${exp.human_notes}` : 'Verified by Human Auditor'}
+                          >
+                            <UserCheck size={9} />
+                            <span>AUDITED</span>
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <FailureBadge failureType={exp.failure_type} success={exp.success} />
@@ -357,6 +394,24 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button
+                          onClick={(e) => handleOpenAudit(exp, e)}
+                          className="btn btn-secondary"
+                          style={{
+                            padding: '4px 8px',
+                            fontSize: 11,
+                            borderColor: exp.human_audited ? 'rgba(168, 85, 247, 0.4)' : 'rgba(56, 189, 248, 0.4)',
+                            color: exp.human_audited ? '#c084fc' : '#38bdf8',
+                            background: exp.human_audited ? 'rgba(168, 85, 247, 0.1)' : 'rgba(56, 189, 248, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4
+                          }}
+                          title="Verify or override experiment outcome"
+                        >
+                          <UserCheck size={12} />
+                          <span>Audit</span>
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -386,6 +441,14 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
           </div>
         )}
       </div>
+
+      {/* Human Verification & Audit Modal */}
+      <HumanVerificationModal
+        experiment={auditExperiment}
+        isOpen={Boolean(auditExperiment)}
+        onClose={() => setAuditExperiment(null)}
+        onAuditComplete={handleAuditComplete}
+      />
     </div>
   );
 }
