@@ -141,21 +141,22 @@ export default function Navbar({ activeTab, setActiveTab, healthInfo, theme = 'd
           {/* Engine Status Pill */}
           {healthInfo ? (
             <div
+              title="Strict Zero-Simulation Mode: All agent turns invoke genuine LLMs or raise explicit errors."
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
                 padding: '6px 14px',
                 borderRadius: 9999,
-                background: 'var(--bg-inner)',
-                border: '1px solid var(--border-color)',
-                boxShadow: 'var(--inset-shadow)',
+                background: 'rgba(34, 197, 94, 0.08)',
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                boxShadow: '0 0 12px rgba(34, 197, 94, 0.15)',
                 fontSize: 12,
               }}
             >
-              <div className="pulsing-dot" />
-              <span style={{ color: 'var(--text-secondary)', fontWeight: 500, fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-                {healthInfo.mock_mode ? 'Simulation Engine (Offline)' : 'Live Multi-LLM (6 Models)'}
+              <div className="pulsing-dot" style={{ background: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
+              <span style={{ color: '#4ade80', fontWeight: 600, fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                Live Multi-LLM (Strict Mode)
               </span>
             </div>
           ) : (

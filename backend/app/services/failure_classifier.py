@@ -90,15 +90,11 @@ class FailureClassifier:
             return f_type, reason
 
         except Exception as e:
-            logger.warning(f"Failure classification parsing failed: {e}. Defaulting to 'Wrong Final Answer'.")
-            
-            # Context-aware fallback heuristic based on topology
-            if topology_name == "CHAIN":
-                return "Information Loss", "Information degraded across sequential pipeline hops."
-            elif topology_name == "STAR":
-                return "Premature Agreement", "Central coordinator prematurely converged on an unverified candidate."
-            else:
-                return "Wrong Final Answer", "The submitted final answer does not match the expected solution."
+            logger.error(f"Failure classification LLM invocation failed: {e}")
+            raise RuntimeError(
+                f"LLM failure classification failed: {e}. "
+                "System strictly relies on LLM and does not generate synthesized fallback responses."
+            ) from e
 
 
 failure_classifier = FailureClassifier()

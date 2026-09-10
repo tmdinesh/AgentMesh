@@ -116,4 +116,10 @@ export const api = {
     if (!res.ok) throw new Error('Failed to fetch statistical analysis');
     return res.json();
   },
+
+  async exportResearchDataset() {
+    const res = await fetch(`${API_BASE_URL}/api/results/export`);
+    if (!res.ok) throw new Error('Failed to export research dataset');
+    return res.json();
+  },
 };

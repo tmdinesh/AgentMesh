@@ -64,23 +64,7 @@ class EvaluationService:
         if not final_answer or final_answer.strip() == "":
             return False
 
-        # Fast heuristic keyword match if applicable
-        low_final = final_answer.lower()
-        low_exp = expected_answer.lower()
-
-        # Specific task heuristics for fast deterministic verification
-        if "alex is a knight" in low_final and "blair is a knave" in low_final:
-            return True
-        if "7 trips" in low_final or "seven trips" in low_final or "goose across" in low_final:
-            if "fox" in low_final and "grain" in low_final and "return alone" in low_final:
-                return True
-        if "option b" in low_final and "redis" in low_final:
-            return True
-        if "sun-earth l2" in low_final or "lagrange point 2" in low_final:
-            if "2.4" in low_final and "6.5" in low_final:
-                return True
-
-        # LLM Verification for general / nuanced cases
+        # Strict LLM Verification: Must fully rely on LLM judge (zero synthetic/keyword bypass)
         system_prompt = (
             "You are an academic benchmark judge evaluating whether an AI model's final response meets the required criteria.\n"
             "Respond ONLY with JSON in this format: {\"is_correct\": true} or {\"is_correct\": false}"
@@ -108,11 +92,11 @@ class EvaluationService:
             data = json.loads(clean_json)
             return bool(data.get("is_correct", False))
         except Exception as e:
-            logger.warning(f"LLM correctness evaluation error: {e}. Relying on semantic similarity check.")
-            # Fallback similarity
-            key_words = [w for w in low_exp.split() if len(w) > 4][:10]
-            matched_words = sum(1 for w in key_words if w in low_final)
-            return (matched_words / max(len(key_words), 1)) >= 0.6
+            logger.error(f"LLM correctness evaluation error: {e}")
+            raise RuntimeError(
+                f"LLM correctness evaluation failed: {e}. "
+                "System strictly relies on LLM and does not generate simulated or heuristic responses."
+            ) from e
 
 
 evaluation_service = EvaluationService()

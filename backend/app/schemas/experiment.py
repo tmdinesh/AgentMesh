@@ -8,7 +8,7 @@ from app.schemas.task import TaskResponse
 
 class ExperimentCreate(BaseModel):
     task_id: str
-    topology: str = Field(..., description="STAR, CHAIN, MESH, or UNCONSTRAINED (EMERGENT)")
+    topology: str = Field(..., description="STAR, CHAIN, MESH, TREE, UNCONSTRAINED (EMERGENT), ACTOR, STREAM (KAFKA), or DISTRIBUTED_STATE (ETCD)")
     num_agents: int = Field(5, ge=4, le=6, description="Number of agents: 4, 5, or 6")
     max_turns: int = Field(10, ge=1, le=25, description="Maximum communication turns")
     use_mock: Optional[bool] = None
@@ -21,7 +21,7 @@ class ExperimentCreate(BaseModel):
 
 class BatchExperimentCreate(BaseModel):
     task_id: str
-    topologies: List[str] = ["STAR", "CHAIN", "MESH", "TREE", "UNCONSTRAINED"]
+    topologies: List[str] = ["STAR", "CHAIN", "MESH", "TREE", "UNCONSTRAINED", "ACTOR", "STREAM", "DISTRIBUTED_STATE"]
     num_agents: int = 5
     max_turns: int = 8
     repetitions: int = Field(3, ge=1, le=10, description="Repetitions per topology")

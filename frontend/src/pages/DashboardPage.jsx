@@ -5,6 +5,7 @@ import StatCard from '../components/StatCard';
 import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
 import LoadingState from '../components/LoadingState';
+import MetricTooltip from '../components/MetricTooltip';
 import { api } from '../services/api';
 import { formatDateTime } from '../utils/date';
 
@@ -134,6 +135,7 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
         <StatCard
           title="Total Trials"
+          metric="sample_size"
           value={summary?.total_experiments ?? 0}
           subtitle={`Across ${summary?.tasks_tested_count ?? 0} benchmark tasks`}
           icon={Layers}
@@ -141,6 +143,7 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
         />
         <StatCard
           title="Cluster Accuracy"
+          metric="accuracy"
           value={`${summary?.overall_accuracy ?? 0}%`}
           subtitle="Consensus accuracy across trials"
           icon={CheckCircle}
@@ -149,12 +152,13 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
         <StatCard
           title="Topologies Benchmarked"
           value={(summary?.topologies || []).filter((t) => t.total_runs > 0).length}
-          subtitle="Star, Chain, Mesh, & Emergent"
+          subtitle="All 8 Topologies (Actor, Stream, Distributed, etc.)"
           icon={BarChart2}
           color="purple"
         />
         <StatCard
           title="Failure Modes Recorded"
+          metric="failure_rate"
           value={Object.keys(summary?.failure_distribution || {}).filter((k) => k !== 'No Failure').length}
           subtitle="MAST failure taxonomy classifications"
           icon={ShieldAlert}
@@ -252,11 +256,15 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
               className="form-select"
               style={{ fontSize: 12, padding: '6px 12px' }}
             >
-              <option value="ALL">All Topologies</option>
+              <option value="ALL">All Topologies (8)</option>
               <option value="STAR">Star</option>
               <option value="CHAIN">Chain</option>
               <option value="MESH">Mesh</option>
-              <option value="UNCONSTRAINED">Unconstrained / Emergent</option>
+              <option value="TREE">Tree</option>
+              <option value="UNCONSTRAINED">Emergent / Unconstrained</option>
+              <option value="ACTOR">Actor (Ray)</option>
+              <option value="STREAM">Stream (Kafka)</option>
+              <option value="DISTRIBUTED_STATE">Distributed State (etcd)</option>
             </select>
 
             {/* Filter by Status */}
@@ -299,7 +307,9 @@ export default function DashboardPage({ onSelectExperiment, onRunNew }) {
                   <th>Agents</th>
                   <th>Turns</th>
                   <th>Status</th>
-                  <th>Failure Mode</th>
+                  <th>
+                    <MetricTooltip metric="primary_failure">Failure Mode</MetricTooltip>
+                  </th>
                   <th>Timestamp</th>
                   <th>Actions</th>
                 </tr>

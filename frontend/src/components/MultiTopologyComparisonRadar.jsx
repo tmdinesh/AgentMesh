@@ -73,7 +73,7 @@ export default function MultiTopologyComparisonRadar({ results = [], onInspectEx
     if (success) {
       switch (topo) {
         case 'STAR':
-          return 'Central Coordinator synthesized peripheral specialist inputs effectively without distraction from uncoordinated lateral messages.';
+          return 'Central Coordinator consolidated peripheral specialist inputs into an LLM consensus answer effectively without distraction from uncoordinated lateral messages.';
         case 'CHAIN':
           return 'Sequential pipeline maintained stepwise logical progression from problem decomposition to final verification without deviation.';
         case 'MESH':

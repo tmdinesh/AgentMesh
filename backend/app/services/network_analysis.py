@@ -1,5 +1,7 @@
+import math
 from typing import List, Dict, Any
 import networkx as nx
+import numpy as np
 from app.topologies.base import AgentInfo
 from app.schemas.network import NetworkMetrics, NetworkNode, NetworkEdge
 
@@ -7,7 +9,8 @@ from app.schemas.network import NetworkMetrics, NetworkNode, NetworkEdge
 class NetworkAnalysisService:
     """
     Computes communication network metrics and graph structures using NetworkX.
-    Calculates: Total messages, Messages per agent, Degree, Betweenness Centrality, Density.
+    Calculates: Total messages, Messages per agent, Degree, Betweenness, Closeness Centrality,
+    Density, Reciprocity, Clustering, Message Gini Coefficient, and Shannon Entropy.
     """
 
     def analyze_experiment_network(
@@ -62,17 +65,54 @@ class NetworkAnalysisService:
         out_degrees = {node: G.out_degree(node) for node in G.nodes()}
         total_degrees = {node: in_degrees[node] + out_degrees[node] for node in G.nodes()}
 
-        # Betweenness Centrality
+        # Centrality calculations
         try:
             betweenness = nx.betweenness_centrality(G, weight=None, normalized=True)
         except Exception:
             betweenness = {node: 0.0 for node in G.nodes()}
 
-        # Communication Density
+        try:
+            closeness = nx.closeness_centrality(G)
+        except Exception:
+            closeness = {node: 0.0 for node in G.nodes()}
+
+        # Graph structure metrics
         try:
             density = float(nx.density(G))
         except Exception:
             density = 0.0
+
+        try:
+            reciprocity = float(nx.reciprocity(G)) if G.number_of_edges() > 0 else 0.0
+        except Exception:
+            reciprocity = 0.0
+
+        try:
+            undir_G = G.to_undirected()
+            node_clustering = nx.clustering(undir_G)
+            clustering = float(nx.average_clustering(undir_G))
+        except Exception:
+            node_clustering = {}
+            clustering = 0.0
+
+        # Message inequality: Gini coefficient (0 = equal, 1 = monopolized)
+        sent_vals = sorted([messages_sent[a.id] for a in agents])
+        n = len(sent_vals)
+        total_sent = sum(sent_vals)
+        if total_sent == 0 or n == 0:
+            gini = 0.0
+        else:
+            idx_arr = np.arange(1, n + 1)
+            gini = float((np.sum((2 * idx_arr - n - 1) * np.array(sent_vals))) / (n * total_sent))
+            gini = max(0.0, min(1.0, round(gini, 4)))
+
+        # Shannon Entropy of communication distribution
+        if total_sent == 0:
+            entropy = 0.0
+        else:
+            probs = [c / total_sent for c in sent_vals if c > 0]
+            entropy = float(-sum(p * math.log2(p) for p in probs))
+            entropy = round(entropy, 4)
 
         # Build Node list for schemas
         nodes_list: List[NetworkNode] = []
@@ -88,6 +128,8 @@ class NetworkAnalysisService:
                 in_degree=in_degrees.get(a.id, 0),
                 out_degree=out_degrees.get(a.id, 0),
                 betweenness_centrality=round(betweenness.get(a.id, 0.0), 4),
+                closeness_centrality=round(closeness.get(a.id, 0.0), 4),
+                clustering_coefficient=round(node_clustering.get(a.id, 0.0), 4),
                 messages_sent=messages_sent.get(a.id, 0),
                 messages_received=messages_received.get(a.id, 0)
             ))
@@ -115,7 +157,12 @@ class NetworkAnalysisService:
             in_degrees=in_degrees,
             out_degrees=out_degrees,
             betweenness_centrality={k: round(v, 4) for k, v in betweenness.items()},
+            closeness_centrality={k: round(v, 4) for k, v in closeness.items()},
             communication_density=round(density, 4),
+            reciprocity=round(reciprocity, 4),
+            clustering_coefficient=round(clustering, 4),
+            message_gini=gini,
+            shannon_entropy=entropy,
             graph_type="DiGraph",
             nodes=nodes_list,
             edges=edges_list
@@ -123,3 +170,4 @@ class NetworkAnalysisService:
 
 
 network_analysis_service = NetworkAnalysisService()
+

@@ -61,8 +61,44 @@ export default function TopologyVisualizer({
         };
       }
     });
+  } else if (topoName === 'ACTOR') {
+    // Ray/Akka Actor layout: Supervisor top, Specialists parallel middle, Validator bottom
+    const actorCoords = {
+      agent_1: { x: cx, y: 55 },
+      agent_2: { x: cx - 130, y: 170 },
+      agent_3: { x: cx - 45, y: 170 },
+      agent_4: { x: cx + 45, y: 170 },
+      agent_5: { x: cx + 130, y: 170 },
+      agent_6: { x: cx, y: 290 },
+    };
+    nodes.forEach((n, idx) => {
+      if (actorCoords[n.id]) {
+        nodePositions[n.id] = actorCoords[n.id];
+      } else {
+        const angle = (idx * 2 * Math.PI) / nodeCount - Math.PI / 2;
+        nodePositions[n.id] = { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+      }
+    });
+  } else if (topoName === 'STREAM' || topoName === 'KAFKA') {
+    // Kafka Partitioned Bus layout: Tasks/Supervisor left, Specialists center, Validator right
+    const streamCoords = {
+      agent_1: { x: cx - 130, y: cy - 65 },
+      agent_2: { x: cx - 45, y: cy - 65 },
+      agent_3: { x: cx + 45, y: cy - 65 },
+      agent_4: { x: cx - 90, y: cy + 65 },
+      agent_5: { x: cx + 15, y: cy + 65 },
+      agent_6: { x: cx + 130, y: cy },
+    };
+    nodes.forEach((n, idx) => {
+      if (streamCoords[n.id]) {
+        nodePositions[n.id] = streamCoords[n.id];
+      } else {
+        const angle = (idx * 2 * Math.PI) / nodeCount - Math.PI / 2;
+        nodePositions[n.id] = { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+      }
+    });
   } else {
-    // Chain, Mesh, and Emergent: Regular polygon ring around center
+    // Chain, Mesh, Distributed State, and Emergent: Regular polygon ring around center
     nodes.forEach((n, idx) => {
       const angle = (idx * 2 * Math.PI) / nodeCount - Math.PI / 2;
       nodePositions[n.id] = {
@@ -124,6 +160,54 @@ export default function TopologyVisualizer({
         out_degree: 1,
         betweenness: 0.0,
         role_desc: 'Leaf Specialist (Reports findings vertically to Branch Supervisor)',
+      };
+    }
+
+    if (topoName === 'ACTOR') {
+      if (node.id === 'agent_1') {
+        return {
+          degree: N,
+          in_degree: 1,
+          out_degree: N - 1,
+          betweenness: 0.8,
+          role_desc: 'SupervisorActor (Mailbox tell/ask dispatcher)',
+        };
+      }
+      if (node.id === 'agent_6') {
+        return {
+          degree: 2,
+          in_degree: 1,
+          out_degree: 1,
+          betweenness: 0.2,
+          role_desc: 'ValidatorActor (Final verification inbox)',
+        };
+      }
+      return {
+        degree: 2,
+        in_degree: 1,
+        out_degree: 1,
+        betweenness: 0.1,
+        role_desc: 'SpecialistActor (Parallel worker mailbox)',
+      };
+    }
+
+    if (topoName === 'STREAM' || topoName === 'KAFKA') {
+      return {
+        degree: 'Pub/Sub',
+        in_degree: 'Consumer',
+        out_degree: 'Producer',
+        betweenness: 'Decoupled',
+        role_desc: 'Event Stream Worker (Pub/Sub on partitioned Kafka topics)',
+      };
+    }
+
+    if (topoName === 'DISTRIBUTED_STATE' || topoName === 'ETCD') {
+      return {
+        degree: 'Coordination',
+        in_degree: 'Watch',
+        out_degree: 'Put',
+        betweenness: 'StateStore',
+        role_desc: 'Autonomous Agent (Reads/Writes linearizable state snapshots)',
       };
     }
 
@@ -398,6 +482,20 @@ export default function TopologyVisualizer({
                       ? `${theoretical.degree} (In: ${theoretical.in_degree}, Out: ${theoretical.out_degree})`
                       : theoretical.degree}
                   </span>
+
+                  {n.closeness_centrality !== undefined && (
+                    <>
+                      <span>Closeness Centrality:</span>
+                      <span className="mono" style={{ color: '#2dd4bf', fontWeight: 600 }}>{n.closeness_centrality}</span>
+                    </>
+                  )}
+
+                  {n.clustering_coefficient !== undefined && (
+                    <>
+                      <span>Clustering Coeff:</span>
+                      <span className="mono" style={{ color: '#a855f7', fontWeight: 600 }}>{n.clustering_coefficient}</span>
+                    </>
+                  )}
 
                   {!isStaticPreview && (
                     <>

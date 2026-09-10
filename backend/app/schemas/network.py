@@ -13,6 +13,8 @@ class NetworkNode(BaseModel):
     in_degree: int = 0
     out_degree: int = 0
     betweenness_centrality: float = 0.0
+    closeness_centrality: float = 0.0
+    clustering_coefficient: float = 0.0
     messages_sent: int = 0
     messages_received: int = 0
 
@@ -31,7 +33,12 @@ class NetworkMetrics(BaseModel):
     in_degrees: Dict[str, int] = {}
     out_degrees: Dict[str, int] = {}
     betweenness_centrality: Dict[str, float] = {}
+    closeness_centrality: Dict[str, float] = {}
     communication_density: float = 0.0
+    reciprocity: float = 0.0
+    clustering_coefficient: float = 0.0
+    message_gini: float = 0.0
+    shannon_entropy: float = 0.0
     graph_type: str = "DiGraph"
     nodes: List[NetworkNode] = []
     edges: List[NetworkEdge] = []

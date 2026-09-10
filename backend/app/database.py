@@ -59,15 +59,3 @@ def init_db():
         seed_default_tasks(db)
     finally:
         db.close()
-
-
-# Ensure tables exist upon database module load
-import app.models  # noqa: E402, F401
-Base.metadata.create_all(bind=engine)
-migrate_columns()
-db_init_session = SessionLocal()
-try:
-    from app.tasks.seed_tasks import seed_default_tasks
-    seed_default_tasks(db_init_session)
-finally:
-    db_init_session.close()
