@@ -1,6 +1,7 @@
 import React from 'react';
+import MetricTooltip from './MetricTooltip';
 
-export default function StatCard({ title, value, subtitle, icon: Icon, color = 'blue', trend = null }) {
+export default function StatCard({ title, value, subtitle, icon: Icon, color = 'blue', trend = null, metric = null }) {
   const colorMap = {
     blue: { bg: 'rgba(56, 189, 248, 0.12)', text: '#38bdf8', border: 'rgba(56, 189, 248, 0.35)', led: 'led-blue' },
     purple: { bg: 'rgba(168, 85, 247, 0.12)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.35)', led: 'led-blue' },
@@ -27,7 +28,7 @@ export default function StatCard({ title, value, subtitle, icon: Icon, color = '
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span className={`led-indicator ${scheme.led}`} />
           <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)' }}>
-            {title}
+            {metric ? <MetricTooltip metric={metric} showIcon>{title}</MetricTooltip> : title}
           </span>
         </div>
         {Icon && (

@@ -101,3 +101,29 @@ def test_results_summary_and_statistics():
     assert stats_res.status_code == 200
     stats_data = stats_res.json()
     assert "chi_square_analysis" in stats_data
+
+
+def test_results_export_research_dataset():
+    """Verify GET /api/results/export returns self-contained research paper dataset."""
+    res = client.get("/api/results/export")
+    assert res.status_code == 200
+    data = res.json()
+    assert "dataset_title" in data
+    assert "schema_version" in data
+    assert "generated_at" in data
+    assert "total_experiments" in data
+    assert "statistical_tests" in data
+    assert "topology_summaries" in data
+    assert "trials" in data
+    assert data["total_experiments"] >= 4
+    assert len(data["trials"]) >= 4
+
+    first_exp = data["trials"][0]
+    assert "experiment_id" in first_exp
+    assert "topology" in first_exp
+    assert "success" in first_exp
+    assert "network_metrics" in first_exp
+    assert "messages" in first_exp
+
+
+

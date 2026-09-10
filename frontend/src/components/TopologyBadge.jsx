@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, GitCommit, Network, Activity, GitBranch } from 'lucide-react';
+import { Star, GitCommit, Network, Activity, GitBranch, Boxes, Radio, Database } from 'lucide-react';
 
 export default function TopologyBadge({ topology }) {
   const norm = (topology || '').toUpperCase();
@@ -49,5 +49,33 @@ export default function TopologyBadge({ topology }) {
     );
   }
 
+  if (norm === 'ACTOR') {
+    return (
+      <span className="badge" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.4)' }}>
+        <Boxes size={13} />
+        Actor (Ray)
+      </span>
+    );
+  }
+
+  if (norm === 'STREAM' || norm === 'KAFKA') {
+    return (
+      <span className="badge" style={{ background: 'rgba(244, 63, 94, 0.15)', color: '#fb7185', border: '1px solid rgba(244, 63, 94, 0.4)' }}>
+        <Radio size={13} />
+        Stream (Kafka)
+      </span>
+    );
+  }
+
+  if (norm === 'DISTRIBUTED_STATE' || norm === 'ETCD') {
+    return (
+      <span className="badge" style={{ background: 'rgba(20, 184, 166, 0.15)', color: '#2dd4bf', border: '1px solid rgba(20, 184, 166, 0.4)' }}>
+        <Database size={13} />
+        Distributed State
+      </span>
+    );
+  }
+
   return <span className="badge badge-secondary">{topology}</span>;
 }
+

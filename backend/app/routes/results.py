@@ -17,3 +17,10 @@ def get_results_summary(db: Session = Depends(get_db)):
 def get_statistical_analysis(db: Session = Depends(get_db)):
     """Returns full comparative analysis including SciPy Chi-Square test of independence."""
     return statistics_service.get_statistical_analysis(db)
+
+
+@router.get("/export")
+def export_research_dataset(db: Session = Depends(get_db)):
+    """Exports full structured experimental dataset as JSON for research papers and external statistical analysis."""
+    return statistics_service.get_research_export(db)
+

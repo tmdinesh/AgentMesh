@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle2, AlertTriangle, Layers, MessageSquare, Network, Clock, ShieldAlert, Cpu, Activity } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertTriangle, Layers, MessageSquare, Network, Clock, ShieldAlert, Cpu, Activity, Download, Check } from 'lucide-react';
 import { api } from '../services/api';
 import TopologyBadge from '../components/TopologyBadge';
 import FailureBadge from '../components/FailureBadge';
 import TopologyVisualizer from '../components/TopologyVisualizer';
 import MessageFeed from '../components/MessageFeed';
 import LoadingState from '../components/LoadingState';
+import MetricTooltip from '../components/MetricTooltip';
 import { formatDateTime } from '../utils/date';
 
 export default function ExperimentDetailPage({ experimentId, onBack }) {
@@ -13,7 +14,29 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
   const [messages, setMessages] = useState([]);
   const [network, setNetwork] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [exportSuccess, setExportSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const handleExportTrialJson = () => {
+    if (!experiment) return;
+    const trialPayload = {
+      exported_at: new Date().toISOString(),
+      experiment,
+      network,
+      messages,
+    };
+    const blob = new Blob([JSON.stringify(trialPayload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `agentmesh_trial_${experiment.id.substring(0, 8)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setExportSuccess(true);
+    setTimeout(() => setExportSuccess(false), 3000);
+  };
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -76,6 +99,27 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
             </div>
           </div>
         </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            onClick={handleExportTrialJson}
+            className="btn btn-secondary"
+            style={{ padding: '7px 14px', display: 'flex', alignItems: 'center', gap: 6 }}
+            title="Download complete single-trial JSON with full messages and network metrics"
+          >
+            {exportSuccess ? (
+              <>
+                <Check size={14} color="#22c55e" />
+                <span>Trial Exported</span>
+              </>
+            ) : (
+              <>
+                <Download size={14} />
+                <span>Export Trial JSON</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Task Summary Banner */}
@@ -91,27 +135,44 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
 
       {/* Answer & Failure Mode Diagnosis */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 20 }}>
-        {/* Final Synthesized Answer */}
+        {/* LLM Consensus Final Answer */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 8 }}>
               <CheckCircle2 size={16} color={experiment.success ? '#22c55e' : '#f43f5e'} />
-              Synthesized Final Answer
+              LLM Consensus Final Answer
             </h3>
-            <span
-              className="mono"
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                background: experiment.success ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                color: experiment.success ? '#4ade80' : '#f87171',
-                border: `1px solid ${experiment.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                padding: '2px 8px',
-                borderRadius: 4,
-              }}
-            >
-              {experiment.success ? 'PASSED' : 'FAILED'}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: 'var(--accent-star)',
+                  background: 'rgba(56, 189, 248, 0.1)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  padding: '2px 7px',
+                  borderRadius: 4,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                100% LLM Generated
+              </span>
+              <span
+                className="mono"
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  background: experiment.success ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                  color: experiment.success ? '#4ade80' : '#f87171',
+                  border: `1px solid ${experiment.success ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                  padding: '2px 8px',
+                  borderRadius: 4,
+                }}
+              >
+                {experiment.success ? 'PASSED' : 'FAILED'}
+              </span>
+            </div>
           </div>
 
           <div
@@ -162,17 +223,53 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
           </div>
 
           {/* Network Summary Stats */}
-          <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <div className="bezel-screen" style={{ padding: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Communication Density</div>
-              <div className="mono" style={{ fontSize: 16, fontWeight: 800, color: 'var(--accent-star)', marginTop: 2 }}>
+          <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
+            <div className="bezel-screen" style={{ padding: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <MetricTooltip metric="density" showIcon>Density</MetricTooltip>
+              </div>
+              <div className="mono" style={{ fontSize: 14, fontWeight: 800, color: 'var(--accent-star)', marginTop: 2 }}>
                 {network?.communication_density ?? 0}
               </div>
             </div>
-            <div className="bezel-screen" style={{ padding: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Messages</div>
-              <div className="mono" style={{ fontSize: 16, fontWeight: 800, color: 'var(--accent-chain)', marginTop: 2 }}>
+            <div className="bezel-screen" style={{ padding: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <MetricTooltip metric="messages" showIcon>Messages</MetricTooltip>
+              </div>
+              <div className="mono" style={{ fontSize: 14, fontWeight: 800, color: 'var(--accent-chain)', marginTop: 2 }}>
                 {experiment.total_messages} msgs
+              </div>
+            </div>
+            <div className="bezel-screen" style={{ padding: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <MetricTooltip metric="reciprocity" showIcon>Reciprocity</MetricTooltip>
+              </div>
+              <div className="mono" style={{ fontSize: 14, fontWeight: 800, color: '#2dd4bf', marginTop: 2 }}>
+                {network?.reciprocity ?? '0.000'}
+              </div>
+            </div>
+            <div className="bezel-screen" style={{ padding: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <MetricTooltip metric="gini" showIcon>Gini (G)</MetricTooltip>
+              </div>
+              <div className="mono" style={{ fontSize: 14, fontWeight: 800, color: '#fbbf24', marginTop: 2 }}>
+                {network?.message_gini ?? '0.000'}
+              </div>
+            </div>
+            <div className="bezel-screen" style={{ padding: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <MetricTooltip metric="entropy" showIcon>Entropy (H)</MetricTooltip>
+              </div>
+              <div className="mono" style={{ fontSize: 14, fontWeight: 800, color: '#f43f5e', marginTop: 2 }}>
+                {network?.shannon_entropy ?? '0.000'}
+              </div>
+            </div>
+            <div className="bezel-screen" style={{ padding: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                <MetricTooltip metric="clustering" showIcon>Clustering</MetricTooltip>
+              </div>
+              <div className="mono" style={{ fontSize: 14, fontWeight: 800, color: '#a855f7', marginTop: 2 }}>
+                {network?.clustering_coefficient ?? '0.000'}
               </div>
             </div>
           </div>
@@ -204,10 +301,21 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
               <thead>
                 <tr>
                   <th>Agent / Model</th>
-                  <th>Degree</th>
-                  <th>Betweenness</th>
-                  <th>Sent</th>
-                  <th>Received</th>
+                  <th>
+                    <MetricTooltip metric="degree">Degree (In/Out)</MetricTooltip>
+                  </th>
+                  <th>
+                    <MetricTooltip metric="betweenness">Betweenness (CB)</MetricTooltip>
+                  </th>
+                  <th>
+                    <MetricTooltip metric="closeness">Closeness (CC)</MetricTooltip>
+                  </th>
+                  <th>
+                    <MetricTooltip metric="clustering">Clustering (C)</MetricTooltip>
+                  </th>
+                  <th>
+                    <MetricTooltip metric="messages">Sent / Recv</MetricTooltip>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -219,10 +327,21 @@ export default function ExperimentDetailPage({ experimentId, onBack }) {
                         {n.model_name || n.id}
                       </div>
                     </td>
-                    <td className="mono" style={{ fontSize: 13 }}>{n.degree}</td>
-                    <td className="mono" style={{ fontSize: 13, color: '#38bdf8', fontWeight: 700 }}>{n.betweenness_centrality}</td>
-                    <td className="mono" style={{ fontSize: 13 }}>{n.messages_sent}</td>
-                    <td className="mono" style={{ fontSize: 13 }}>{n.messages_received}</td>
+                    <td className="mono" style={{ fontSize: 12 }}>
+                      {n.degree} ({n.in_degree ?? 0} in / {n.out_degree ?? 0} out)
+                    </td>
+                    <td className="mono" style={{ fontSize: 13, color: '#38bdf8', fontWeight: 700 }}>
+                      {n.betweenness_centrality}
+                    </td>
+                    <td className="mono" style={{ fontSize: 13, color: '#2dd4bf' }}>
+                      {n.closeness_centrality ?? '0.000'}
+                    </td>
+                    <td className="mono" style={{ fontSize: 13, color: '#a855f7' }}>
+                      {n.clustering_coefficient ?? '0.000'}
+                    </td>
+                    <td className="mono" style={{ fontSize: 12 }}>
+                      {n.messages_sent} / {n.messages_received}
+                    </td>
                   </tr>
                 ))}
               </tbody>

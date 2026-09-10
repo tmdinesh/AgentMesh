@@ -1,15 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, RefreshCw, Star, GitCommit, Network, AlertCircle, CheckCircle2, TrendingUp, HelpCircle, BarChart3, Activity } from 'lucide-react';
+import { Layers, RefreshCw, Star, GitCommit, Network, AlertCircle, CheckCircle2, TrendingUp, HelpCircle, BarChart3, Activity, Download, Check } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 import { api } from '../services/api';
 import TopologyBadge from '../components/TopologyBadge';
 import LoadingState from '../components/LoadingState';
+import MetricTooltip from '../components/MetricTooltip';
 
 export default function ComparisonPage({ onRunBatch }) {
   const [statsData, setStatsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const handleExportDataset = async () => {
+    setIsExporting(true);
+    try {
+      const data = await api.exportResearchDataset();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `agentmesh_research_dataset_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setExportSuccess(true);
+      setTimeout(() => setExportSuccess(false), 3000);
+    } catch (err) {
+      alert('Failed to export research dataset: ' + err.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const loadStats = async (manual = false) => {
     if (manual) setIsRefreshing(true);
@@ -95,6 +120,26 @@ export default function ComparisonPage({ onRunBatch }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
+            onClick={handleExportDataset}
+            className="btn btn-primary"
+            disabled={isExporting}
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+            title="Export complete experimental dataset as JSON for statistical modeling, academic research, and publication"
+          >
+            {exportSuccess ? (
+              <>
+                <Check size={14} color="#22c55e" />
+                <span>Exported Successfully</span>
+              </>
+            ) : (
+              <>
+                <Download size={14} className={isExporting ? 'spin' : ''} />
+                <span>{isExporting ? 'Generating JSON...' : 'Export Research Dataset (JSON)'}</span>
+              </>
+            )}
+          </button>
+
+          <button
             onClick={() => loadStats(true)}
             className="btn btn-secondary"
             disabled={isRefreshing}
@@ -108,22 +153,50 @@ export default function ComparisonPage({ onRunBatch }) {
 
       {/* Side-by-Side Comparative Matrix Table */}
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          Topology Performance & Efficiency Matrix
-        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Academic Research Measures & Empirical Centrality Matrix
+          </h3>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+            Wilson Score 95% Confidence Interval & NetworkX Graph Centrality Measures
+          </span>
+        </div>
 
         <div className="bezel-screen" style={{ overflowX: 'auto', padding: 0 }}>
           <table className="data-table">
             <thead>
               <tr>
                 <th>Topology</th>
-                <th>Total Trials</th>
-                <th>Accuracy (%)</th>
-                <th>Failure Rate (%)</th>
-                <th>Avg Messages / Run</th>
-                <th>Avg Turns</th>
-                <th>Density</th>
-                <th>Primary Failure Mode</th>
+                <th>
+                  <MetricTooltip metric="sample_size">Trials (N)</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="accuracy">Accuracy [95% CI]</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="failure_rate">Failure Rate</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="density">Comm. Density</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="betweenness">Mean Betweenness (CB)</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="closeness">Mean Closeness (CC)</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="gini">Message Gini (G)</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="entropy">Shannon Entropy (H)</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="messages">Avg Msgs</MetricTooltip>
+                </th>
+                <th>
+                  <MetricTooltip metric="primary_failure">Primary Failure Mode</MetricTooltip>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -142,23 +215,35 @@ export default function ComparisonPage({ onRunBatch }) {
                       {t.total_runs}
                     </td>
                     <td>
-                      <span className="mono" style={{ fontSize: 14, fontWeight: 800, color: t.accuracy >= 70 ? '#4ade80' : '#f87171' }}>
+                      <div className="mono" style={{ fontSize: 13, fontWeight: 800, color: t.accuracy >= 70 ? '#4ade80' : '#f87171' }}>
                         {t.accuracy}%
-                      </span>
+                      </div>
+                      <div className="mono" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                        [{t.ci_95_lower ?? t.accuracy}% - {t.ci_95_upper ?? t.accuracy}%]
+                      </div>
                     </td>
                     <td>
                       <span className="mono" style={{ fontSize: 13, color: t.failure_rate > 30 ? '#f87171' : '#94a3b8' }}>
                         {t.failure_rate}%
                       </span>
                     </td>
-                    <td className="mono" style={{ fontSize: 13 }}>
-                      {t.avg_messages}
-                    </td>
-                    <td className="mono" style={{ fontSize: 13 }}>
-                      {t.avg_turns}
-                    </td>
                     <td className="mono" style={{ fontSize: 13, color: '#38bdf8' }}>
                       {t.avg_density}
+                    </td>
+                    <td className="mono" style={{ fontSize: 13, color: '#818cf8' }}>
+                      {t.avg_betweenness ?? '0.000'}
+                    </td>
+                    <td className="mono" style={{ fontSize: 13, color: '#2dd4bf' }}>
+                      {t.avg_closeness ?? '0.000'}
+                    </td>
+                    <td className="mono" style={{ fontSize: 13, color: '#fbbf24' }}>
+                      {t.avg_gini ?? '0.000'}
+                    </td>
+                    <td className="mono" style={{ fontSize: 13, color: '#f43f5e' }}>
+                      {t.avg_entropy ?? '0.000'}
+                    </td>
+                    <td className="mono" style={{ fontSize: 13 }}>
+                      {t.avg_messages}
                     </td>
                     <td style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                       {topFailure}
@@ -185,7 +270,9 @@ export default function ComparisonPage({ onRunBatch }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <BarChart3 size={20} color="#38bdf8" />
             <h3 style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Chi-Square Test of Independence (Topology vs Failure Mode)
+              <MetricTooltip metric="chi_square">
+                Chi-Square Test of Independence & Effect Size (Topology vs Failure Mode)
+              </MetricTooltip>
             </h3>
           </div>
           {chi?.is_sufficient_data && (
@@ -197,27 +284,46 @@ export default function ComparisonPage({ onRunBatch }) {
 
         {/* Test Statistics Output */}
         {chi?.is_sufficient_data ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14 }}>
             <div className="bezel-screen" style={{ padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Chi-Square (X²)</div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                <MetricTooltip metric="chi_square" showIcon>Chi-Square (X²)</MetricTooltip>
+              </div>
               <div className="mono" style={{ fontSize: 24, fontWeight: 800, color: 'var(--accent-star)', marginTop: 4 }}>
                 {chi.chi_square}
               </div>
             </div>
             <div className="bezel-screen" style={{ padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>p-value</div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                <MetricTooltip metric="p_value" showIcon>p-value</MetricTooltip>
+              </div>
               <div className="mono" style={{ fontSize: 24, fontWeight: 800, color: chi.p_value < 0.05 ? '#4ade80' : '#f87171', marginTop: 4 }}>
                 {chi.p_value}
               </div>
             </div>
             <div className="bezel-screen" style={{ padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Degrees of Freedom (df)</div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                <MetricTooltip metric="cramers_v" showIcon>Cramér's V (Effect Size)</MetricTooltip>
+              </div>
+              <div className="mono" style={{ fontSize: 24, fontWeight: 800, color: '#22c55e', marginTop: 4 }}>
+                {chi.cramers_v ?? '0.000'}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
+                {chi.effect_size_label || 'Effect Size'}
+              </div>
+            </div>
+            <div className="bezel-screen" style={{ padding: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                <MetricTooltip metric="df" showIcon>Degrees of Freedom (df)</MetricTooltip>
+              </div>
               <div className="mono" style={{ fontSize: 24, fontWeight: 800, color: 'var(--accent-chain)', marginTop: 4 }}>
                 {chi.degrees_of_freedom}
               </div>
             </div>
             <div className="bezel-screen" style={{ padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Sample Size (N)</div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                <MetricTooltip metric="sample_size" showIcon>Sample Size (N)</MetricTooltip>
+              </div>
               <div className="mono" style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', marginTop: 4 }}>
                 {chi.sample_size} trials
               </div>

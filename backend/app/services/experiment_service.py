@@ -110,12 +110,11 @@ class ExperimentService:
                 recorded_messages.append(msg_dict)
                 db_messages.append(Message(**msg_dict))
 
-        # 4. Final Answer Synthesis
-        final_answer = await llm_service.synthesize_final_answer(
+        # 4. LLM Final Consensus Answer Generation
+        final_answer = await llm_service.generate_final_consensus_answer(
             task_question=task.question,
             all_messages=recorded_messages,
             topology_name=topo_name,
-            use_mock=payload.use_mock,
             coordinator_model=agents[0].model_name if agents else None
         )
 

@@ -24,6 +24,15 @@ def test_network_analysis_calculation():
     assert metrics.messages_per_agent["agent_1"] == 3
     assert metrics.messages_per_agent["agent_2"] == 1
     assert metrics.degrees["agent_1"] > metrics.degrees["agent_4"]
-    # Agent 1 (hub) should have highest betweenness centrality
+    # Agent 1 (hub) should have highest betweenness and closeness centrality
     assert metrics.betweenness_centrality["agent_1"] >= metrics.betweenness_centrality["agent_2"]
+    assert metrics.closeness_centrality["agent_1"] > 0
+    assert metrics.reciprocity >= 0.0
+    assert metrics.clustering_coefficient >= 0.0
+    assert 0.0 <= metrics.message_gini <= 1.0
+    assert metrics.shannon_entropy >= 0.0
     assert len(metrics.nodes) == 4
+    # Verify node fields
+    node1 = next(n for n in metrics.nodes if n.id == "agent_1")
+    assert node1.closeness_centrality > 0
+    assert hasattr(node1, "clustering_coefficient")

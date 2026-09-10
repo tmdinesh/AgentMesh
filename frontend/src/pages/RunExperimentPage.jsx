@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PlayCircle, Star, GitCommit, GitBranch, Network, Activity, Users, AlertTriangle, ChevronRight, Layers, ArrowRight, Loader2, Cpu, RefreshCw, CheckCircle, Terminal, Radio, Eye, Trash2, Edit3, RotateCcw, FileText, ChevronDown, Check, Sliders } from 'lucide-react';
+import { PlayCircle, Star, GitCommit, GitBranch, Network, Activity, Users, AlertTriangle, ChevronRight, Layers, ArrowRight, Loader2, Cpu, RefreshCw, CheckCircle, Terminal, Radio, Eye, Trash2, Edit3, RotateCcw, FileText, ChevronDown, Check, Sliders, Boxes, Database } from 'lucide-react';
 import { api } from '../services/api';
 import TopologyBadge from '../components/TopologyBadge';
 import TopologyVisualizer from '../components/TopologyVisualizer';
@@ -168,34 +168,12 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
 
     const effectiveTitle = isCustomMode ? (customTitle.trim() || 'Custom User Analysis') : (isPromptEdited ? `${currentTask?.title} (Customized)` : (currentTask?.title || selectedTaskId));
 
-    const initialLogs = [
-      { text: `[CLUSTER INIT] Activating ${numAgents} agents with configured LLMs (No simulated responses)...`, time: new Date() },
+    setExecutionLogs([
+      { text: `[CLUSTER INIT] Activating ${numAgents} agents with configured live LLMs (Strict Mode: Zero Simulation)...`, time: new Date() },
       { text: `[TOPOLOGY] Enforcing ${selectedTopology} communication routing constraints...`, time: new Date() },
       { text: `[DISPATCH] Broadcasting task '${effectiveTitle}' to agents...`, time: new Date() },
-    ];
-    setExecutionLogs(initialLogs);
-
-    // Live deliberation step messages
-    let stepCount = 0;
-    const stepMessages = [
-      `[TURN 1] Agent 1 (Coordinator - ${agentModels.agent_1 || 'LLM'}) formulating task decomposition...`,
-      `[TURN 2] Agent 2 (Solver - ${agentModels.agent_2 || 'LLM'}) generating primary solution hypothesis...`,
-      `[TURN 3] Agent 3 (Critic - ${agentModels.agent_3 || 'LLM'}) executing constraint audit & contradiction checks...`,
-      `[TURN 4] Agent 4 (Fact Checker - ${agentModels.agent_4 || 'LLM'}) validating logical deductions against premises...`,
-      `[TURN 5] Agent 5 (Alternative Solver - ${agentModels.agent_5 || 'LLM'}) cross-evaluating alternative paths...`,
-      `[TURN 6] Agent 6 (Final Reviewer - ${agentModels.agent_6 || 'LLM'}) verifying consistency...`,
-      `[SYNTHESIS] Consolidating peer critiques into final consensus...`
-    ];
-
-    const intervalId = setInterval(() => {
-      if (stepCount < stepMessages.length) {
-        setExecutionLogs((prev) => [
-          ...prev,
-          { text: stepMessages[stepCount], time: new Date() }
-        ]);
-        stepCount++;
-      }
-    }, 1400);
+      { text: `[LIVE DELIBERATION] Engaging multi-agent conversational turns via LLM backend...`, time: new Date() },
+    ]);
 
     try {
       const payload = {
@@ -214,14 +192,21 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
 
       const result = await api.runExperiment(payload);
 
-      clearInterval(intervalId);
+      const statusTag = result.success ? 'PASSED' : `FAILED (${result.failure_type || 'unverified'})`;
+      const realTurnLogs = (result.messages || []).map((m) => {
+        const preview = (m.content || '').replace(/\s+/g, ' ').substring(0, 110);
+        return {
+          text: `[TURN ${m.turn ?? '?'}] ${m.sender} ➔ ${m.recipient}: "${preview}${m.content?.length > 110 ? '...' : ''}"`,
+          time: new Date()
+        };
+      });
 
-      const statusTag = result.success ? 'PASSED' : `FAILED (${result.failure_type})`;
       setExecutionLogs((prev) => [
         ...prev,
-        { text: `[SYNTHESIS COMPLETE] Final answer synthesized by Coordinator.`, time: new Date() },
-        { text: `[EVALUATION] Two-stage verification outcome: ${statusTag}`, time: new Date() },
-        { text: `[NETWORK] Logged ${result.total_messages || result.messages?.length || 0} messages across ${result.turns_taken || maxTurns} turns. Density: ${result.network_metrics?.communication_density ?? 0}`, time: new Date() },
+        ...realTurnLogs,
+        { text: `[SYNTHESIS COMPLETE] Deliberation complete across ${result.turns_taken || (result.messages ? result.messages.length : maxTurns)} turns.`, time: new Date() },
+        { text: `[EVALUATION] Strict verification outcome: ${statusTag}`, time: new Date() },
+        { text: `[NETWORK] Logged ${result.total_messages || result.messages?.length || 0} messages. Density: ${result.network_metrics?.communication_density ?? 0} | Gini: ${result.network_metrics?.message_gini ?? 0}`, time: new Date() },
         { text: `[COMPLETED] Trial #${result.id.substring(0, 8)} saved to database.`, time: new Date() },
       ]);
 
@@ -229,24 +214,25 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
       setRetryContext(null);
       setIsRunning(false);
     } catch (err) {
-      clearInterval(intervalId);
       setErrorMsg(err.message);
+      setApiErrorModalMsg(err.message);
       setExecutionLogs((prev) => [
         ...prev,
-        { text: `[NOTICE] Execution note: ${err.message}`, time: new Date() }
+        { text: `[STRICT LLM ERROR] Execution failed: ${err.message}`, time: new Date() },
+        { text: `[ABORTED] Zero simulated fallback used. Ensure API keys are active or local Ollama is running.`, time: new Date() }
       ]);
       setIsRunning(false);
     }
   };
 
-  // Run 5-Topology Sweep (STAR, CHAIN, MESH, TREE, EMERGENT) with continuous seamless execution
+  // Run Comprehensive 8-Topology Benchmark Sweep (STAR, CHAIN, MESH, TREE, EMERGENT, ACTOR, STREAM, DISTRIBUTED_STATE)
   const handleRunBatchSweep = async (repetitions = 1, resumeIndex = 0, existingResults = []) => {
     if (!selectedTaskId && !customPrompt.trim()) return;
     setIsBatchRunning(true);
     setErrorMsg(null);
     setApiErrorModalMsg(null);
 
-    const topologies = ['STAR', 'CHAIN', 'MESH', 'TREE', 'UNCONSTRAINED'];
+    const topologies = ['STAR', 'CHAIN', 'MESH', 'TREE', 'UNCONSTRAINED', 'ACTOR', 'STREAM', 'DISTRIBUTED_STATE'];
     const total = topologies.length * repetitions;
 
     if (resumeIndex === 0) {
@@ -267,7 +253,7 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
       ]);
     } else {
       setExecutionLogs([
-        { text: `[COMPARATIVE SWEEP INIT] Starting 5-Topology comparative sweep (${total} trials) on '${effectiveTitle}' with auto-escalation...`, time: new Date() },
+        { text: `[BENCHMARK SWEEP INIT] Starting 8-Topology comparative benchmark suite (${total} trials) on '${effectiveTitle}' with strict live LLMs...`, time: new Date() },
       ]);
     }
 
@@ -306,7 +292,7 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
 
         setExecutionLogs((prev) => [
           ...prev,
-          { text: `[${topoLabel} DONE] Outcome: ${res.success ? 'PASSED' : 'FAILED (' + res.failure_type + ')'} | Messages: ${res.total_messages} | Density: ${res.network_metrics?.communication_density ?? 0}`, time: new Date() },
+          { text: `[${topoLabel} DONE] Outcome: ${res.success ? 'PASSED' : 'FAILED (' + (res.failure_type || 'unverified') + ')'} | Messages: ${res.total_messages} | Density: ${res.network_metrics?.communication_density ?? 0}`, time: new Date() },
         ]);
       }
 
@@ -315,13 +301,14 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
 
       setExecutionLogs((prev) => [
         ...prev,
-        { text: `[SWEEP COMPLETE] Successfully completed all ${total} trials across Star, Chain, Mesh, Tree, and Emergent. Comparative Post-Mortem Analytics loaded below.`, time: new Date() },
+        { text: `[SWEEP COMPLETE] Successfully completed all ${total} trials across 8 topologies (Star, Chain, Mesh, Tree, Emergent, Actor, Stream, Distributed State).`, time: new Date() },
       ]);
 
       setIsBatchRunning(false);
     } catch (err) {
       const failedTopo = topologies[currentIdx] === 'UNCONSTRAINED' ? 'EMERGENT' : topologies[currentIdx];
       setErrorMsg(`Batch sweep encountered issue at ${failedTopo}: ${err.message}`);
+      setApiErrorModalMsg(err.message);
       setExecutionLogs((prev) => [
         ...prev,
         { text: `[BATCH SWEEP PAUSED at ${failedTopo}] ${err.message}`, time: new Date() }
@@ -411,6 +398,32 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
         edges.push({ source: ids[0], target: ids[1], weight: 2 });
         edges.push({ source: ids[1], target: ids[0], weight: 2 });
       }
+    } else if (topo === 'ACTOR') {
+      const supervisor = ids[0];
+      const validator = ids[ids.length - 1];
+      for (let i = 1; i < ids.length - 1; i++) {
+        edges.push({ source: supervisor, target: ids[i], weight: 1 });
+        edges.push({ source: ids[i], target: validator, weight: 1 });
+      }
+      edges.push({ source: supervisor, target: validator, weight: 1 });
+      edges.push({ source: validator, target: supervisor, weight: 1 });
+    } else if (topo === 'STREAM' || topo === 'KAFKA') {
+      const supervisor = ids[0];
+      const validator = ids[ids.length - 1];
+      for (let i = 1; i < ids.length - 1; i++) {
+        edges.push({ source: supervisor, target: ids[i], weight: 1 });
+        edges.push({ source: ids[i], target: validator, weight: 1 });
+      }
+      edges.push({ source: supervisor, target: validator, weight: 1 });
+    } else if (topo === 'DISTRIBUTED_STATE' || topo === 'ETCD') {
+      for (let i = 0; i < ids.length; i++) {
+        const next = ids[(i + 1) % ids.length];
+        edges.push({ source: ids[i], target: next, weight: 1 });
+        if (i > 0) {
+          edges.push({ source: ids[0], target: ids[i], weight: 1 });
+          edges.push({ source: ids[i], target: ids[0], weight: 1 });
+        }
+      }
     }
     return edges;
   };
@@ -445,7 +458,7 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
           Experiment Execution Deck
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
-          Configure 5 network topologies (Star, Chain, Mesh, Tree, Emergent), select LLM models for each agent, and execute empirical deliberation trials.
+          Configure 8 network topologies (Star, Chain, Mesh, Tree, Emergent, Actor, Stream, Distributed State), select LLM models for each agent, and execute empirical deliberation trials.
         </p>
       </div>
 
@@ -499,7 +512,7 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 10 }}>
           {[
-            { id: 'agent_1', role: 'Coordinator', desc: 'Synthesizes decisions' },
+            { id: 'agent_1', role: 'Coordinator', desc: 'Formulates LLM consensus' },
             { id: 'agent_2', role: 'Solver', desc: 'Analytical deduction' },
             { id: 'agent_3', role: 'Critic', desc: 'Adversarial audit' },
             { id: 'agent_4', role: 'Fact Checker', desc: 'Empirical verification' },
@@ -812,10 +825,10 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
           </div>
 
           <h3 style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-color)', paddingBottom: 8, marginTop: 4 }}>
-            2. Communication Topology (5 Topologies)
+            2. Communication Topology (8 Topologies)
           </h3>
 
-          {/* 5 Topology Physical Selector Cards */}
+          {/* 8 Topology Physical Selector Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))', gap: 8 }}>
             {/* Star */}
             <div
@@ -921,6 +934,69 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
                 Dynamic
               </div>
             </div>
+
+            {/* Actor (Ray) */}
+            <div
+              onClick={() => setSelectedTopology('ACTOR')}
+              style={{
+                border: `2px solid ${selectedTopology === 'ACTOR' ? '#818cf8' : 'var(--border-color)'}`,
+                background: selectedTopology === 'ACTOR' ? 'rgba(99, 102, 241, 0.15)' : 'var(--bg-inner)',
+                borderRadius: 8,
+                padding: 10,
+                cursor: 'pointer',
+                textAlign: 'center',
+                boxShadow: selectedTopology === 'ACTOR' ? '0 0 12px rgba(99, 102, 241, 0.3)' : 'var(--inset-shadow)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Boxes size={18} color="#818cf8" style={{ marginBottom: 4 }} />
+              <div style={{ fontSize: 11, fontWeight: 700 }}>ACTOR</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>
+                Ray Mailbox
+              </div>
+            </div>
+
+            {/* Stream (Kafka) */}
+            <div
+              onClick={() => setSelectedTopology('STREAM')}
+              style={{
+                border: `2px solid ${selectedTopology === 'STREAM' ? '#fb7185' : 'var(--border-color)'}`,
+                background: selectedTopology === 'STREAM' ? 'rgba(244, 63, 94, 0.15)' : 'var(--bg-inner)',
+                borderRadius: 8,
+                padding: 10,
+                cursor: 'pointer',
+                textAlign: 'center',
+                boxShadow: selectedTopology === 'STREAM' ? '0 0 12px rgba(244, 63, 94, 0.3)' : 'var(--inset-shadow)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Radio size={18} color="#fb7185" style={{ marginBottom: 4 }} />
+              <div style={{ fontSize: 11, fontWeight: 700 }}>STREAM</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>
+                Kafka Bus
+              </div>
+            </div>
+
+            {/* Distributed State (etcd) */}
+            <div
+              onClick={() => setSelectedTopology('DISTRIBUTED_STATE')}
+              style={{
+                border: `2px solid ${selectedTopology === 'DISTRIBUTED_STATE' ? '#2dd4bf' : 'var(--border-color)'}`,
+                background: selectedTopology === 'DISTRIBUTED_STATE' ? 'rgba(20, 184, 166, 0.15)' : 'var(--bg-inner)',
+                borderRadius: 8,
+                padding: 10,
+                cursor: 'pointer',
+                textAlign: 'center',
+                boxShadow: selectedTopology === 'DISTRIBUTED_STATE' ? '0 0 12px rgba(20, 184, 166, 0.3)' : 'var(--inset-shadow)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Database size={18} color="#2dd4bf" style={{ marginBottom: 4 }} />
+              <div style={{ fontSize: 11, fontWeight: 700 }}>STATE</div>
+              <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>
+                Shared Ledger
+              </div>
+            </div>
           </div>
 
           <h3 style={{ fontSize: 15, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-color)', paddingBottom: 8, marginTop: 4 }}>
@@ -997,7 +1073,7 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
               ) : (
                 <>
                   <Layers size={15} color="#a855f7" />
-                  <span>Run Comparative Sweep (Star + Chain + Mesh + Tree + Emergent)</span>
+                  <span>Run Comprehensive Benchmark Sweep (All 8 Topologies)</span>
                 </>
               )}
             </button>
@@ -1051,6 +1127,21 @@ export default function RunExperimentPage({ onExperimentCompleted, preselectedTa
               {(selectedTopology === 'UNCONSTRAINED' || selectedTopology === 'EMERGENT') && (
                 <div>
                   <strong style={{ color: 'var(--accent-emergent)' }}>Unconstrained / Emergent Rule:</strong> Dynamic self-organizing communication graph without static routing bottlenecks. Agents dynamically address peers or broadcast context organically based on communicative necessity.
+                </div>
+              )}
+              {selectedTopology === 'ACTOR' && (
+                <div>
+                  <strong style={{ color: '#818cf8' }}>Actor (Ray) Rule:</strong> Decoupled actors communicating via immutable Message Passing with dedicated FIFO mailboxes. Supervisor dispatches domain tasks to Specialists concurrently, and outputs are audited by Validator actor.
+                </div>
+              )}
+              {selectedTopology === 'STREAM' && (
+                <div>
+                  <strong style={{ color: '#fb7185' }}>Stream (Kafka) Rule:</strong> Event-driven partitioned pub-sub bus. Tasks, routing decisions, and specialist findings flow across distinct topic channels with zero synchronous peer blocking.
+                </div>
+              )}
+              {selectedTopology === 'DISTRIBUTED_STATE' && (
+                <div>
+                  <strong style={{ color: '#2dd4bf' }}>Distributed State (etcd) Rule:</strong> Shared immutable state coordination ledger. Agents observe linearizable state revisions (v1 → v2 → v3) and append atomic validated decisions.
                 </div>
               )}
             </div>

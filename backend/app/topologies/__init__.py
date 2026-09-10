@@ -4,6 +4,9 @@ from app.topologies.chain import ChainTopology
 from app.topologies.mesh import MeshTopology
 from app.topologies.tree import TreeTopology
 from app.topologies.emergent import EmergentTopology
+from app.topologies.actor import ActorTopology
+from app.topologies.stream import StreamTopology
+from app.topologies.distributed_state import DistributedStateTopology
 
 TOPOLOGY_MAP = {
     "STAR": StarTopology,
@@ -11,7 +14,12 @@ TOPOLOGY_MAP = {
     "MESH": MeshTopology,
     "TREE": TreeTopology,
     "UNCONSTRAINED": EmergentTopology,
-    "EMERGENT": EmergentTopology
+    "EMERGENT": EmergentTopology,
+    "ACTOR": ActorTopology,
+    "STREAM": StreamTopology,
+    "KAFKA": StreamTopology,
+    "DISTRIBUTED_STATE": DistributedStateTopology,
+    "ETCD": DistributedStateTopology
 }
 
 

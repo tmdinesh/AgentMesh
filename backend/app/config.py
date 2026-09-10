@@ -115,7 +115,8 @@ class Settings(BaseSettings):
 
     @property
     def is_mock_enabled(self) -> bool:
-        return self.USE_MOCK_LLM
+        # Strict mode: All simulation engines disabled. Must rely exclusively on live LLMs or raise explicit errors.
+        return False
 
     def get_agent_config(self, agent_idx: int) -> AgentModelConfig:
         """

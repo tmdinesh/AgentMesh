@@ -36,3 +36,16 @@ def test_chi_square_with_varied_trials():
     assert res.chi_square is not None
     assert res.p_value is not None
     assert res.degrees_of_freedom is not None
+    # Cramér's V effect size assertions
+    assert res.cramers_v is not None
+    assert res.cramers_v >= 0.0
+    assert any(w in res.effect_size_label for w in ["Negligible", "Small", "Moderate", "Large", "Very Large"])
+
+    # Wilson 95% Confidence Interval assertions
+    from app.services.statistics_service import wilson_score_interval
+    ci_low, ci_high = wilson_score_interval(8, 10)
+    assert 0.0 <= ci_low <= 80.0 <= ci_high <= 100.0
+    # Test boundary 0 and total
+    zero_low, zero_high = wilson_score_interval(0, 5)
+    assert zero_low == 0.0
+    assert zero_high > 0.0
