@@ -109,11 +109,36 @@ In multi-agent large language model (LLM) architectures, agents collaborate to s
 
 ## 6. Installation & Quick Start
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+ and npm
+### 🚀 Single-Click Launcher (Recommended)
 
-### Backend Setup
+Run the automated launcher script from the repository root:
+
+**Unix / macOS / Linux / Git Bash:**
+```bash
+chmod +x run-local.sh
+./run-local.sh
+```
+
+**Windows (Command Prompt / Explorer):**
+Double-click `run-local.bat` or run:
+```cmd
+run-local.bat
+```
+
+The script automatically:
+1. Verifies Python 3.10+ and Node.js dependencies.
+2. Creates and activates a `.venv` Python virtual environment.
+3. Installs backend dependencies (`requirements.txt`).
+4. Generates `backend/.env` if not present.
+5. Installs frontend `node_modules` if missing.
+6. Launches FastAPI Backend (`http://127.0.0.1:8000`) and React Frontend (`http://localhost:5173`).
+7. Auto-opens your browser to the MAST Topology Lab dashboard.
+
+---
+
+### Manual Setup
+
+#### Backend Setup
 
 ```bash
 # Navigate to backend
