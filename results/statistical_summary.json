@@ -1,0 +1,210 @@
+{
+  "topologies_success_summary": [
+    {
+      "topology": "STAR",
+      "runs": 6,
+      "accuracy_pct": 50.0,
+      "ci_95_lower": 9.99,
+      "ci_95_upper": 90.01,
+      "mean_tokens": 4059,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.49,
+      "coordinator_betweenness": 1.0,
+      "graph_density": 0.583,
+      "reciprocity": 1.0
+    },
+    {
+      "topology": "CHAIN",
+      "runs": 6,
+      "accuracy_pct": 100.0,
+      "ci_95_lower": 100.0,
+      "ci_95_upper": 100.0,
+      "mean_tokens": 3552,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.46,
+      "coordinator_betweenness": 0.5,
+      "graph_density": 0.417,
+      "reciprocity": 0.0
+    },
+    {
+      "topology": "TREE",
+      "runs": 6,
+      "accuracy_pct": 100.0,
+      "ci_95_lower": 100.0,
+      "ci_95_upper": 100.0,
+      "mean_tokens": 3782,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.46,
+      "coordinator_betweenness": 0.833,
+      "graph_density": 0.583,
+      "reciprocity": 1.0
+    },
+    {
+      "topology": "MESH",
+      "runs": 6,
+      "accuracy_pct": 33.33,
+      "ci_95_lower": 0.0,
+      "ci_95_upper": 71.05,
+      "mean_tokens": 3671,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.49,
+      "coordinator_betweenness": 0.083,
+      "graph_density": 0.833,
+      "reciprocity": 0.75
+    },
+    {
+      "topology": "EMERGENT",
+      "runs": 6,
+      "accuracy_pct": 50.0,
+      "ci_95_lower": 9.99,
+      "ci_95_upper": 90.01,
+      "mean_tokens": 4148,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.46,
+      "coordinator_betweenness": 0.042,
+      "graph_density": 0.625,
+      "reciprocity": 0.786
+    }
+  ],
+  "failure_signatures_by_mode": [
+    {
+      "failure_mode": "FM-1.1",
+      "dissent_ratio": 0.0,
+      "clarification_rate": 0.0,
+      "lexical_decay_rate": 0.0,
+      "step_repetition_index": 1.0,
+      "early_termination_index": 0.0,
+      "coordinator_dominance": 0.3,
+      "participation_entropy": 0.975
+    },
+    {
+      "failure_mode": "FM-1.2",
+      "dissent_ratio": 0.0,
+      "clarification_rate": 0.0,
+      "lexical_decay_rate": -0.2,
+      "step_repetition_index": 1.0,
+      "early_termination_index": 0.067,
+      "coordinator_dominance": 0.347,
+      "participation_entropy": 0.952
+    }
+  ],
+  "sna_correlations": {
+    "coordinator_betweenness": {
+      "success": {
+        "pearson_r": 0.239,
+        "p_value": 0.2042455962526426,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "lexical_decay_rate": {
+        "pearson_r": 0.415,
+        "p_value": 0.02269082212048091,
+        "significant_0_05": true,
+        "significant_0_01": false
+      },
+      "coordinator_dominance": {
+        "pearson_r": 0.891,
+        "p_value": 4.218255127275616e-11,
+        "significant_0_05": true,
+        "significant_0_01": true
+      }
+    },
+    "graph_density": {
+      "success": {
+        "pearson_r": -0.283,
+        "p_value": 0.13034868865852264,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "lexical_decay_rate": {
+        "pearson_r": -0.117,
+        "p_value": 0.5395913464720685,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "coordinator_dominance": {
+        "pearson_r": 0.05,
+        "p_value": 0.7938164817634112,
+        "significant_0_05": false,
+        "significant_0_01": false
+      }
+    },
+    "reciprocity": {
+      "success": {
+        "pearson_r": -0.178,
+        "p_value": 0.3463526906496305,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "lexical_decay_rate": {
+        "pearson_r": -0.246,
+        "p_value": 0.19025201467047997,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "coordinator_dominance": {
+        "pearson_r": 0.474,
+        "p_value": 0.008119312039874897,
+        "significant_0_05": true,
+        "significant_0_01": true
+      }
+    },
+    "total_messages": {
+      "success": {
+        "pearson_r": 0.062,
+        "p_value": 0.743800322155334,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "lexical_decay_rate": {
+        "pearson_r": 0.558,
+        "p_value": 0.0013674754041361043,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
+      "coordinator_dominance": {
+        "pearson_r": -0.073,
+        "p_value": 0.699507851028494,
+        "significant_0_05": false,
+        "significant_0_01": false
+      }
+    }
+  },
+  "model_robustness_summary": [
+    {
+      "model": "gpt_4o",
+      "total_runs": 10,
+      "overall_accuracy_pct": 60.0,
+      "topological_sensitivity_std": 41.83,
+      "mean_tokens_per_task": 3817,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.47
+    },
+    {
+      "model": "claude_3_7_sonnet",
+      "total_runs": 10,
+      "overall_accuracy_pct": 60.0,
+      "topological_sensitivity_std": 41.83,
+      "mean_tokens_per_task": 3912,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.48
+    },
+    {
+      "model": "gemini_2_0",
+      "total_runs": 10,
+      "overall_accuracy_pct": 80.0,
+      "topological_sensitivity_std": 27.39,
+      "mean_tokens_per_task": 3798,
+      "mean_cost_usd": 0.0,
+      "mean_latency_sec": 0.46
+    }
+  ],
+  "two_way_anova": {
+    "topology_F": 2.917,
+    "topology_p": 0.05721231744973907,
+    "model_F": 0.667,
+    "model_p": 0.5279870286373785,
+    "interaction_F": 0.667,
+    "interaction_p": 0.7129809360540484
+  }
+}

@@ -1,0 +1,594 @@
+{
+  "metadata": {
+    "dataset_name": "AgentMesh-FailureAware-v1-File3",
+    "prompts_range": "41-60",
+    "total_prompts": 20,
+    "created": "2026-09-14",
+    "description": "Detailed prompts 41-60: FC2_2.4-2.6, FC3_3.1-3.2"
+  },
+  "prompts": [
+    {
+      "prompt_id": "FC2_2.4_001",
+      "prompt_family": "Information Withholding",
+      "failure_mode_id": "2.4",
+      "failure_category": "FC2",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "information_sharing",
+      "prompt_text": "Design a website with full team communication.\n\nTASK:\nThree agents collaborate on website design:\n- Designer: Creates layout mockups\n- Backend Engineer: Builds infrastructure\n- Frontend Engineer: Implements UI\n\nEach agent has critical information for the others:\n- Designer MUST share: layout constraints, performance targets\n- Backend MUST share: API response times, data limits\n- Frontend MUST share: browser compatibility issues, performance concerns\n\nREQUIREMENT: All critical information must be shared. If any agent withholds information, design fails.\n\nFAILURE MODE: If Designer knows about performance targets but doesn't tell Backend, or Backend has API limits but doesn't tell Frontend, information is withheld and system fails.",
+      "success_criteria": "Final design reflects all three roles' inputs. Designer shared layout constraints. Backend communicated API limits. Frontend shared compatibility issues. No information withheld. All constraints visible in final design.",
+      "target_failure_modes": [
+        "2.4 - Information Withholding"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (info lost to supervisor)",
+        "sequential": "MEDIUM-HIGH failure (info lost in handoff)",
+        "hierarchical": "LOW failure (hierarchy ensures sharing)",
+        "mesh": "LOW failure (all connected, info flows)",
+        "dag_feedback": "LOW failure (can loop to share)"
+      },
+      "agents": [
+        "designer",
+        "backend_engineer",
+        "frontend_engineer"
+      ],
+      "stage1_evaluator_prompt": "Check if all critical information was shared:\n\n{final_output}\n\nRequired information shares:\n1. Designer shared layout constraints? (yes/no)\n2. Designer shared performance targets? (yes/no)\n3. Backend shared API response times? (yes/no)\n4. Backend shared data limits? (yes/no)\n5. Frontend shared browser compatibility? (yes/no)\n6. Frontend shared performance concerns? (yes/no)\n\nAll information shared? YES or NO?",
+      "stage2_evaluator_prompt": "Design failed. Which information was withheld?\n\n{final_output}\n\n- Did Designer withhold constraints/targets? (2.4)\n- Did Backend withhold API/data info? (2.4)\n- Did Frontend withhold compatibility/perf? (2.4)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.4_002",
+      "prompt_family": "Information Withholding",
+      "failure_mode_id": "2.4",
+      "failure_category": "FC2",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "information_sharing",
+      "prompt_text": "Execute a product launch with transparent communication.\n\nTASK:\nFour teams planning launch:\n- Product: Feature list, launch date\n- Marketing: Campaign timeline, target audience\n- Sales: Customer readiness, pricing feedback\n- Support: Documentation status, readiness\n\nCRITICAL INFORMATION:\n- Product MUST share: features, launch date (affects all)\n- Marketing MUST share: campaign timeline, audience (affects product positioning)\n- Sales MUST share: pricing feedback, customer concerns (affects product/marketing)\n- Support MUST share: doc status, readiness (affects launch timeline)\n\nREQUIREMENT: All critical information must flow. Withholding info ruins launch coordination.",
+      "success_criteria": "Launch plan reflects all four inputs. Product shared features/date. Marketing shared campaign/audience. Sales shared pricing/concerns. Support shared doc status. No info withheld. Coordinated launch.",
+      "target_failure_modes": [
+        "2.4 - Information Withholding"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (info lost through supervisor)",
+        "sequential": "HIGH failure (info lost between teams)",
+        "hierarchical": "MEDIUM failure (exec ensures sharing)",
+        "mesh": "LOW-MEDIUM failure (cross-team talks)",
+        "dag_feedback": "LOW failure (retry ensures share)"
+      },
+      "agents": [
+        "product_lead",
+        "marketing_lead",
+        "sales_lead",
+        "support_lead"
+      ],
+      "stage1_evaluator_prompt": "Check if all critical information was shared:\n\n{final_output}\n\nRequired information shares:\n1. Product shared features/launch date? (yes/no)\n2. Marketing shared campaign/audience? (yes/no)\n3. Sales shared pricing/concerns? (yes/no)\n4. Support shared doc status/readiness? (yes/no)\n5. Launch plan references all inputs? (yes/no)\n\nAll information shared? YES or NO?",
+      "stage2_evaluator_prompt": "Launch plan incomplete. Which info withheld?\n\n{final_output}\n\n- Did Product withhold features/date? (2.4)\n- Did Marketing withhold campaign/audience? (2.4)\n- Did Sales withhold pricing/concerns? (2.4)\n- Did Support withhold doc status? (2.4)\n\nFailures?"
+    },
+    {
+      "prompt_id": "FC2_2.5_001",
+      "prompt_family": "Ignored Other Agent's Input",
+      "failure_mode_id": "2.5",
+      "failure_category": "FC2",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "peer_listening",
+      "prompt_text": "Design a restaurant menu considering all feedback.\n\nTASK:\nThree agents collaborate:\n- Chef: Proposes initial menu (5 items)\n- Nutritionist: Reviews and suggests changes\n- Cost Analyst: Identifies budget issues\n\nREQUIREMENT: Chef must listen to and incorporate feedback from both Nutritionist and Cost Analyst.\n\nFAILURE MODE: If Chef ignores Nutritionist's health recommendations or Cost Analyst's budget warnings, the final menu fails because input is ignored.\n\nEXAMPLE:\n- Nutritionist says \"Item 2 is too fatty\"\n- Cost Analyst says \"Item 4 exceeds budget\"\n- Chef MUST address both in final menu",
+      "success_criteria": "Final menu incorporates Nutritionist feedback (healthier items) and Cost Analyst feedback (within budget). Chef listened and adapted. No input ignored.",
+      "target_failure_modes": [
+        "2.5 - Ignored Other Agent's Input"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor can't enforce listening)",
+        "sequential": "MEDIUM-HIGH failure (feedback lost)",
+        "hierarchical": "LOW failure (manager enforces listening)",
+        "mesh": "LOW failure (peers enforce listening)",
+        "dag_feedback": "LOW failure (loop reinforces input)"
+      },
+      "agents": [
+        "chef",
+        "nutritionist",
+        "cost_analyst"
+      ],
+      "stage1_evaluator_prompt": "Check if Chef listened to and incorporated feedback:\n\n{final_output}\n\nRequired listening:\n1. Nutritionist gave recommendations? (yes/no)\n2. Chef incorporated nutrition feedback? (yes/no)\n3. Cost Analyst gave budget warnings? (yes/no)\n4. Chef incorporated cost feedback? (yes/no)\n5. Final menu reflects both inputs? (yes/no)\n\nChef listened to all input? YES or NO?",
+      "stage2_evaluator_prompt": "Menu ignored feedback. Which input was ignored?\n\n{final_output}\n\n- Did Chef ignore Nutritionist? (2.5)\n- Did Chef ignore Cost Analyst? (2.5)\n- Did Chef dismiss valid concerns? (2.5)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.5_002",
+      "prompt_family": "Ignored Other Agent's Input",
+      "failure_mode_id": "2.5",
+      "failure_category": "FC2",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "peer_listening",
+      "prompt_text": "Plan a hiring process with input from all stakeholders.\n\nTASK:\nFour agents planning hire:\n- HR: Proposes hiring criteria\n- Tech Lead: Reviews for technical fit\n- Culture Lead: Reviews for culture fit\n- Manager: Makes final decision\n\nREQUIREMENT: Each agent must listen to input from others.\n\nFAILURE MODE: If HR ignores Tech Lead's technical concerns, or Manager ignores Culture Lead's cultural warnings, the hire fails.\n\nEXAMPLE:\n- Tech Lead: \"This candidate lacks system design skills\"\n- Culture Lead: \"Candidate doesn't align with team values\"\n- HR and Manager MUST incorporate this feedback",
+      "success_criteria": "Hiring decision incorporates HR criteria, Tech Lead technical review, Culture Lead culture review, Manager judgment. All inputs considered. No agent ignored.",
+      "target_failure_modes": [
+        "2.5 - Ignored Other Agent's Input"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (feedback lost)",
+        "sequential": "HIGH failure (feedback ignored in sequence)",
+        "hierarchical": "MEDIUM failure (manager tries to listen)",
+        "mesh": "LOW-MEDIUM failure (peer checking)",
+        "dag_feedback": "LOW failure (retry includes all input)"
+      },
+      "agents": [
+        "hr_lead",
+        "tech_lead",
+        "culture_lead",
+        "manager"
+      ],
+      "stage1_evaluator_prompt": "Check if all stakeholder input was considered:\n\n{final_output}\n\nRequired listening:\n1. Tech Lead gave technical assessment? (yes/no)\n2. HR/Manager incorporated tech concerns? (yes/no)\n3. Culture Lead gave culture assessment? (yes/no)\n4. HR/Manager incorporated culture concerns? (yes/no)\n5. Final decision references all inputs? (yes/no)\n\nAll input considered? YES or NO?",
+      "stage2_evaluator_prompt": "Hiring ignored input. Which concerns were dismissed?\n\n{final_output}\n\n- Did HR ignore Tech Lead? (2.5)\n- Did Manager ignore Culture Lead? (2.5)\n- Were valid concerns dismissed? (2.5)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.6_001",
+      "prompt_family": "Reasoning-Action Mismatch",
+      "failure_mode_id": "2.6",
+      "failure_category": "FC2",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "reasoning_action_alignment",
+      "prompt_text": "Make a decision with aligned reasoning and action.\n\nTASK:\nAnalyze a hiring decision:\n- Agent reasons: \"Candidate has 10 years experience, strong technical skills, culture fit\"\n- Agent should then ACTION: \"Recommend hire\"\n\nFAILURE MODE: Reasoning-Action Mismatch\n- Agent reasons: \"Candidate has all required qualifications\" \n- Agent then ACTS: \"Reject candidate\"\n(reasoning doesn't match action)\n\nREQUIREMENT: Planned action must align with stated reasoning.",
+      "success_criteria": "If reasoning supports hire, agent recommends hire. If reasoning supports reject, agent recommends reject. No contradictions between what was decided and what was done.",
+      "target_failure_modes": [
+        "2.6 - Reasoning-Action Mismatch"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor doesn't catch mismatch)",
+        "sequential": "MEDIUM-HIGH failure (mismatch compounds)",
+        "hierarchical": "LOW failure (manager catches it)",
+        "mesh": "LOW failure (peers catch contradiction)",
+        "dag_feedback": "LOW failure (retry checks alignment)"
+      },
+      "agents": [
+        "analyst",
+        "decision_maker"
+      ],
+      "stage1_evaluator_prompt": "Check if reasoning aligns with action:\n\n{final_output}\n\nFor each decision:\n1. Is reasoning clearly stated? (yes/no)\n2. Is action clearly stated? (yes/no)\n3. Does action follow from reasoning? (yes/no)\n4. No contradictions? (yes/no)\n\nAll aligned? YES or NO?",
+      "stage2_evaluator_prompt": "Decision has reasoning-action mismatch. Which?\n\n{final_output}\n\n- Reasoning supports hire but action is reject? (2.6)\n- Reasoning supports reject but action is hire? (2.6)\n- Action doesn't follow from reasoning? (2.6)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.6_002",
+      "prompt_family": "Reasoning-Action Mismatch",
+      "failure_mode_id": "2.6",
+      "failure_category": "FC2",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "reasoning_action_alignment",
+      "prompt_text": "Plan a software feature with aligned reasoning and action.\n\nTASK:\nDecision about a new feature:\n- Agent reasons: \"Users requested this feature, we have time, it solves a real problem\"\n- Agent should then ACTION: \"Implement feature\"\n\nFAILURE MODE: Reasoning-Action Mismatch\n- Agent reasons: \"Feature is high-priority, solves user problem, has strong business case\"\n- Agent then ACTS: \"Deprioritize feature\"\n(reasoning doesn't justify action)\n\nREQUIREMENT: Decision action must logically follow from stated reasoning.",
+      "success_criteria": "If reasoning supports implementation, agent prioritizes feature. If reasoning suggests deferral, agent defers. Actions and reasons aligned throughout.",
+      "target_failure_modes": [
+        "2.6 - Reasoning-Action Mismatch"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (mismatch not caught)",
+        "sequential": "HIGH failure (mismatches compound)",
+        "hierarchical": "MEDIUM failure (exec catches some)",
+        "mesh": "LOW-MEDIUM failure (peers question)",
+        "dag_feedback": "LOW failure (retry checks)"
+      },
+      "agents": [
+        "product_analyst",
+        "product_manager"
+      ],
+      "stage1_evaluator_prompt": "Check if reasoning aligns with prioritization action:\n\n{final_output}\n\n1. Analysis clearly reasoned? (yes/no)\n2. Recommendation clearly stated? (yes/no)\n3. Recommendation follows from analysis? (yes/no)\n4. No contradictions between reasoning and action? (yes/no)\n\nAll aligned? YES or NO?",
+      "stage2_evaluator_prompt": "Feature prioritization misaligned. Which mismatch?\n\n{final_output}\n\n- Reasoning supports priority but action deprioritizes? (2.6)\n- Reasoning suggests deferral but action prioritizes? (2.6)\n- Action doesn't follow from reasoning? (2.6)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC3_3.1_001",
+      "prompt_family": "Premature Termination",
+      "failure_mode_id": "3.1",
+      "failure_category": "FC3",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "task_verification",
+      "prompt_text": "Complete a report with all required sections.\n\nTASK REQUIREMENT:\nWrite a report with 5 mandatory sections:\n1. Executive Summary\n2. Analysis\n3. Findings\n4. Recommendations\n5. Conclusion\n\nCOMPLETION CRITERIA:\nAll 5 sections must be present and substantive.\n\nFAILURE MODE - PREMATURE TERMINATION:\nAgent writes Executive Summary + Analysis + Findings, then says \"I'm done\" and stops.\n(Missing Recommendations and Conclusion)\n\nREQUIREMENT: Complete ALL required work before terminating.",
+      "success_criteria": "Report includes all 5 sections. Each substantive. Task fully complete. No premature stopping.",
+      "target_failure_modes": [
+        "3.1 - Premature Termination"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor doesn't verify completion)",
+        "sequential": "MEDIUM-HIGH failure (stops early in sequence)",
+        "hierarchical": "LOW failure (manager checks completion)",
+        "mesh": "LOW failure (peers verify)",
+        "dag_feedback": "LOW-MEDIUM failure (retry might complete)"
+      },
+      "agents": [
+        "report_writer",
+        "editor"
+      ],
+      "stage1_evaluator_prompt": "Check if report is complete:\n\n{final_output}\n\nRequired sections:\n1. Executive Summary present? (yes/no)\n2. Analysis present? (yes/no)\n3. Findings present? (yes/no)\n4. Recommendations present? (yes/no)\n5. Conclusion present? (yes/no)\n6. All substantive (not just headers)? (yes/no)\n\nFully complete? YES or NO?",
+      "stage2_evaluator_prompt": "Report incomplete. Which sections missing?\n\n{final_output}\n\n- Missing Executive Summary? (3.1 premature end)\n- Missing Analysis? (3.1)\n- Missing Findings? (3.1)\n- Missing Recommendations? (3.1)\n- Missing Conclusion? (3.1)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC3_3.1_002",
+      "prompt_family": "Premature Termination",
+      "failure_mode_id": "3.1",
+      "failure_category": "FC3",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "task_verification",
+      "prompt_text": "Complete a data migration with all verification steps.\n\nTASK REQUIREMENT:\nMigrate data with 6 mandatory steps:\n1. Extract data from source\n2. Validate source data\n3. Transform data\n4. Load to target\n5. Verify load completeness\n6. Validate target data quality\n\nCOMPLETION CRITERIA:\nAll 6 steps completed before declaring migration done.\n\nFAILURE MODE - PREMATURE TERMINATION:\nAgent completes steps 1-4, declares \"Migration complete\", stops.\n(Skips verification steps 5-6)\n\nRISK: Without verification, nobody knows if migration succeeded.",
+      "success_criteria": "All 6 steps completed. Data extracted, validated, transformed, loaded. Load completeness verified. Target data quality validated. Migration confirmed successful.",
+      "target_failure_modes": [
+        "3.1 - Premature Termination"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (supervisor doesn't verify)",
+        "sequential": "HIGH failure (stops mid-pipeline)",
+        "hierarchical": "MEDIUM failure (exec checks)",
+        "mesh": "LOW-MEDIUM failure (team verifies)",
+        "dag_feedback": "MEDIUM failure (retry might verify)"
+      },
+      "agents": [
+        "data_engineer",
+        "qe_lead",
+        "verification_lead"
+      ],
+      "stage1_evaluator_prompt": "Check if migration completed all 6 steps:\n\n{final_output}\n\nRequired steps:\n1. Extract from source? (yes/no)\n2. Validate source? (yes/no)\n3. Transform data? (yes/no)\n4. Load to target? (yes/no)\n5. Verify load completeness? (yes/no)\n6. Validate target quality? (yes/no)\n\nAll 6 completed? YES or NO?",
+      "stage2_evaluator_prompt": "Migration incomplete. Which steps skipped?\n\n{final_output}\n\n- Skipped extraction? (3.1)\n- Skipped source validation? (3.1)\n- Skipped transformation? (3.1)\n- Skipped load? (3.1)\n- Skipped load verification? (3.1 premature)\n- Skipped target validation? (3.1 premature)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC3_3.2_001",
+      "prompt_family": "No/Incomplete Verification",
+      "failure_mode_id": "3.2",
+      "failure_category": "FC3",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "verification_completeness",
+      "prompt_text": "Verify a software release before deployment.\n\nREQUIRED VERIFICATION:\nBefore deploying to production, verify:\n1. All tests pass (unit, integration, e2e)\n2. Performance acceptable (response time, throughput)\n3. Security checks pass\n4. No high/critical bugs\n5. Rollback plan documented\n\nCOMPLETION CRITERIA:\nAll 5 verifications must be completed and passed.\n\nFAILURE MODE - NO/INCOMPLETE VERIFICATION:\n- Only tests checked, skipped performance\n- Only tests and performance checked, skipped security\n- Checked tests, said \"looks good\", deployed without finishing\n\nREQUIREMENT: Complete all verifications before approving deployment.",
+      "success_criteria": "All 5 verification points checked. Tests pass. Performance acceptable. Security passes. No high bugs. Rollback plan documented. Full verification completed.",
+      "target_failure_modes": [
+        "3.2 - No/Incomplete Verification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor skips checks)",
+        "sequential": "MEDIUM-HIGH failure (checks get skipped)",
+        "hierarchical": "LOW failure (gate-keeper enforces)",
+        "mesh": "LOW failure (peers verify)",
+        "dag_feedback": "LOW-MEDIUM failure (retry includes checks)"
+      },
+      "agents": [
+        "qa_lead",
+        "security_lead",
+        "release_manager"
+      ],
+      "stage1_evaluator_prompt": "Check if all 5 verifications were completed:\n\n{final_output}\n\nRequired verifications:\n1. Tests (unit/integration/e2e) pass? (yes/no)\n2. Performance verified? (yes/no)\n3. Security checks pass? (yes/no)\n4. No high/critical bugs? (yes/no)\n5. Rollback plan documented? (yes/no)\n\nAll 5 verified? YES or NO?",
+      "stage2_evaluator_prompt": "Release verification incomplete. Which checks skipped?\n\n{final_output}\n\n- Skipped test verification? (3.2)\n- Skipped performance check? (3.2)\n- Skipped security verification? (3.2)\n- Didn't check for critical bugs? (3.2)\n- Missing rollback plan? (3.2)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC3_3.2_002",
+      "prompt_family": "No/Incomplete Verification",
+      "failure_mode_id": "3.2",
+      "failure_category": "FC3",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "verification_completeness",
+      "prompt_text": "Verify data accuracy in a reporting system.\n\nREQUIRED VERIFICATION:\nBefore publishing report, verify:\n1. Data source validated (correct database/table)\n2. Data completeness (all records present)\n3. Data accuracy (spot checks on sample)\n4. Calculations correct (formulas verified)\n5. Results published in correct format\n\nCOMPLETION CRITERIA:\nAll 5 verifications passed before report published.\n\nFAILURE MODE - INCOMPLETE VERIFICATION:\n- Only checked data source, published without spot checks\n- Validated completeness, skipped accuracy spot checks\n- Checked calculations, didn't verify format\n\nRISK: Without all verifications, incorrect data reaches users.",
+      "success_criteria": "All 5 verifications completed. Source validated. Completeness confirmed. Accuracy spot-checked. Calculations verified. Format correct. Report safe to publish.",
+      "target_failure_modes": [
+        "3.2 - No/Incomplete Verification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (checks skipped)",
+        "sequential": "HIGH failure (verifications skipped mid-pipeline)",
+        "hierarchical": "MEDIUM failure (manager enforces)",
+        "mesh": "LOW-MEDIUM failure (team verifies)",
+        "dag_feedback": "MEDIUM failure (retry adds checks)"
+      },
+      "agents": [
+        "data_analyst",
+        "qa_specialist",
+        "report_publisher"
+      ],
+      "stage1_evaluator_prompt": "Check if all 5 verifications were done:\n\n{final_output}\n\nRequired verifications:\n1. Data source validated? (yes/no)\n2. Data completeness verified? (yes/no)\n3. Accuracy spot-checked? (yes/no)\n4. Calculations verified? (yes/no)\n5. Format correct? (yes/no)\n\nAll 5 verified? YES or NO?",
+      "stage2_evaluator_prompt": "Report verification incomplete. Which checks skipped?\n\n{final_output}\n\n- Skipped source validation? (3.2)\n- Skipped completeness check? (3.2)\n- Skipped accuracy spot-check? (3.2)\n- Didn't verify calculations? (3.2)\n- Didn't verify format? (3.2)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC3_3.3_001",
+      "prompt_family": "Incorrect Verification",
+      "failure_mode_id": "3.3",
+      "failure_category": "FC3",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "verification_correctness",
+      "prompt_text": "Verify a budget with correct logic.\n\nBUDGET TO VERIFY:\nTotal spending should be $100K across 5 categories:\n- Salaries: $60K (60%)\n- Tools: $20K (20%)\n- Training: $10K (10%)\n- Infrastructure: $5K (5%)\n- Other: $5K (5%)\n\nCORRECT VERIFICATION:\nAgent adds: 60+20+10+5+5 = $100K \u2713\nVerification passes.\n\nINCORRECT VERIFICATION (FAILURE MODE):\nAgent adds: 60+20+10+5+5 = $105K\nAgent says \"Verified\" anyway (wrong math)\n\nOR:\n\nAgent says \"Total looks about right\" (no actual verification)\nAgent incorrectly marks as verified when actual total is $95K",
+      "success_criteria": "Budget verified with correct math. Total actually equals claimed total. Verification result accurate.",
+      "target_failure_modes": [
+        "3.3 - Incorrect Verification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor doesn't catch bad verification)",
+        "sequential": "MEDIUM-HIGH failure (wrong verification passes through)",
+        "hierarchical": "LOW failure (manager catches error)",
+        "mesh": "LOW failure (peers spot-check)",
+        "dag_feedback": "LOW-MEDIUM failure (retry catches)"
+      },
+      "agents": [
+        "budget_analyst",
+        "verifier"
+      ],
+      "stage1_evaluator_prompt": "Check if budget verification is correct:\n\n{final_output}\n\n1. Claimed budget total stated? (yes/no)\n2. Verification method described? (yes/no)\n3. Math accurate? (yes/no)\n4. Verification result matches actual? (yes/no)\n\nVerification correct? YES or NO?",
+      "stage2_evaluator_prompt": "Budget verification incorrect. Which error?\n\n{final_output}\n\n- Wrong math in verification? (3.3)\n- Claimed verified but math wrong? (3.3)\n- No actual verification (just \"looks right\")? (3.3)\n- Verification result doesn't match actual? (3.3)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC3_3.3_002",
+      "prompt_family": "Incorrect Verification",
+      "failure_mode_id": "3.3",
+      "failure_category": "FC3",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "verification_correctness",
+      "prompt_text": "Verify test pass rates with correct logic.\n\nTESTS TO VERIFY:\nUnit tests: 95 pass, 5 fail (95% pass rate)\nIntegration tests: 40 pass, 10 fail (80% pass rate)\nE2E tests: 20 pass, 5 fail (80% pass rate)\n\nREQUIREMENT:\nOverall pass rate must be 90%+\nTotal: 155 pass, 20 fail\nCorrect calculation: 155/(155+20) = 88.6% FAIL\n\nINCORRECT VERIFICATION (FAILURE MODE):\nAgent calculates: \"Average of 95%, 80%, 80% = 85%\"  (wrong)\nAgent then says \"Meets 90% requirement\" (incorrect conclusion from wrong calculation)\n\nOR:\n\nAgent does math wrong: says 155/175 = 92% (actually 88.6%)\nAgent approves release based on wrong number",
+      "success_criteria": "Overall pass rate calculated correctly. 155/(155+20) = 88.6% identified. Correctly concludes it does NOT meet 90% requirement.",
+      "target_failure_modes": [
+        "3.3 - Incorrect Verification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (bad verification not caught)",
+        "sequential": "HIGH failure (wrong verification passes)",
+        "hierarchical": "MEDIUM failure (manager might catch)",
+        "mesh": "LOW-MEDIUM failure (peers verify)",
+        "dag_feedback": "MEDIUM failure (retry does correct calc)"
+      },
+      "agents": [
+        "test_lead",
+        "qa_manager"
+      ],
+      "stage1_evaluator_prompt": "Check if test pass rate verification is correct:\n\n{final_output}\n\n1. Test counts stated correctly? (yes/no)\n2. Pass/fail totals correct? (yes/no)\n3. Overall pass rate calculated correctly? (yes/no)\n4. Conclusion about 90% requirement correct? (yes/no)\n\nVerification correct? YES or NO?",
+      "stage2_evaluator_prompt": "Test verification incorrect. Which error?\n\n{final_output}\n\n- Wrong pass/fail counts? (3.3)\n- Wrong overall calculation? (3.3)\n- Correct calculation but wrong conclusion? (3.3)\n- Approved despite failing threshold? (3.3)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.4_004",
+      "prompt_family": "Information Withholding",
+      "failure_mode_id": "2.4",
+      "failure_category": "FC2",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "information_sharing",
+      "prompt_text": "Execute complex IT infrastructure audit with 5 teams sharing critical info.\n\nTASK: Security, Compliance, Performance, Cost, Operations teams audit infrastructure.\n\nREQUIRED INFO SHARING:\n- Security: Vulnerability list, severity, exploitability\n- Compliance: Non-compliance findings, risk level\n- Performance: Bottleneck locations, impact estimates\n- Cost: Waste areas, savings potential\n- Operations: Process gaps, improvement areas\n\nREQUIREMENT: All info flows transparently. Withholding creates blind spots.",
+      "success_criteria": "Audit integrates all 5 teams' information. Vulnerabilities visible. Gaps identified. Bottlenecks clear. Waste documented. Improvements noted. No info withheld.",
+      "target_failure_modes": [
+        "2.4 - Information Withholding"
+      ],
+      "topology_expectations": {
+        "star": "HIGH failure",
+        "sequential": "VERY HIGH failure",
+        "hierarchical": "MEDIUM-HIGH",
+        "mesh": "MEDIUM",
+        "dag_feedback": "MEDIUM-LOW"
+      },
+      "agents": [
+        "security_lead",
+        "compliance_lead",
+        "performance_lead",
+        "cost_lead",
+        "ops_lead"
+      ],
+      "stage1_evaluator_prompt": "All critical info shared across 5 teams? YES or NO?",
+      "stage2_evaluator_prompt": "Which team withheld critical information? (2.4)"
+    },
+    {
+      "prompt_id": "FC2_2.4_005",
+      "prompt_family": "Information Withholding",
+      "failure_mode_id": "2.4",
+      "failure_category": "FC2",
+      "variant_number": 5,
+      "difficulty_level": "Expert",
+      "domain": "information_sharing",
+      "prompt_text": "Execute enterprise transformation with 6 teams sharing critical strategic info.\n\nTASK: Business, Finance, Technology, People, Legal, Communications teams transform enterprise.\n\nREQUIRED: Each team must share critical info for unified strategy.",
+      "success_criteria": "Transformation plan integrates all 6 teams' information completely. No info gaps.",
+      "target_failure_modes": [
+        "2.4 - Information Withholding"
+      ],
+      "topology_expectations": {
+        "star": "CRITICAL failure",
+        "sequential": "CRITICAL failure",
+        "hierarchical": "HIGH",
+        "mesh": "MEDIUM",
+        "dag_feedback": "MEDIUM"
+      },
+      "agents": [
+        "business_lead",
+        "finance_lead",
+        "tech_lead",
+        "people_lead",
+        "legal_lead",
+        "comms_lead"
+      ],
+      "stage1_evaluator_prompt": "All 6 teams' critical info shared? YES or NO?",
+      "stage2_evaluator_prompt": "Which team withheld information? (2.4)"
+    },
+    {
+      "prompt_id": "FC2_2.5_004",
+      "prompt_family": "Ignored Other Agent's Input",
+      "failure_mode_id": "2.5",
+      "failure_category": "FC2",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "peer_listening",
+      "prompt_text": "Execute strategic expansion with 5 stakeholder inputs incorporated.\n\nTASK: Market Research, Finance, Operations, Legal, Sales teams provide critical input on expansion.\n\nREQUIREMENT: Strategy must incorporate all 5 teams' concerns and recommendations.",
+      "success_criteria": "Strategy incorporates Market Research, Finance ROI, Operations feasibility, Legal compliance, Sales feedback. All inputs considered. Final strategy addresses concerns.",
+      "target_failure_modes": [
+        "2.5 - Ignored Other Agent's Input"
+      ],
+      "topology_expectations": {
+        "star": "HIGH failure",
+        "sequential": "VERY HIGH",
+        "hierarchical": "HIGH",
+        "mesh": "MEDIUM",
+        "dag_feedback": "MEDIUM"
+      },
+      "agents": [
+        "market_researcher",
+        "finance_lead",
+        "ops_lead",
+        "legal_lead",
+        "sales_lead",
+        "strategy_exec"
+      ],
+      "stage1_evaluator_prompt": "All 5 stakeholder inputs considered? YES or NO?",
+      "stage2_evaluator_prompt": "Which stakeholder input was ignored? (2.5)"
+    },
+    {
+      "prompt_id": "FC2_2.5_005",
+      "prompt_family": "Ignored Other Agent's Input",
+      "failure_mode_id": "2.5",
+      "failure_category": "FC2",
+      "variant_number": 5,
+      "difficulty_level": "Expert",
+      "domain": "peer_listening",
+      "prompt_text": "Navigate complex org restructuring with 6 stakeholder inputs.\n\nTASK: Culture, Finance, Legal, HR, Leadership, Employees provide critical input.\n\nREQUIREMENT: Restructuring must incorporate all 6 stakeholders' concerns.",
+      "success_criteria": "Plan incorporates Culture preservation, Finance efficiency, Legal compliance, HR transitions, Leadership alignment, Employee concerns. All inputs valued. Decision reflects all inputs.",
+      "target_failure_modes": [
+        "2.5 - Ignored Other Agent's Input"
+      ],
+      "topology_expectations": {
+        "star": "CRITICAL",
+        "sequential": "CRITICAL",
+        "hierarchical": "HIGH",
+        "mesh": "MEDIUM-HIGH",
+        "dag_feedback": "MEDIUM"
+      },
+      "agents": [
+        "culture_lead",
+        "finance_lead",
+        "legal_lead",
+        "hr_lead",
+        "leadership_team",
+        "employee_rep"
+      ],
+      "stage1_evaluator_prompt": "All 6 stakeholder inputs incorporated? YES or NO?",
+      "stage2_evaluator_prompt": "Which stakeholder concerns dismissed? (2.5)"
+    },
+    {
+      "prompt_id": "FC3_3.1_004",
+      "prompt_family": "Premature Termination",
+      "failure_mode_id": "3.1",
+      "failure_category": "FC3",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "task_verification",
+      "prompt_text": "Complete 8-phase product launch with all phases required.\n\nPHASES: Requirements, Design, Development, Internal testing, Beta, Issues, Verification, Deployment\n\nREQUIREMENT: All 8 phases before launch.\n\nFAILURE MODE: Stop after phase 5, skip 6-8, launch anyway.",
+      "success_criteria": "All 8 phases completed. Requirements defined. Design reviewed. Development done. Tests pass. Beta complete. Issues resolved. Verification passed. Deployed. Full launch.",
+      "target_failure_modes": [
+        "3.1 - Premature Termination"
+      ],
+      "topology_expectations": {
+        "star": "HIGH",
+        "sequential": "VERY HIGH",
+        "hierarchical": "MEDIUM-HIGH",
+        "mesh": "MEDIUM",
+        "dag_feedback": "MEDIUM-LOW"
+      },
+      "agents": [
+        "pm",
+        "designer",
+        "developer",
+        "qa_internal",
+        "qa_beta",
+        "issue_tracker",
+        "verifier",
+        "devops"
+      ],
+      "stage1_evaluator_prompt": "All 8 phases completed? YES or NO?",
+      "stage2_evaluator_prompt": "Which phases skipped? (3.1)"
+    },
+    {
+      "prompt_id": "FC3_3.2_004",
+      "prompt_family": "No/Incomplete Verification",
+      "failure_mode_id": "3.2",
+      "failure_category": "FC3",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "verification_completeness",
+      "prompt_text": "Verify financial system go-live with 6 complete verification checks.\n\nREQUIRED: Data conversion, Reconciliation, UAT, Compliance, Backup testing, Performance testing\n\nREQUIREMENT: All 6 must pass before go-live.\n\nFAILURE MODE: Only 3/6 checked, system goes live, production fails.",
+      "success_criteria": "All 6 verifications completed and passed. Data verified. Reconciliation confirmed. UAT passed. Compliance checked. Backups tested. Performance adequate. Go-live safe.",
+      "target_failure_modes": [
+        "3.2 - No/Incomplete Verification"
+      ],
+      "topology_expectations": {
+        "star": "HIGH",
+        "sequential": "VERY HIGH",
+        "hierarchical": "HIGH",
+        "mesh": "MEDIUM-HIGH",
+        "dag_feedback": "MEDIUM"
+      },
+      "agents": [
+        "data_lead",
+        "recon_lead",
+        "uat_lead",
+        "compliance_lead",
+        "backup_lead",
+        "perf_lead"
+      ],
+      "stage1_evaluator_prompt": "All 6 verifications completed? YES or NO?",
+      "stage2_evaluator_prompt": "Which verification checks skipped? (3.2)"
+    },
+    {
+      "prompt_id": "FC3_3.3_004",
+      "prompt_family": "Incorrect Verification",
+      "failure_mode_id": "3.3",
+      "failure_category": "FC3",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "verification_correctness",
+      "prompt_text": "Verify complex system migration (1M records) with correct logic.\n\nREQUIREMENT: Counts match, spot-check adequate, corruption checked, relationships verified.\n\nFAILURE MODE: Counts wrong, spot-check tiny, skips checks, still says verified.",
+      "success_criteria": "Migration verified completely and accurately. Counts match. Spot-checks thorough. Corruption checked. Relationships verified. Conclusion matches findings.",
+      "target_failure_modes": [
+        "3.3 - Incorrect Verification"
+      ],
+      "topology_expectations": {
+        "star": "HIGH",
+        "sequential": "VERY HIGH",
+        "hierarchical": "MEDIUM-HIGH",
+        "mesh": "MEDIUM",
+        "dag_feedback": "MEDIUM"
+      },
+      "agents": [
+        "migration_lead",
+        "data_analyst",
+        "qa_lead"
+      ],
+      "stage1_evaluator_prompt": "Verification complete and correct? YES or NO?",
+      "stage2_evaluator_prompt": "Which verification errors? (3.3)"
+    },
+    {
+      "prompt_id": "FC3_3.1_005",
+      "prompt_family": "Premature Termination",
+      "failure_mode_id": "3.1",
+      "failure_category": "FC3",
+      "variant_number": 5,
+      "difficulty_level": "Expert",
+      "domain": "task_verification",
+      "prompt_text": "Complete 10-stage enterprise transformation fully.\n\nSTAGES: Strategy, Planning, Design, Build, Test, Pilot, Learn, Refine, Rollout, Sustain\n\nREQUIREMENT: All 10 stages complete. NO shortcuts.",
+      "success_criteria": "All 10 stages executed. Strategy \u2192 Planning \u2192 Design \u2192 Build \u2192 Test \u2192 Pilot \u2192 Learn \u2192 Refine \u2192 Rollout \u2192 Sustain. Complete transformation.",
+      "target_failure_modes": [
+        "3.1 - Premature Termination"
+      ],
+      "topology_expectations": {
+        "star": "CRITICAL",
+        "sequential": "CRITICAL",
+        "hierarchical": "HIGH",
+        "mesh": "MEDIUM",
+        "dag_feedback": "MEDIUM-LOW"
+      },
+      "agents": [
+        "strategy_lead",
+        "planner",
+        "designer",
+        "builder",
+        "qa",
+        "pilot_lead",
+        "analyst",
+        "refiner",
+        "rollout_lead",
+        "sustain_lead"
+      ],
+      "stage1_evaluator_prompt": "All 10 stages completed? YES or NO?",
+      "stage2_evaluator_prompt": "Which stages prematurely terminated? (3.1)"
+    }
+  ]
+}

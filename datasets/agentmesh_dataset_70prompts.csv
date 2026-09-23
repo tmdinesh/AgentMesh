@@ -1,0 +1,71 @@
+prompt_id,prompt_family,failure_mode_id,failure_category,variant_number,difficulty_level,domain,agents_count,target_failure_modes_summary
+FC1_1.1_001,Disobey Task Specification,1.1,FC1,1,Easy,task_specification,3,"1.1 - Disobey Task Specification, 1.2 - Disobey Role Specification"
+FC1_1.1_002,Disobey Task Specification,1.1,FC1,2,Medium,task_specification,4,1.1 - Disobey Task Specification
+FC1_1.1_003,Disobey Task Specification,1.1,FC1,3,Hard,task_specification,6,1.1 - Disobey Task Specification
+FC1_1.1_004,Disobey Task Specification,1.1,FC1,4,Very Hard,task_specification,8,1.1 - Disobey Task Specification
+FC1_1.1_005,Disobey Task Specification,1.1,FC1,5,Expert,task_specification,8,1.1 - Disobey Task Specification
+FC1_1.2_001,Disobey Role Specification,1.2,FC1,1,Easy,role_specification,3,1.2 - Disobey Role Specification
+FC1_1.2_002,Disobey Role Specification,1.2,FC1,2,Medium,role_specification,4,1.2 - Disobey Role Specification
+FC1_1.2_003,Disobey Role Specification,1.2,FC1,3,Hard,role_specification,5,1.2 - Disobey Role Specification
+FC1_1.2_004,Disobey Role Specification,1.2,FC1,4,Very Hard,role_specification,6,1.2 - Disobey Role Specification
+FC1_1.2_005,Disobey Role Specification,1.2,FC1,5,Expert,role_specification,7,1.2 - Disobey Role Specification
+FC1_1.3_001,Step Repetition,1.3,FC1,1,Easy,step_repetition,4,1.3 - Step Repetition
+FC1_1.3_002,Step Repetition,1.3,FC1,2,Medium,step_repetition,5,"1.3 - Step Repetition, 1.5 - Unaware of Termination Condition"
+FC1_1.3_003,Step Repetition,1.3,FC1,3,Hard,step_repetition,6,"1.3 - Step Repetition, 1.4 - Loss of Conversation History"
+FC1_1.3_004,Step Repetition,1.3,FC1,4,Very Hard,step_repetition,8,"1.3 - Step Repetition, 1.4 - Loss of Conversation History"
+FC1_1.3_005,Step Repetition,1.3,FC1,5,Expert,step_repetition,10,"1.3 - Step Repetition, 1.4 - Loss of Conversation History, 1.5 - Unaware of Termination"
+FC1_1.4_001,Loss of Conversation History,1.4,FC1,1,Easy,conversation_history,3,1.4 - Loss of Conversation History
+FC1_1.4_002,Loss of Conversation History,1.4,FC1,2,Medium,conversation_history,3,1.4 - Loss of Conversation History
+FC1_1.4_003,Loss of Conversation History,1.4,FC1,3,Hard,conversation_history,5,1.4 - Loss of Conversation History
+FC1_1.4_004,Loss of Conversation History,1.4,FC1,4,Very Hard,conversation_history,7,1.4 - Loss of Conversation History
+FC1_1.4_005,Loss of Conversation History,1.4,FC1,5,Expert,conversation_history,9,1.4 - Loss of Conversation History
+FC1_1.5_001,Unaware of Termination Condition,1.5,FC1,1,Easy,termination_awareness,3,1.5 - Unaware of Termination Condition
+FC1_1.5_002,Unaware of Termination Condition,1.5,FC1,2,Medium,termination_awareness,4,"1.5 - Unaware of Termination Condition"
+FC1_1.5_003,Unaware of Termination Condition,1.5,FC1,3,Hard,termination_awareness,6,"1.5 - Unaware of Termination Condition"
+FC1_1.5_004,Unaware of Termination Condition,1.5,FC1,4,Very Hard,termination_awareness,7,"1.3 - Step Repetition, 1.5 - Unaware of Termination"
+FC1_1.5_005,Unaware of Termination Condition,1.5,FC1,5,Expert,termination_awareness,8,"1.4 - Loss of History, 1.5 - Unaware of Termination"
+FC2_2.1_001,Conversation Reset,2.1,FC2,1,Easy,conversation_reset,3,2.1 - Conversation Reset
+FC2_2.1_002,Conversation Reset,2.1,FC2,2,Medium,conversation_reset,4,2.1 - Conversation Reset
+FC2_2.1_003,Conversation Reset,2.1,FC2,3,Hard,conversation_reset,5,2.1 - Conversation Reset
+FC2_2.1_004,Conversation Reset,2.1,FC2,4,Very Hard,conversation_reset,6,2.1 - Conversation Reset
+FC2_2.1_005,Conversation Reset,2.1,FC2,5,Expert,conversation_reset,7,2.1 - Conversation Reset
+FC2_2.2_001,Fail to Ask for Clarification,2.2,FC2,1,Easy,clarification_seeking,3,2.2 - Fail to Ask for Clarification
+FC2_2.2_002,Fail to Ask for Clarification,2.2,FC2,2,Medium,clarification_seeking,4,2.2 - Fail to Ask for Clarification
+FC2_2.2_003,Fail to Ask for Clarification,2.2,FC2,3,Hard,clarification_seeking,5,2.2 - Fail to Ask for Clarification
+FC2_2.2_004,Fail to Ask for Clarification,2.2,FC2,4,Very Hard,clarification_seeking,6,2.2 - Fail to Ask for Clarification
+FC2_2.2_005,Fail to Ask for Clarification,2.2,FC2,5,Expert,clarification_seeking,7,2.2 - Fail to Ask for Clarification
+FC2_2.3_001,Task Derailment,2.3,FC2,1,Easy,task_derailment,3,2.3 - Task Derailment
+FC2_2.3_002,Task Derailment,2.3,FC2,2,Medium,task_derailment,4,2.3 - Task Derailment
+FC2_2.3_003,Task Derailment,2.3,FC2,3,Hard,task_derailment,5,2.3 - Task Derailment
+FC2_2.3_004,Task Derailment,2.3,FC2,4,Very Hard,task_derailment,6,2.3 - Task Derailment
+FC2_2.3_005,Task Derailment,2.3,FC2,5,Expert,task_derailment,7,2.3 - Task Derailment
+FC2_2.4_001,Information Withholding,2.4,FC2,1,Easy,information_withholding,3,2.4 - Information Withholding
+FC2_2.4_002,Information Withholding,2.4,FC2,2,Medium,information_withholding,4,2.4 - Information Withholding
+FC2_2.4_003,Information Withholding,2.4,FC2,3,Hard,information_withholding,5,2.4 - Information Withholding
+FC2_2.4_004,Information Withholding,2.4,FC2,4,Very Hard,information_withholding,6,2.4 - Information Withholding
+FC2_2.4_005,Information Withholding,2.4,FC2,5,Expert,information_withholding,7,2.4 - Information Withholding
+FC2_2.5_001,Ignored Other Agent's Input,2.5,FC2,1,Easy,input_integration,3,2.5 - Ignored Other Agent's Input
+FC2_2.5_002,Ignored Other Agent's Input,2.5,FC2,2,Medium,input_integration,4,2.5 - Ignored Other Agent's Input
+FC2_2.5_003,Ignored Other Agent's Input,2.5,FC2,3,Hard,input_integration,5,2.5 - Ignored Other Agent's Input
+FC2_2.5_004,Ignored Other Agent's Input,2.5,FC2,4,Very Hard,input_integration,6,"2.5 - Ignored Other Agent's Input"
+FC2_2.5_005,Ignored Other Agent's Input,2.5,FC2,5,Expert,input_integration,7,2.5 - Ignored Other Agent's Input
+FC2_2.6_001,Reasoning-Action Mismatch,2.6,FC2,1,Easy,reasoning_action,3,2.6 - Reasoning-Action Mismatch
+FC2_2.6_002,Reasoning-Action Mismatch,2.6,FC2,2,Medium,reasoning_action,4,2.6 - Reasoning-Action Mismatch
+FC2_2.6_003,Reasoning-Action Mismatch,2.6,FC2,3,Hard,reasoning_action,5,2.6 - Reasoning-Action Mismatch
+FC2_2.6_004,Reasoning-Action Mismatch,2.6,FC2,4,Very Hard,reasoning_action,6,2.6 - Reasoning-Action Mismatch
+FC2_2.6_005,Reasoning-Action Mismatch,2.6,FC2,5,Expert,reasoning_action,7,2.6 - Reasoning-Action Mismatch
+FC3_3.1_001,Premature Termination,3.1,FC3,1,Easy,task_completeness,3,3.1 - Premature Termination
+FC3_3.1_002,Premature Termination,3.1,FC3,2,Medium,task_completeness,4,3.1 - Premature Termination
+FC3_3.1_003,Premature Termination,3.1,FC3,3,Hard,task_completeness,5,3.1 - Premature Termination
+FC3_3.1_004,Premature Termination,3.1,FC3,4,Very Hard,task_completeness,6,3.1 - Premature Termination
+FC3_3.1_005,Premature Termination,3.1,FC3,5,Expert,task_completeness,7,3.1 - Premature Termination
+FC3_3.2_001,No/Incomplete Verification,3.2,FC3,1,Easy,verification_completeness,3,3.2 - No or Incomplete Verification
+FC3_3.2_002,No/Incomplete Verification,3.2,FC3,2,Medium,verification_completeness,4,3.2 - No or Incomplete Verification
+FC3_3.2_003,No/Incomplete Verification,3.2,FC3,3,Hard,verification_completeness,5,3.2 - No or Incomplete Verification
+FC3_3.2_004,No/Incomplete Verification,3.2,FC3,4,Very Hard,verification_completeness,6,3.2 - No or Incomplete Verification
+FC3_3.2_005,No/Incomplete Verification,3.2,FC3,5,Expert,verification_completeness,7,3.2 - No or Incomplete Verification
+FC3_3.3_001,Incorrect Verification,3.3,FC3,1,Easy,verification_correctness,3,3.3 - Incorrect Verification
+FC3_3.3_002,Incorrect Verification,3.3,FC3,2,Medium,verification_correctness,4,3.3 - Incorrect Verification
+FC3_3.3_003,Incorrect Verification,3.3,FC3,3,Hard,verification_correctness,5,3.3 - Incorrect Verification
+FC3_3.3_004,Incorrect Verification,3.3,FC3,4,Very Hard,verification_correctness,6,3.3 - Incorrect Verification
+FC3_3.3_005,Incorrect Verification,3.3,FC3,5,Expert,verification_correctness,7,3.3 - Incorrect Verification

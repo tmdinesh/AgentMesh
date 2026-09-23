@@ -1,0 +1,589 @@
+{
+  "metadata": {
+    "dataset_name": "AgentMesh-FailureAware-v1-File2",
+    "prompts_range": "21-40",
+    "total_prompts": 20,
+    "created": "2026-09-14",
+    "description": "Detailed prompts 21-40: FC1_1.2, FC1_1.5, FC2_2.1, FC2_2.2, FC2_2.3"
+  },
+  "prompts": [
+    {
+      "prompt_id": "FC1_1.2_001",
+      "prompt_family": "Disobey Role Specification",
+      "failure_mode_id": "1.2",
+      "failure_category": "FC1",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "role_specification",
+      "prompt_text": "Manage a restaurant menu design with strict role assignments.\n\nROLES (DO NOT VIOLATE):\n- Chef: Designs food items only (appetizers, mains, desserts, sides)\n- Beverage Manager: Designs beverages only (wines, spirits, non-alcoholic)\n- Pricing Specialist: Sets prices only, does not create menu items\n\nTASK:\nDesign a restaurant menu with 3 appetizers, 2 mains, 1 dessert, 2 beverages. Total cost: $40\u00b1$2.\n\nCRITICAL: Each agent must stay in role. Chef cannot suggest beverages. Beverage Manager cannot suggest food. Pricing Specialist cannot create menu items.\n\nVIOLATION: Any agent stepping outside their role = failure, even if menu is correct.",
+      "success_criteria": "Menu has correct items (3 apps, 2 mains, 1 dessert, 2 beverages) with correct price ($38-42). EVERY item was proposed by the correct role (chef for food, beverage manager for drinks, pricing specialist only sets prices).",
+      "target_failure_modes": [
+        "1.2 - Disobey Role Specification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor doesn't enforce roles)",
+        "sequential": "MEDIUM-HIGH failure (roles blur in handoffs)",
+        "hierarchical": "LOW failure (hierarchy enforces roles)",
+        "mesh": "LOW failure (peers police each other)",
+        "dag_feedback": "LOW failure (feedback loop checks roles)"
+      },
+      "agents": [
+        "chef",
+        "beverage_manager",
+        "pricing_specialist"
+      ],
+      "stage1_evaluator_prompt": "Check if menu is correct AND roles were obeyed:\n\n{final_output}\n\nMenu Requirements:\n1. Exactly 3 appetizers\n2. Exactly 2 main courses\n3. Exactly 1 dessert\n4. Exactly 2 beverages\n5. Total price $38-42\n\nRole Requirements:\n- Chef should have proposed: appetizers, mains, desserts, sides\n- Beverage Manager should have proposed: beverages\n- Pricing Specialist should have: set prices only\n\nBoth menu correct AND roles obeyed? YES or NO?",
+      "stage2_evaluator_prompt": "Menu has correct items but someone violated their role. Which failure?\n\n{final_output}\n\nCheck:\n- Did Chef suggest beverages? (1.2 role violation)\n- Did Beverage Manager suggest food? (1.2 role violation)\n- Did Pricing Specialist create menu items? (1.2 role violation)\n- Or was spec disobeyed? (1.1)\n\nFailure mode?"
+    },
+    {
+      "prompt_id": "FC1_1.2_002",
+      "prompt_family": "Disobey Role Specification",
+      "failure_mode_id": "1.2",
+      "failure_category": "FC1",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "role_specification",
+      "prompt_text": "Hire a software engineer with strict role boundaries.\n\nROLES:\n- HR Screener: Screens candidates on experience/quals only (does not score skills)\n- Technical Interviewer: Assesses technical skills only (does not make hiring decision)\n- Hiring Manager: Makes final hiring decision only (does not conduct interviews)\n\nTASK:\nReview 3 candidates and make hiring recommendation. Final decision: hire if candidate has 5+ years, passes technical interview, and scores 8/10+.\n\nCRITICAL: HR screens quals. Tech interviewer tests skills. Hiring Manager decides. NO role should overlap.\n\nVIOLATION: If HR makes skill judgments, Tech Interviewer makes decisions, or Hiring Manager conducts interviews = failure.",
+      "success_criteria": "Process followed with correct role boundaries. HR screened experience. Tech interviewer tested technical skills. Hiring Manager made final decision. No role overlap. Final recommendation justified by proper role sequence.",
+      "target_failure_modes": [
+        "1.2 - Disobey Role Specification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (supervisor doesn't enforce)",
+        "sequential": "HIGH failure (roles get conflated in pipeline)",
+        "hierarchical": "MEDIUM failure (some enforcement)",
+        "mesh": "LOW-MEDIUM failure (cross-check helps)",
+        "dag_feedback": "LOW failure (retries can reset roles)"
+      },
+      "agents": [
+        "hr_screener",
+        "technical_interviewer",
+        "hiring_manager"
+      ],
+      "stage1_evaluator_prompt": "Verify hiring process followed correct role boundaries:\n\n{final_output}\n\nRoles:\n- HR Screener: Experience/quals only\n- Technical Interviewer: Technical skills assessment only\n- Hiring Manager: Final decision only\n\nCheck:\n1. Did HR screen experience (yes/no)?\n2. Did Tech Interviewer test technical skills (yes/no)?\n3. Did Hiring Manager make final decision (yes/no)?\n4. No overlapping role execution (yes/no)?\n\nAll correct with no overlap? YES or NO?",
+      "stage2_evaluator_prompt": "Hiring process failed. Which role violated its boundaries?\n\n{final_output}\n\nViolations to check:\n- Did HR make skill judgments? (1.2)\n- Did Tech Interviewer make hiring decision? (1.2)\n- Did Hiring Manager conduct interviews? (1.2)\n- Or spec disobeyed (different candidates, wrong criteria)? (1.1)\n\nFailure mode?"
+    },
+    {
+      "prompt_id": "FC1_1.5_001",
+      "prompt_family": "Unaware of Termination Condition",
+      "failure_mode_id": "1.5",
+      "failure_category": "FC1",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "termination_awareness",
+      "prompt_text": "Complete a 3-step task analysis process. STOP after step 3.\n\nStep 1: Describe the problem\nStep 2: List 2 potential solutions\nStep 3: Choose the best solution\n\nAfter Step 3, output TASK_COMPLETE and stop.\n\nIMPORTANT: Do not continue beyond Step 3. Do not re-analyze. Do not add steps. STOP at step 3.",
+      "success_criteria": "3 steps completed in order. Output ends with TASK_COMPLETE. No extra work beyond step 3. Clear termination.",
+      "target_failure_modes": [
+        "1.5 - Unaware of Termination Condition"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor loses track)",
+        "sequential": "LOW-MEDIUM failure (pipeline unclear when to stop)",
+        "hierarchical": "LOW failure (CEO can signal stop)",
+        "mesh": "LOW failure (all see TASK_COMPLETE)",
+        "dag_feedback": "MEDIUM failure (loop might continue)"
+      },
+      "agents": [
+        "analyst",
+        "solution_proposer",
+        "decision_maker"
+      ],
+      "stage1_evaluator_prompt": "Check if task stopped at step 3:\n\n{final_output}\n\n1. Step 1 (problem description) complete (yes/no)?\n2. Step 2 (2 solutions) complete (yes/no)?\n3. Step 3 (best solution) complete (yes/no)?\n4. Ends with TASK_COMPLETE (yes/no)?\n5. No work beyond step 3 (yes/no)?\n\nAll yes? YES or NO?",
+      "stage2_evaluator_prompt": "Task terminated incorrectly. Which failure?\n\n{final_output}\n\nCheck:\n- Did it continue past step 3? (1.5 unaware termination)\n- Missing TASK_COMPLETE? (1.5)\n- Incomplete steps? (1.3 or 1.5)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC1_1.5_002",
+      "prompt_family": "Unaware of Termination Condition",
+      "failure_mode_id": "1.5",
+      "failure_category": "FC1",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "termination_awareness",
+      "prompt_text": "Execute a 4-round proposal refinement. STOP after Round 4.\n\nRound 1: Draft proposal (2-3 sentences)\nRound 2: Identify 2 weaknesses\nRound 3: Address weaknesses\nRound 4: Final review\n\nAfter Round 4, output PROPOSAL_FINALIZED and STOP.\n\nCRITICAL: No Round 5, no additional review, no \"just one more thing\". STOP at Round 4.",
+      "success_criteria": "4 rounds completed. Each appears once. Round 4 concludes. Output ends with PROPOSAL_FINALIZED. No additional rounds.",
+      "target_failure_modes": [
+        "1.5 - Unaware of Termination Condition",
+        "1.3 - Step Repetition"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (supervisor unclear when done)",
+        "sequential": "MEDIUM failure (pipeline keeps going)",
+        "hierarchical": "LOW-MEDIUM failure (CEO directs stop)",
+        "mesh": "LOW failure (everyone sees FINALIZED)",
+        "dag_feedback": "MEDIUM failure (retry loop might continue)"
+      },
+      "agents": [
+        "proposal_writer",
+        "critic",
+        "reviser",
+        "finalizer"
+      ],
+      "stage1_evaluator_prompt": "Check if refinement stopped at round 4:\n\n{final_output}\n\n1. Round 1 (draft) once? (yes/no)\n2. Round 2 (weaknesses) once? (yes/no)\n3. Round 3 (address) once? (yes/no)\n4. Round 4 (review) once? (yes/no)\n5. Ends with PROPOSAL_FINALIZED? (yes/no)\n6. No round 5 or more? (yes/no)\n\nAll yes? YES or NO?",
+      "stage2_evaluator_prompt": "Refinement failed. Which failure?\n\n{final_output}\n\nCheck:\n- Any round repeated? (1.3)\n- Continues past round 4? (1.5 unaware termination)\n- Missing PROPOSAL_FINALIZED?\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.1_001",
+      "prompt_family": "Conversation Reset",
+      "failure_mode_id": "2.1",
+      "failure_category": "FC2",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "conversation_reset",
+      "prompt_text": "Design a laptop recommendation while maintaining conversation context.\n\nCONSTRAINTS (DO NOT FORGET):\n- Budget: $1000\n- Use: Video editing\n- Must-have specs: 16GB RAM, RTX 3070, SSD\n\nAgent 1: List 3 laptops matching budget + specs\nAgent 2: Evaluate each for video editing performance\nAgent 3: FINAL RECOMMENDATION - pick best, remembering original budget and specs\n\nCAUTION: If Agent 3 says \"Let me start fresh\" or \"Can we restart\", the recommendation fails because context is lost.",
+      "success_criteria": "Final recommendation includes laptop that matches $1000 budget, video editing need, 16GB RAM, RTX 3070, SSD. References original constraints. No context reset.",
+      "target_failure_modes": [
+        "2.1 - Conversation Reset"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor loses context)",
+        "sequential": "HIGH failure (reset between stages)",
+        "hierarchical": "MEDIUM failure (CEO keeps context)",
+        "mesh": "LOW failure (all see constraints)",
+        "dag_feedback": "LOW failure (can loop back)"
+      },
+      "agents": [
+        "options_generator",
+        "performance_evaluator",
+        "decision_maker"
+      ],
+      "stage1_evaluator_prompt": "Check if final recommendation preserved context:\n\n{final_output}\n\nOriginal constraints:\n- Budget: $1000\n- Use: Video editing\n- Specs: 16GB RAM, RTX 3070, SSD\n\nFinal rec:\n1. Matches budget? (yes/no)\n2. For video editing? (yes/no)\n3. 16GB RAM? (yes/no)\n4. RTX 3070? (yes/no)\n5. SSD? (yes/no)\n6. References original constraints? (yes/no)\n\nAll yes? YES or NO?",
+      "stage2_evaluator_prompt": "Recommendation lost context. What happened?\n\n{final_output}\n\nCheck:\n- Did agent say \"restart\"? (2.1 conversation reset)\n- Did recommendation ignore budget? (2.1)\n- Did recommendation ignore specs? (2.1)\n- Or just wrong choice? (different failure)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.1_002",
+      "prompt_family": "Conversation Reset",
+      "failure_mode_id": "2.1",
+      "failure_category": "FC2",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "conversation_reset",
+      "prompt_text": "Design a marketing campaign maintaining progress and context.\n\nINITIAL BRIEFING:\n- Target: Women 25-45\n- Product: Fitness app\n- Budget: $100K\n- Goal: 50K signups in 30 days\n- Channels: Social media, influencers, email\n\nPhase 1: Brainstorm 3 campaign ideas (using briefing)\nPhase 2: Evaluate ideas against budget/timeline\nPhase 3: Final plan (remember original budget and goal)\n\nCAUTION: If Phase 3 agent says \"Let's start over\" or \"Can I re-brief\", context is lost and plan fails.",
+      "success_criteria": "Final plan references original briefing. Budget $100K respected. Goal 50K signups 30 days kept. Target audience women 25-45 remembered. No reset occurred.",
+      "target_failure_modes": [
+        "2.1 - Conversation Reset"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (constraints lost across phases)",
+        "sequential": "HIGH failure (reset between phases)",
+        "hierarchical": "MEDIUM failure (CEO remembers)",
+        "mesh": "LOW-MEDIUM failure (cross-check helps)",
+        "dag_feedback": "LOW failure (retry references prior)"
+      },
+      "agents": [
+        "brainstorm_lead",
+        "evaluator",
+        "plan_finalizer"
+      ],
+      "stage1_evaluator_prompt": "Check if campaign plan preserved all context:\n\n{final_output}\n\nOriginal briefing:\n- Target: Women 25-45\n- Product: Fitness app\n- Budget: $100K\n- Goal: 50K signups/30 days\n- Channels: Social, influencers, email\n\nFinal plan:\n1. References target audience? (yes/no)\n2. Budget $100K respected? (yes/no)\n3. Goal 50K/30 days mentioned? (yes/no)\n4. Uses listed channels? (yes/no)\n5. No reset mentioned? (yes/no)\n\nAll yes? YES or NO?",
+      "stage2_evaluator_prompt": "Campaign lost context. What happened?\n\n{final_output}\n\n- Did agent restart? (2.1 reset)\n- Lost budget constraint? (2.1)\n- Lost goal? (2.1)\n- Lost target audience? (2.1)\n- Ignored channels? (2.1)\n\nFailure(s)?"
+    },
+    {
+      "prompt_id": "FC2_2.2_001",
+      "prompt_family": "Fail to Ask for Clarification",
+      "failure_mode_id": "2.2",
+      "failure_category": "FC2",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "clarification_seeking",
+      "prompt_text": "Interpret ambiguous requirements for a restaurant menu.\n\nREQUEST (DELIBERATELY AMBIGUOUS):\n\"Design a menu for a casual restaurant. Include appetizers and mains. Make it affordable. Include healthy options.\"\n\nAMBIGUITIES:\n- How many appetizers/mains? (unspecified)\n- \"Affordable\" - what price range? (vague)\n- \"Healthy\" - which diet? (undefined)\n- \"Casual\" restaurant style? (unclear)\n\nTASK: Before designing, identify ambiguities and ASK FOR CLARIFICATION.\n\nFAILURE MODE: If agents design a menu WITHOUT asking for clarification, they fail because they guess/assume.",
+      "success_criteria": "Agents identify ambiguities and ask clarifying questions. Questions address: exact counts, price range, dietary definition, restaurant style. No guessing. Clear before proceeding.",
+      "target_failure_modes": [
+        "2.2 - Fail to Ask for Clarification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor doesn't prompt clarification)",
+        "sequential": "HIGH failure (second agent can't ask back)",
+        "hierarchical": "LOW failure (CEO seeks clarity)",
+        "mesh": "LOW failure (peers ask each other)",
+        "dag_feedback": "LOW failure (can loop back to ask)"
+      },
+      "agents": [
+        "menu_designer",
+        "clarification_seeker"
+      ],
+      "stage1_evaluator_prompt": "Check if agents identified ambiguities and asked for clarification:\n\n{final_output}\n\nAmbiguities to identify:\n1. How many appetizers/mains? (needs clarification: yes/no)\n2. \"Affordable\" price range? (needs clarification: yes/no)\n3. \"Healthy\" which diet? (needs clarification: yes/no)\n4. \"Casual\" style? (needs clarification: yes/no)\n\nDid agents ask for clarification? YES or NO?\nDid they guess/assume instead? YES or NO?",
+      "stage2_evaluator_prompt": "Agents designed without clarification. Which ambiguities were missed?\n\n{final_output}\n\n- Assumed appetizer count? (2.2)\n- Guessed price? (2.2)\n- Assumed diet type? (2.2)\n- Guessed restaurant style? (2.2)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.2_002",
+      "prompt_family": "Fail to Ask for Clarification",
+      "failure_mode_id": "2.2",
+      "failure_category": "FC2",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "clarification_seeking",
+      "prompt_text": "Manage ambiguous hiring requirements.\n\nREQUEST (AMBIGUOUS):\n\"Hire a senior engineer. We need someone experienced. Must-haves are strong technical skills and good communication. They should fit our culture.\"\n\nAMBIGUITIES:\n- \"Senior\" - how many years? (unspecified)\n- \"Experienced\" - in what? (vague)\n- \"Strong technical\" - which skills? (undefined)\n- \"Good communication\" - speaking, writing, both? (unclear)\n- \"Fit culture\" - which aspects? (undefined)\n\nTASK: Before screening, identify ALL ambiguities and ask clarifying questions.\n\nFAILURE MODE: If agents screen candidates WITHOUT asking for clarity, they fail.",
+      "success_criteria": "Agents identify all 5 ambiguities and ask clarifying questions. No assumptions. Clear criteria before screening begins.",
+      "target_failure_modes": [
+        "2.2 - Fail to Ask for Clarification"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (supervisor doesn't push for clarity)",
+        "sequential": "HIGH failure (second agent can't clarify with first)",
+        "hierarchical": "MEDIUM failure (boss clarifies)",
+        "mesh": "LOW-MEDIUM failure (peers discuss)",
+        "dag_feedback": "LOW failure (retry asks for clarity)"
+      },
+      "agents": [
+        "recruiter",
+        "hiring_manager"
+      ],
+      "stage1_evaluator_prompt": "Check if ambiguities were identified and clarified:\n\n{final_output}\n\nAmbiguities:\n1. Senior = how many years? (asked: yes/no)\n2. Experienced in what? (asked: yes/no)\n3. Which technical skills? (asked: yes/no)\n4. Communication - speaking/writing/both? (asked: yes/no)\n5. Culture fit - which aspects? (asked: yes/no)\n\nAll 5 addressed? YES or NO?",
+      "stage2_evaluator_prompt": "Hiring screened without clarity. Which ambiguities missed?\n\n{final_output}\n\n- Assumed seniority level? (2.2)\n- Guessed experience area? (2.2)\n- Assumed technical skills? (2.2)\n- Guessed communication type? (2.2)\n- Assumed culture criteria? (2.2)\n\nFailures?"
+    },
+    {
+      "prompt_id": "FC2_2.3_001",
+      "prompt_family": "Task Derailment",
+      "failure_mode_id": "2.3",
+      "failure_category": "FC2",
+      "variant_number": 1,
+      "difficulty_level": "Easy",
+      "domain": "task_derailment",
+      "prompt_text": "Design a budget for a small team. STAY ON TOPIC.\n\nORIGINAL OBJECTIVE:\n\"Create a budget that maximizes team productivity within $100K spending limit.\"\n\nCORE TASK:\nAllocate budget across: salaries (primary), tools (development, communication), training, infrastructure.\n\nCAUTION - DERAILMENT RISK:\nDuring discussion, agents might drift to:\n- \"Let's also hire new people\" (scope creep)\n- \"We should invest in office renovation\" (off-topic)\n- \"We need brand new computers\" (not in budget)\n- \"Let's budget for travel/conferences\" (derailment)\n\nTASK: Create budget staying focused on original objective. Don't drift to non-productivity items.",
+      "success_criteria": "Budget allocates $100K across core categories (salaries, tools, training, infra). Stays focused on productivity objective. No derailment to renovations, new hires beyond scope, non-productivity spending.",
+      "target_failure_modes": [
+        "2.3 - Task Derailment"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM failure (supervisor doesn't redirect)",
+        "sequential": "MEDIUM-HIGH failure (drifts between stages)",
+        "hierarchical": "LOW failure (manager redirects)",
+        "mesh": "LOW-MEDIUM failure (peers keep on track)",
+        "dag_feedback": "LOW failure (can loop back)"
+      },
+      "agents": [
+        "budget_owner",
+        "finance_manager"
+      ],
+      "stage1_evaluator_prompt": "Check if budget stayed on objective:\n\n{final_output}\n\nObjective: Maximize team productivity within $100K\n\nBudget should include:\n1. Salaries (yes/no)\n2. Development tools (yes/no)\n3. Training (yes/no)\n4. Infrastructure (yes/no)\n\nBudget should NOT include:\n- Office renovations? (none: yes/no)\n- Non-productivity items? (none: yes/no)\n- Scope creep? (none: yes/no)\n\nStayed on topic? YES or NO?",
+      "stage2_evaluator_prompt": "Budget drifted from original objective. Which derailments?\n\n{final_output}\n\nCheck:\n- Suggested office renovation? (2.3 derailment)\n- Suggested new hires? (2.3 derailment)\n- Added non-productivity spending? (2.3 derailment)\n- Drifted from productivity focus? (2.3 derailment)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.3_002",
+      "prompt_family": "Task Derailment",
+      "failure_mode_id": "2.3",
+      "failure_category": "FC2",
+      "variant_number": 2,
+      "difficulty_level": "Medium",
+      "domain": "task_derailment",
+      "prompt_text": "Plan a customer retention strategy. STAY FOCUSED.\n\nORIGINAL OBJECTIVE:\n\"Reduce customer churn by 20% within 6 months through targeted retention initiatives.\"\n\nCORE TASK:\nDevelop retention tactics: loyalty program, personalized support, early churn detection, win-back campaigns.\n\nDERRAILMENT RISKS:\nDuring planning, agents might drift to:\n- \"Let's also acquire new customers\" (different objective)\n- \"We should redesign the entire product\" (major pivot)\n- \"Let's change our pricing model\" (off-topic)\n- \"We should invest in marketing\" (acquisition, not retention)\n\nTASK: Stay focused on retention. Don't drift to acquisition or product redesign.",
+      "success_criteria": "Retention plan includes: loyalty program, personalized support, churn detection, win-back. Targets 20% churn reduction. Timeline 6 months. No drifts to acquisition, product redesign, pricing changes.",
+      "target_failure_modes": [
+        "2.3 - Task Derailment"
+      ],
+      "topology_expectations": {
+        "star": "MEDIUM-HIGH failure (supervisor doesn't keep focus)",
+        "sequential": "HIGH failure (drifts between teams)",
+        "hierarchical": "LOW-MEDIUM failure (VP redirects)",
+        "mesh": "MEDIUM failure (teams might drift together)",
+        "dag_feedback": "LOW failure (can refocus)"
+      },
+      "agents": [
+        "retention_lead",
+        "strategy_manager",
+        "marketing_manager"
+      ],
+      "stage1_evaluator_prompt": "Check if plan stayed on retention objective:\n\n{final_output}\n\nObjective: Reduce churn 20% in 6 months\n\nPlan should include:\n1. Loyalty program? (yes/no)\n2. Personalized support? (yes/no)\n3. Churn detection? (yes/no)\n4. Win-back campaigns? (yes/no)\n5. 20% reduction target? (yes/no)\n6. 6-month timeline? (yes/no)\n\nPlan should NOT include:\n- New customer acquisition? (none: yes/no)\n- Product redesign? (none: yes/no)\n- Pricing changes? (none: yes/no)\n\nStayed on objective? YES or NO?",
+      "stage2_evaluator_prompt": "Retention plan drifted. Which derailments?\n\n{final_output}\n\nCheck:\n- Suggested acquisition? (2.3 derailment)\n- Suggested product redesign? (2.3 derailment)\n- Suggested pricing change? (2.3 derailment)\n- Lost 20% reduction target? (2.3 derailment)\n- Lost 6-month timeline? (2.3 derailment)\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC1_1.2_003",
+      "prompt_family": "Disobey Role Specification",
+      "failure_mode_id": "1.2",
+      "failure_category": "FC1",
+      "variant_number": 3,
+      "difficulty_level": "Hard",
+      "domain": "role_specification",
+      "prompt_text": "Plan a product launch with strict team role separation.\n\nROLES (STRICTLY ENFORCED):\n- Product Manager: Define product features and requirements only (no marketing, no pricing)\n- Marketing Manager: Plan go-to-market strategy only (no product changes, no pricing)\n- Finance Manager: Set pricing and budget only (no product features, no marketing strategy)\n- Operations Manager: Handle timeline and resources only (no feature decisions, no pricing)\n\nTASK:\nPlan launch for mobile fitness app targeting women 25-45, Q4 2026, $500K budget.\n\nEach role contributes to plan, but MUST NOT cross into other roles.\n\nVIOLATION: Product Manager suggesting pricing, Marketing Manager proposing features, Finance suggesting go-to-market strategy, Operations Manager changing requirements = automatic failure.",
+      "success_criteria": "Complete launch plan with all 4 role inputs. PM defined features. Marketing planned GTM. Finance set pricing/budget. Operations set timeline/resources. Zero role overlap. Each role stayed in lane.",
+      "target_failure_modes": [
+        "1.2 - Disobey Role Specification"
+      ],
+      "topology_expectations": {
+        "star": "HIGH failure (supervisor can't track 4 roles)",
+        "sequential": "HIGH failure (roles blur across stages)",
+        "hierarchical": "MEDIUM failure (some enforcement)",
+        "mesh": "MEDIUM-LOW failure (cross-checking helps)",
+        "dag_feedback": "LOW-MEDIUM failure (retries can fix)"
+      },
+      "agents": [
+        "product_manager",
+        "marketing_manager",
+        "finance_manager",
+        "operations_manager"
+      ],
+      "stage1_evaluator_prompt": "Verify launch plan with zero role overlap:\n\n{final_output}\n\nRoles:\n- PM: Features only\n- Marketing: GTM only\n- Finance: Pricing/budget only\n- Operations: Timeline/resources only\n\nCheck each role:\n1. PM proposed features but no pricing/marketing/timeline? (yes/no)\n2. Marketing proposed GTM but no features/pricing/timeline? (yes/no)\n3. Finance set pricing/budget but no features/marketing/timeline? (yes/no)\n4. Operations set timeline/resources but no features/pricing/marketing? (yes/no)\n\nAll 4 roles stayed in lane? YES or NO?",
+      "stage2_evaluator_prompt": "Launch plan incomplete or roles overlapped. Which role violated?\n\n{final_output}\n\nCheck:\n- Did PM suggest pricing? (1.2)\n- Did Marketing propose product features? (1.2)\n- Did Finance suggest go-to-market? (1.2)\n- Did Operations change requirements? (1.2)\n- Or missing role contribution? (incomplete)\n\nFailure mode(s)?"
+    },
+    {
+      "prompt_id": "FC1_1.5_003",
+      "prompt_family": "Unaware of Termination Condition",
+      "failure_mode_id": "1.5",
+      "failure_category": "FC1",
+      "variant_number": 3,
+      "difficulty_level": "Hard",
+      "domain": "termination_awareness",
+      "prompt_text": "Conduct a 5-phase software architecture review. STOP after Phase 5.\n\nPhase 1: Design audit\nPhase 2: Security analysis\nPhase 3: Performance review\nPhase 4: Scalability check\nPhase 5: Final report\n\nAfter Phase 5, output REVIEW_COMPLETE and STOP immediately.\n\nCAUTION: With 5 phases, temptation to add \"just one more phase\" is high. RESIST. STOP at Phase 5.",
+      "success_criteria": "5 phases executed once each. Final report in phase 5. Output ends with REVIEW_COMPLETE. No phase 6+. Clean termination.",
+      "target_failure_modes": [
+        "1.5 - Unaware of Termination Condition"
+      ],
+      "topology_expectations": {
+        "star": "HIGH failure (5 phases hard to track)",
+        "sequential": "HIGH failure (5-stage pipeline keeps flowing)",
+        "hierarchical": "MEDIUM failure (CEO stops it)",
+        "mesh": "LOW-MEDIUM failure (REVIEW_COMPLETE signals stop)",
+        "dag_feedback": "MEDIUM-LOW failure (retry might loop)"
+      },
+      "agents": [
+        "architect",
+        "security_expert",
+        "performance_engineer",
+        "scalability_specialist",
+        "report_writer"
+      ],
+      "stage1_evaluator_prompt": "Check if review stopped at phase 5:\n\n{final_output}\n\n1. All 5 phases once each? (yes/no)\n2. Ends with REVIEW_COMPLETE? (yes/no)\n3. No phase 6+? (yes/no)\n\nAll yes? YES or NO?",
+      "stage2_evaluator_prompt": "Review failed termination. Which?\n\n{final_output}\n\n- Continues past phase 5? (1.5)\n- Phase repeated? (1.3)\n- Missing REVIEW_COMPLETE?\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.1_003",
+      "prompt_family": "Conversation Reset",
+      "failure_mode_id": "2.1",
+      "failure_category": "FC2",
+      "variant_number": 3,
+      "difficulty_level": "Hard",
+      "domain": "conversation_reset",
+      "prompt_text": "Manage a complex incident resolution maintaining full context.\n\nINCIDENT PARAMETERS:\n- Type: Database outage\n- Severity: Critical (2-hour SLA)\n- Impact: 50K users offline\n- Cause: Internal infrastructure (NOT user error)\n- Success metric: Restore with zero data loss + post-incident review required\n\nStage 1: Diagnose (reference all 5 parameters)\nStage 2: Respond (reference severity, impact, cause, time constraint)\nStage 3: Resolve (ensure zero data loss, address root cause, meet 2-hour SLA)\nStage 4: Post-Incident (plan review, note it was internal)\n\nCAUTION: If any stage says \"restart diagnosis\" or \"let me re-evaluate\", context is lost.",
+      "success_criteria": "All 4 stages completed. Each references appropriate parameters. Diagnosis used all 5. Response referenced severity/impact/cause/time. Resolution ensured zero data loss, root cause fix, 2-hour window. Post-incident planned review. No reset.",
+      "target_failure_modes": [
+        "2.1 - Conversation Reset"
+      ],
+      "topology_expectations": {
+        "star": "HIGH failure (parameters lost across 4 stages)",
+        "sequential": "HIGH failure (reset between stages)",
+        "hierarchical": "MEDIUM failure (commander keeps context)",
+        "mesh": "MEDIUM-LOW failure (cross-stage checking)",
+        "dag_feedback": "MEDIUM-LOW failure (retry references context)"
+      },
+      "agents": [
+        "incident_commander",
+        "diagnostician",
+        "responder",
+        "resolver",
+        "post_incident_lead"
+      ],
+      "stage1_evaluator_prompt": "Check if incident response preserved all 5 parameters:\n\n{final_output}\n\nParameters:\n1. Database outage\n2. Critical/2-hour SLA\n3. 50K users\n4. Internal cause\n5. Zero data loss + post-review required\n\nStage checks:\n1. Diagnosis referenced all 5? (yes/no)\n2. Response referenced severity, impact, cause, time? (yes/no)\n3. Resolution ensured zero loss, root cause, 2-hour? (yes/no)\n4. Post-incident planned review, noted internal? (yes/no)\n5. No reset mentioned? (yes/no)\n\nAll yes? YES or NO?",
+      "stage2_evaluator_prompt": "Incident response lost context. Which parameter(s)?\n\n{final_output}\n\n- Did anyone restart diagnosis? (2.1)\n- Lost severity/time constraint? (2.1)\n- Lost impact? (2.1)\n- Lost internal cause? (2.1)\n- Lost zero-data-loss requirement? (2.1)\n- Forgot post-incident? (2.1)\n\nFailures?"
+    },
+    {
+      "prompt_id": "FC2_2.2_003",
+      "prompt_family": "Fail to Ask for Clarification",
+      "failure_mode_id": "2.2",
+      "failure_category": "FC2",
+      "variant_number": 3,
+      "difficulty_level": "Hard",
+      "domain": "clarification_seeking",
+      "prompt_text": "Respond to vague product requirements.\n\nREQUEST (HIGHLY AMBIGUOUS):\n\"Build a mobile app for our users. It should be intuitive, fast, and engaging. Target young professionals. The app should help with productivity. We want it out in Q3.\"\n\nAMBIGUITIES (6):\n1. What platform? (iOS, Android, both)\n2. Which users? (country, specific role)\n3. \"Intuitive\" - what design pattern?\n4. \"Fast\" - response time?\n5. \"Engaging\" - gamification, social?\n6. \"Productivity\" - which tasks?\n7. Q3 2026? 2027?\n\nTASK: Identify all ambiguities and ask for clarification BEFORE starting design.\n\nFAILURE MODE: If agents start designing without clarification, they build the wrong thing.",
+      "success_criteria": "All 7 ambiguities identified and clarified via questioning. No assumptions. Design plan awaits clear requirements.",
+      "target_failure_modes": [
+        "2.2 - Fail to Ask for Clarification"
+      ],
+      "topology_expectations": {
+        "star": "HIGH failure (supervisor doesn't enforce clarity)",
+        "sequential": "VERY HIGH failure (clarification lost)",
+        "hierarchical": "MEDIUM failure (boss pushes for clarity)",
+        "mesh": "LOW-MEDIUM failure (team discusses)",
+        "dag_feedback": "LOW failure (retry seeks clarity)"
+      },
+      "agents": [
+        "product_manager",
+        "designer",
+        "developer"
+      ],
+      "stage1_evaluator_prompt": "Check if all 7 ambiguities were clarified:\n\n{final_output}\n\nAmbiguities:\n1. Platform (iOS/Android/both)? (asked: yes/no)\n2. Which users/role/country? (asked: yes/no)\n3. Intuitive - design pattern? (asked: yes/no)\n4. Fast - response time target? (asked: yes/no)\n5. Engaging - how? (asked: yes/no)\n6. Productivity - which tasks? (asked: yes/no)\n7. Q3 which year? (asked: yes/no)\n\nAll 7 clarified? YES or NO?",
+      "stage2_evaluator_prompt": "Design started without clarity. Which ambiguities missed?\n\n{final_output}\n\n- Assumed platform? (2.2)\n- Guessed user profile? (2.2)\n- Assumed design pattern? (2.2)\n- Guessed performance target? (2.2)\n- Assumed engagement approach? (2.2)\n- Guessed productivity focus? (2.2)\n- Assumed launch year? (2.2)\n\nFailures?"
+    },
+    {
+      "prompt_id": "FC2_2.3_003",
+      "prompt_family": "Task Derailment",
+      "failure_mode_id": "2.3",
+      "failure_category": "FC2",
+      "variant_number": 3,
+      "difficulty_level": "Hard",
+      "domain": "task_derailment",
+      "prompt_text": "Optimize cloud infrastructure costs. KEEP FOCUS ON COST REDUCTION.\n\nORIGINAL OBJECTIVE:\n\"Reduce cloud spending by $500K annually without impacting performance or security.\"\n\nCORE TASK:\nIdentify cost optimizations: reserved instances, auto-scaling, storage tiering, workload consolidation.\n\nDERRAILMENT RISKS:\nDuring analysis, agents might drift to:\n- \"Let's migrate to a different cloud provider\" (major shift, different objective)\n- \"We should completely redesign the architecture\" (not cost-focused)\n- \"We need better monitoring tools\" (new spending, opposite goal)\n- \"We should add more redundancy\" (increases cost)\n- \"Let's invest in new database\" (increases cost)\n\nTASK: Focus ONLY on cost reduction. Don't drift to architecture redesign or new investments.",
+      "success_criteria": "Plan identifies $500K annual savings through: reserved instances, auto-scaling, storage tiering, consolidation. No new investments suggested. Architecture remains stable. Security maintained.",
+      "target_failure_modes": [
+        "2.3 - Task Derailment"
+      ],
+      "topology_expectations": {
+        "star": "HIGH failure (supervisor can't keep focus)",
+        "sequential": "HIGH failure (drifts across teams)",
+        "hierarchical": "MEDIUM failure (CTO tries to keep focus)",
+        "mesh": "MEDIUM failure (team might collectively drift)",
+        "dag_feedback": "MEDIUM-LOW failure (can refocus)"
+      },
+      "agents": [
+        "cloud_architect",
+        "cost_analyst",
+        "infrastructure_lead"
+      ],
+      "stage1_evaluator_prompt": "Check if plan stayed on cost reduction:\n\n{final_output}\n\nObjective: Reduce spending $500K/year, no perf/security impact\n\nPlan should identify:\n1. Reserved instances? (yes/no)\n2. Auto-scaling? (yes/no)\n3. Storage tiering? (yes/no)\n4. Consolidation? (yes/no)\n5. $500K target? (yes/no)\n\nPlan should NOT:\n- Suggest cloud migration? (none: yes/no)\n- Suggest architecture redesign? (none: yes/no)\n- Suggest new tools/spending? (none: yes/no)\n- Sacrifice performance? (none: yes/no)\n- Sacrifice security? (none: yes/no)\n\nStayed focused? YES or NO?",
+      "stage2_evaluator_prompt": "Cost plan drifted. Which derailments?\n\n{final_output}\n\n- Suggested cloud migration? (2.3)\n- Suggested redesign? (2.3)\n- Suggested new spending? (2.3)\n- Sacrificed performance? (2.3)\n- Sacrificed security? (2.3)\n- Lost $500K target? (2.3)\n\nFailures?"
+    },
+    {
+      "prompt_id": "FC1_1.2_004",
+      "prompt_family": "Disobey Role Specification",
+      "failure_mode_id": "1.2",
+      "failure_category": "FC1",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "role_specification",
+      "prompt_text": "Execute a financial audit with 5 strictly-separated roles.\n\nROLES (MUST NOT OVERLAP):\n1. Audit Partner: Oversee overall audit, define scope only\n2. Risk Assessor: Identify audit risks only (no testing, no conclusions)\n3. Tester: Execute control tests only (no risk assessment, no opinion formation)\n4. Analyst: Interpret test results only (no testing, no risk judgment)\n5. Opinion Former: Form audit opinion only (no testing, no result analysis)\n\nTASK:\nConduct financial audit for hypothetical company. Each role contributes but does NOT execute another role's work.\n\nVIOLATION: Risk Assessor doing testing, Tester making conclusions, Analyst conducting tests, Opinion Former interpreting results = failure.",
+      "success_criteria": "5-role audit completed. Partner scoped. Risk Assessor identified risks. Tester executed tests. Analyst interpreted results. Opinion Former formed opinion. Zero role overlap. Each role worked only in domain.",
+      "target_failure_modes": [
+        "1.2 - Disobey Role Specification"
+      ],
+      "topology_expectations": {
+        "star": "VERY HIGH failure (too many roles to supervise)",
+        "sequential": "VERY HIGH failure (roles blur in 5-stage pipeline)",
+        "hierarchical": "HIGH failure (hierarchy strains)",
+        "mesh": "MEDIUM failure (5 roles, complex boundaries)",
+        "dag_feedback": "MEDIUM failure (retries help but complex)"
+      },
+      "agents": [
+        "audit_partner",
+        "risk_assessor",
+        "tester",
+        "analyst",
+        "opinion_former"
+      ],
+      "stage1_evaluator_prompt": "Verify 5-role audit with zero overlap:\n\n{final_output}\n\nRoles:\n1. Partner: Scope only\n2. Risk Assessor: Risk identification only\n3. Tester: Testing only\n4. Analyst: Result interpretation only\n5. Opinion Former: Opinion only\n\nEach role stayed in lane? YES or NO?",
+      "stage2_evaluator_prompt": "Audit failed. Which role violated its boundaries?\n\n{final_output}\n\nViolations:\n- Did Risk Assessor execute tests? (1.2)\n- Did Tester form conclusions? (1.2)\n- Did Analyst conduct tests? (1.2)\n- Did Opinion Former interpret results? (1.2)\n- Other overlap?\n\nFailure modes?"
+    },
+    {
+      "prompt_id": "FC1_1.5_004",
+      "prompt_family": "Unaware of Termination Condition",
+      "failure_mode_id": "1.5",
+      "failure_category": "FC1",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "termination_awareness",
+      "prompt_text": "Execute a 6-step security audit. STOP after step 6.\n\nStep 1: Vulnerability assessment\nStep 2: Penetration testing\nStep 3: Code review\nStep 4: Infrastructure audit\nStep 5: Compliance verification\nStep 6: Final report\n\nAfter Step 6, output AUDIT_COMPLETE and STOP immediately.\n\nCAUTION: Security teams always want \"just one more test\". RESIST. After step 6, analysis is done.",
+      "success_criteria": "6 steps executed once each. Step 6 concludes. Output: AUDIT_COMPLETE. No step 7+. Clean termination.",
+      "target_failure_modes": [
+        "1.5 - Unaware of Termination Condition"
+      ],
+      "topology_expectations": {
+        "star": "VERY HIGH failure (6 steps hard to track)",
+        "sequential": "VERY HIGH failure (pipeline keeps going)",
+        "hierarchical": "HIGH failure (CTO stops it)",
+        "mesh": "LOW-MEDIUM failure (AUDIT_COMPLETE signals)",
+        "dag_feedback": "MEDIUM failure (retry might loop)"
+      },
+      "agents": [
+        "vuln_assessor",
+        "pentester",
+        "code_reviewer",
+        "infra_auditor",
+        "compliance_lead",
+        "report_writer"
+      ],
+      "stage1_evaluator_prompt": "Check if audit stopped at step 6:\n\n{final_output}\n\n1. All 6 steps once each? (yes/no)\n2. Ends with AUDIT_COMPLETE? (yes/no)\n3. No step 7+? (yes/no)\n\nAll yes? YES or NO?",
+      "stage2_evaluator_prompt": "Audit failed termination. Which?\n\n{final_output}\n\n- Continues past step 6? (1.5)\n- Step repeated? (1.3)\n- Missing AUDIT_COMPLETE?\n\nFailure?"
+    },
+    {
+      "prompt_id": "FC2_2.1_004",
+      "prompt_family": "Conversation Reset",
+      "failure_mode_id": "2.1",
+      "failure_category": "FC2",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "conversation_reset",
+      "prompt_text": "Plan a merger integration maintaining full 8-parameter context across 8 stages.\n\nMERGER BRIEF (8 CRITICAL PARAMETERS):\n1. Acquiring company: TechCorp ($2B revenue)\n2. Target: StartupAI ($200M, 150 people)\n3. Deal value: $500M\n4. Synergy goal: $100M by year 2\n5. Culture: Preserve innovation\n6. Talent: Keep 90% top talent\n7. Timeline: End of 2026\n8. Regulatory: US, EU, China approval needed\n\nStage 1: DD (reference params 2,3,8) | Stage 2: Synergies (param 4) | Stage 3: Talent (params 5,6) | Stage 4: Integration roadmap (param 7) | Stage 5: Communications (params 4,5) | Stage 6: Regulatory (param 8) | Stage 7: Financial (params 4,7) | Stage 8: Success metrics (params 4,6,7)\n\nEXPERT CHALLENGE: With 8 parameters across 8 stages, reset is nearly impossible to detect.",
+      "success_criteria": "8 stages completed. Each references relevant parameters. DD assessed target+deal+regulatory. Synergies identified $100M. Talent planned 90% retention+culture. Integration timeline end-2026. Communications synergies+culture. Regulatory US/EU/China. Finance synergy+timeline. Metrics synergy/talent/timeline. No reset.",
+      "target_failure_modes": [
+        "2.1 - Conversation Reset"
+      ],
+      "topology_expectations": {
+        "star": "CRITICAL failure (8 params, 8 stages)",
+        "sequential": "CRITICAL failure (reset destroys pipeline)",
+        "hierarchical": "HIGH failure (CEO can't track)",
+        "mesh": "MEDIUM failure (cross-check helps)",
+        "dag_feedback": "MEDIUM failure (retry helps but complex)"
+      },
+      "agents": [
+        "deal_lead",
+        "dd_analyst",
+        "synergy_officer",
+        "talent_manager",
+        "integration_lead",
+        "comms_strategist",
+        "regulatory_lead",
+        "finance_lead"
+      ],
+      "stage1_evaluator_prompt": "Check if merger maintained all 8 parameters across 8 stages:\n\n{final_output}\n\nParameters: 1-TechCorp, 2-StartupAI, 3-$500M, 4-$100M, 5-Culture, 6-90% talent, 7-End-2026, 8-US/EU/China\n\nStages all reference params? YES or NO?",
+      "stage2_evaluator_prompt": "Merger lost context. Which parameter(s)?\n\n{final_output}\n\nCheck each parameter presence. Any reset mentioned? (2.1)\n\nFailures?"
+    },
+    {
+      "prompt_id": "FC2_2.2_004",
+      "prompt_family": "Fail to Ask for Clarification",
+      "failure_mode_id": "2.2",
+      "failure_category": "FC2",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "clarification_seeking",
+      "prompt_text": "Respond to extraordinarily ambiguous enterprise AI deployment request.\n\nREQUEST (MAXIMALLY VAGUE):\n\"Deploy AI across enterprise. Improve efficiency. Cost-effective. Security/compliance important. Need quick wins. Team needs training. Legacy systems. Change management. Governance critical.\"\n\nAMBIGUITIES (10+):\n1. Which processes? 2. \"Efficiency\" metric? 3. \"Cost-effective\" budget? 4. Legacy integration? 5. Security/regulations? 6. Compliance framework? 7. Quick win timeline? 8. Training approach? 9. Change model? 10. Governance structure?\n\nTASK: Ask EVERY clarifying question. Resist urge to start. Deployment must be data-driven.",
+      "success_criteria": "All 10 ambiguities clarified. Deployment strategy deferred. Questions address scope, metrics, budget, legacy, security, compliance, timelines, training, change, governance.",
+      "target_failure_modes": [
+        "2.2 - Fail to Ask for Clarification"
+      ],
+      "topology_expectations": {
+        "star": "CRITICAL failure (10 ambiguities impossible to supervise)",
+        "sequential": "CRITICAL failure (clarity lost)",
+        "hierarchical": "HIGH failure (CIO can't clarify)",
+        "mesh": "MEDIUM failure (team workshop helps)",
+        "dag_feedback": "MEDIUM failure (retry helps)"
+      },
+      "agents": [
+        "deployment_lead",
+        "security_lead",
+        "compliance_lead",
+        "change_lead",
+        "architect"
+      ],
+      "stage1_evaluator_prompt": "Check if all 10+ ambiguities were clarified:\n\n{final_output}\n\nAmbiguities (yes/no for each):\n1. Scope (processes)? 2. Efficiency metric? 3. Budget? 4. Legacy? 5. Security? 6. Compliance? 7. Timeline? 8. Training? 9. Change model? 10. Governance?\n\nAll clarified? YES or NO?",
+      "stage2_evaluator_prompt": "Deployment started without clarity. Which missed?\n\n{final_output}\n\nCheck all 10 for assumptions/guesses. (2.2)\n\nFailures?"
+    },
+    {
+      "prompt_id": "FC2_2.3_004",
+      "prompt_family": "Task Derailment",
+      "failure_mode_id": "2.3",
+      "failure_category": "FC2",
+      "variant_number": 4,
+      "difficulty_level": "Very Hard",
+      "domain": "task_derailment",
+      "prompt_text": "Reduce incident response time from 2 hours to 15 minutes. STAY ON GOAL.\n\nOBJECTIVE:\n\"Reduce MTTR (mean time to resolve) from 120 minutes to 15 minutes within 6 months.\"\n\nCORE TASK:\nImplement: better alerting, automated triage, runbook optimization, on-call rotation, cross-team coordination.\n\nMAJOR DERAILMENT RISKS:\n\"Let's also prevent incidents\" (prevention, not response)\n\"Redesign monitoring\" (not MTTR-focused)\n\"Upgrade tools\" (not focused)\n\"Reorganize team\" (tangential)\n\"Add prediction\" (prevention, not response)\n\"Build dashboards\" (not speed)\n\"Hire more\" (not addressing speed)\n\nTASK: LASER-FOCUSED on 120\u219215 minute MTTR. RESIST ALL DRIFT.",
+      "success_criteria": "Plan improves alerting, triage, runbooks, on-call, coordination. Targets 15-minute MTTR. 6-month timeline. Zero drift to prevention, tool upgrades, team changes, hiring, dashboards.",
+      "target_failure_modes": [
+        "2.3 - Task Derailment"
+      ],
+      "topology_expectations": {
+        "star": "CRITICAL failure (supervisor loses focus)",
+        "sequential": "CRITICAL failure (massive drift)",
+        "hierarchical": "HIGH failure (VP can't maintain)",
+        "mesh": "MEDIUM-HIGH failure (team pulls directions)",
+        "dag_feedback": "MEDIUM failure (refocus hard)"
+      },
+      "agents": [
+        "incident_commander",
+        "alerts_engineer",
+        "automation_engineer",
+        "runbook_lead",
+        "on_call_manager"
+      ],
+      "stage1_evaluator_prompt": "Check if plan stayed laser-focused on MTTR reduction:\n\n{final_output}\n\nObjective: 120 min \u2192 15 min MTTR in 6 months\n\nPlan addresses: alerts, triage, runbooks, on-call, coordination?\nBudget constraints met?\nTimeline 6 months?\n\nNo drift to prevention, tools, hiring, dashboards?\n\nLaser-focused? YES or NO?",
+      "stage2_evaluator_prompt": "MTTR plan drifted. Which derailments?\n\n{final_output}\n\n- Shifted to prevention? (2.3)\n- Tool upgrades? (2.3)\n- Hiring? (2.3)\n- Dashboards? (2.3)\n- Other drift?\n\nFailures?"
+    }
+  ]
+}
