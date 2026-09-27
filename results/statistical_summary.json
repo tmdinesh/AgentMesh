@@ -115,31 +115,31 @@
     "total_messages": {
       "success": {
         "pearson_r": -0.614,
-        "p_value": 6.250228041107173e-17,
+        "p_value": 6.25022804110709e-17,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
         "pearson_r": 0.169,
-        "p_value": 0.03859307052886468,
+        "p_value": 0.03859307052886439,
         "significant_0_05": true,
         "significant_0_01": false
       },
       "clarification_rate": {
         "pearson_r": -0.08,
-        "p_value": 0.32816197048553947,
+        "p_value": 0.32816197048553913,
         "significant_0_05": false,
         "significant_0_01": false
       },
       "lexical_decay_rate": {
         "pearson_r": -0.03,
-        "p_value": 0.7157609425682615,
+        "p_value": 0.7157609425682617,
         "significant_0_05": false,
         "significant_0_01": false
       },
       "step_repetition_index": {
         "pearson_r": -0.211,
-        "p_value": 0.009610221000178373,
+        "p_value": 0.009610221000178332,
         "significant_0_05": true,
         "significant_0_01": true
       }
