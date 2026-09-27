@@ -2,68 +2,68 @@
   "topologies_success_summary": [
     {
       "topology": "STAR",
-      "runs": 32,
-      "accuracy_pct": 25.0,
-      "ci_95_lower": 10.0,
-      "ci_95_upper": 40.0,
-      "mean_tokens": 17450,
-      "mean_cost_usd": 0.0024,
-      "mean_latency_sec": 113.88,
-      "coordinator_betweenness": 0.0,
-      "graph_density": 0.0,
-      "reciprocity": 0.0
+      "runs": 35,
+      "accuracy_pct": 22.86,
+      "ci_95_lower": 8.95,
+      "ci_95_upper": 36.77,
+      "mean_tokens": 16623,
+      "mean_cost_usd": 0.0023,
+      "mean_latency_sec": 115.3,
+      "coordinator_betweenness": 0.086,
+      "graph_density": 0.034,
+      "reciprocity": 0.086
     },
     {
       "topology": "CHAIN",
-      "runs": 30,
-      "accuracy_pct": 20.0,
-      "ci_95_lower": 5.69,
-      "ci_95_upper": 34.31,
-      "mean_tokens": 13684,
-      "mean_cost_usd": 0.0036,
-      "mean_latency_sec": 117.83,
-      "coordinator_betweenness": 0.0,
-      "graph_density": 0.0,
+      "runs": 35,
+      "accuracy_pct": 17.14,
+      "ci_95_lower": 4.66,
+      "ci_95_upper": 29.63,
+      "mean_tokens": 12679,
+      "mean_cost_usd": 0.0033,
+      "mean_latency_sec": 118.12,
+      "coordinator_betweenness": 0.071,
+      "graph_density": 0.036,
       "reciprocity": 0.0
     },
     {
       "topology": "TREE",
-      "runs": 30,
-      "accuracy_pct": 30.0,
-      "ci_95_lower": 13.6,
-      "ci_95_upper": 46.4,
-      "mean_tokens": 15908,
-      "mean_cost_usd": 0.0026,
-      "mean_latency_sec": 119.57,
-      "coordinator_betweenness": 0.0,
-      "graph_density": 0.0,
-      "reciprocity": 0.0
+      "runs": 35,
+      "accuracy_pct": 31.43,
+      "ci_95_lower": 16.05,
+      "ci_95_upper": 46.81,
+      "mean_tokens": 14456,
+      "mean_cost_usd": 0.0024,
+      "mean_latency_sec": 116.91,
+      "coordinator_betweenness": 0.095,
+      "graph_density": 0.057,
+      "reciprocity": 0.143
     },
     {
       "topology": "MESH",
-      "runs": 29,
-      "accuracy_pct": 20.69,
-      "ci_95_lower": 5.95,
-      "ci_95_upper": 35.43,
-      "mean_tokens": 13891,
-      "mean_cost_usd": 0.0036,
-      "mean_latency_sec": 118.07,
-      "coordinator_betweenness": 0.0,
-      "graph_density": 0.0,
-      "reciprocity": 0.0
+      "runs": 35,
+      "accuracy_pct": 20.0,
+      "ci_95_lower": 6.75,
+      "ci_95_upper": 33.25,
+      "mean_tokens": 12687,
+      "mean_cost_usd": 0.0032,
+      "mean_latency_sec": 119.91,
+      "coordinator_betweenness": 0.071,
+      "graph_density": 0.086,
+      "reciprocity": 0.029
     },
     {
       "topology": "EMERGENT",
-      "runs": 29,
-      "accuracy_pct": 27.59,
-      "ci_95_lower": 11.32,
-      "ci_95_upper": 43.85,
-      "mean_tokens": 22456,
-      "mean_cost_usd": 0.0048,
-      "mean_latency_sec": 120.28,
-      "coordinator_betweenness": 0.0,
-      "graph_density": 0.0,
-      "reciprocity": 0.0
+      "runs": 35,
+      "accuracy_pct": 28.57,
+      "ci_95_lower": 13.6,
+      "ci_95_upper": 43.54,
+      "mean_tokens": 19945,
+      "mean_cost_usd": 0.0043,
+      "mean_latency_sec": 118.01,
+      "coordinator_betweenness": 0.06,
+      "graph_density": 0.062,
+      "reciprocity": 0.076
     }
   ],
   "failure_signatures_by_mode": [
@@ -79,81 +79,198 @@
     },
     {
       "failure_mode": "FM-1.3",
-      "dissent_ratio": 0.497,
-      "clarification_rate": 0.624,
-      "lexical_decay_rate": 0.196,
-      "step_repetition_index": 0.193,
+      "dissent_ratio": 0.413,
+      "clarification_rate": 0.614,
+      "lexical_decay_rate": 0.034,
+      "step_repetition_index": 0.178,
       "early_termination_index": 0.0,
-      "coordinator_dominance": 0.0,
-      "participation_entropy": 0.0
+      "coordinator_dominance": 0.13,
+      "participation_entropy": 0.233
     },
     {
       "failure_mode": "FM-1.4",
-      "dissent_ratio": 0.166,
-      "clarification_rate": 0.482,
-      "lexical_decay_rate": -0.226,
-      "step_repetition_index": 0.23,
-      "early_termination_index": 0.0,
-      "coordinator_dominance": 0.0,
-      "participation_entropy": 0.0
+      "dissent_ratio": 0.164,
+      "clarification_rate": 0.477,
+      "lexical_decay_rate": -0.239,
+      "step_repetition_index": 0.227,
+      "early_termination_index": 0.003,
+      "coordinator_dominance": 0.026,
+      "participation_entropy": 0.057
     },
     {
       "failure_mode": "FM-1.5",
-      "dissent_ratio": 0.148,
-      "clarification_rate": 0.497,
-      "lexical_decay_rate": -0.147,
-      "step_repetition_index": 0.236,
-      "early_termination_index": 0.0,
-      "coordinator_dominance": 0.0,
-      "participation_entropy": 0.0
+      "dissent_ratio": 0.08,
+      "clarification_rate": 0.417,
+      "lexical_decay_rate": -0.165,
+      "step_repetition_index": 0.202,
+      "early_termination_index": 0.017,
+      "coordinator_dominance": 0.218,
+      "participation_entropy": 0.638
     }
   ],
   "sna_correlations": {
-    "coordinator_betweenness": {},
-    "graph_density": {},
-    "reciprocity": {},
-    "total_messages": {
+    "coordinator_betweenness": {
       "success": {
-        "pearson_r": -0.614,
-        "p_value": 6.25022804110709e-17,
-        "significant_0_05": true,
-        "significant_0_01": true
+        "pearson_r": -0.095,
+        "p_value": 0.21295841833182716,
+        "significant_0_05": false,
+        "significant_0_01": false
       },
       "dissent_ratio": {
-        "pearson_r": 0.169,
-        "p_value": 0.03859307052886439,
+        "pearson_r": -0.163,
+        "p_value": 0.03081759156021719,
         "significant_0_05": true,
         "significant_0_01": false
       },
       "clarification_rate": {
-        "pearson_r": -0.08,
-        "p_value": 0.32816197048553913,
-        "significant_0_05": false,
+        "pearson_r": -0.181,
+        "p_value": 0.016345201297801648,
+        "significant_0_05": true,
         "significant_0_01": false
       },
       "lexical_decay_rate": {
-        "pearson_r": -0.03,
-        "p_value": 0.7157609425682617,
+        "pearson_r": 0.003,
+        "p_value": 0.9653446742107592,
         "significant_0_05": false,
         "significant_0_01": false
       },
       "step_repetition_index": {
-        "pearson_r": -0.211,
-        "p_value": 0.009610221000178332,
+        "pearson_r": -0.34,
+        "p_value": 4.029553358385568e-06,
         "significant_0_05": true,
         "significant_0_01": true
+      },
+      "coordinator_dominance": {
+        "pearson_r": 0.89,
+        "p_value": 6.727207897658412e-61,
+        "significant_0_05": true,
+        "significant_0_01": true
+      }
+    },
+    "graph_density": {
+      "success": {
+        "pearson_r": 0.042,
+        "p_value": 0.5821418600670678,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "dissent_ratio": {
+        "pearson_r": -0.16,
+        "p_value": 0.034030909616353085,
+        "significant_0_05": true,
+        "significant_0_01": false
+      },
+      "clarification_rate": {
+        "pearson_r": -0.136,
+        "p_value": 0.07318354138375266,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "lexical_decay_rate": {
+        "pearson_r": 0.033,
+        "p_value": 0.667563386342685,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "step_repetition_index": {
+        "pearson_r": -0.177,
+        "p_value": 0.018854679129997637,
+        "significant_0_05": true,
+        "significant_0_01": false
+      },
+      "coordinator_dominance": {
+        "pearson_r": 0.823,
+        "p_value": 2.1862734697483384e-44,
+        "significant_0_05": true,
+        "significant_0_01": true
+      }
+    },
+    "reciprocity": {
+      "success": {
+        "pearson_r": 0.087,
+        "p_value": 0.25341122477163114,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "dissent_ratio": {
+        "pearson_r": -0.137,
+        "p_value": 0.07146582260825718,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "clarification_rate": {
+        "pearson_r": -0.139,
+        "p_value": 0.06635753799357468,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "lexical_decay_rate": {
+        "pearson_r": 0.119,
+        "p_value": 0.1171218678367325,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "step_repetition_index": {
+        "pearson_r": -0.179,
+        "p_value": 0.017889373805894056,
+        "significant_0_05": true,
+        "significant_0_01": false
+      },
+      "coordinator_dominance": {
+        "pearson_r": 0.625,
+        "p_value": 2.5007309895225655e-20,
+        "significant_0_05": true,
+        "significant_0_01": true
+      }
+    },
+    "total_messages": {
+      "success": {
+        "pearson_r": -0.602,
+        "p_value": 1.1644180254468451e-18,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
+      "dissent_ratio": {
+        "pearson_r": 0.158,
+        "p_value": 0.036804493238845146,
+        "significant_0_05": true,
+        "significant_0_01": false
+      },
+      "clarification_rate": {
+        "pearson_r": -0.091,
+        "p_value": 0.2332643694312509,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "lexical_decay_rate": {
+        "pearson_r": -0.028,
+        "p_value": 0.7116652028585347,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "step_repetition_index": {
+        "pearson_r": -0.284,
+        "p_value": 0.00014077240898111257,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
+      "coordinator_dominance": {
+        "pearson_r": 0.02,
+        "p_value": 0.7879781636263987,
+        "significant_0_05": false,
+        "significant_0_01": false
       }
     }
   },
   "model_robustness_summary": [
     {
       "model": "heterogeneous",
-      "total_runs": 150,
-      "overall_accuracy_pct": 24.67,
-      "topological_sensitivity_std": 4.32,
-      "mean_tokens_per_task": 16668,
-      "mean_cost_usd": 0.0034,
-      "mean_latency_sec": 117.86
+      "total_runs": 175,
+      "overall_accuracy_pct": 24.0,
+      "topological_sensitivity_std": 5.92,
+      "mean_tokens_per_task": 15278,
+      "mean_cost_usd": 0.0031,
+      "mean_latency_sec": 117.65
     }
   ]
 }
