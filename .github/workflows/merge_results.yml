@@ -1,0 +1,74 @@
+name: Auto-Merge Experiment Results
+
+on:
+  push:
+    paths:
+      - 'results/**'
+      - 'datasets/**'
+      - 'experiments/merge_results.py'
+      - '.github/workflows/merge_results.yml'
+  pull_request:
+    paths:
+      - 'results/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: merge-results-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  merge-results:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Auto-Merge Results & Recompute Artifacts
+        run: |
+          python experiments/merge_results.py
+
+      - name: Commit and Push Unified Results
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are changes in results/
+          if [ -n "$(git status --porcelain results/)" ]; then
+            echo "Changes detected in results directory. Committing unified dataset and artifacts..."
+            git add results/
+            git commit -m "chore(benchmark): auto-merge experiment results and update paper artifacts [skip ci]"
+            git pull --rebase origin ${{ github.ref_name }}
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "Results already unified and artifacts up to date. No commit needed."
+          fi
+
+      - name: Upload Unified Benchmark Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-benchmark-results
+          path: |
+            results/experiment_results.csv
+            results/traces.jsonl
+            results/statistical_summary.json
+            results/paper_results_section.md
+            results/figures/
+          retention-days: 30
