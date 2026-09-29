@@ -2,275 +2,315 @@
   "topologies_success_summary": [
     {
       "topology": "STAR",
-      "runs": 35,
-      "accuracy_pct": 22.86,
-      "ci_95_lower": 8.95,
-      "ci_95_upper": 36.77,
-      "mean_tokens": 16623,
-      "mean_cost_usd": 0.0023,
-      "mean_latency_sec": 115.3,
-      "coordinator_betweenness": 0.086,
-      "graph_density": 0.034,
-      "reciprocity": 0.086
+      "runs": 135,
+      "accuracy_pct": 44.44,
+      "ci_95_lower": 36.06,
+      "ci_95_upper": 52.83,
+      "mean_tokens": 13625,
+      "mean_cost_usd": 0.0018,
+      "mean_latency_sec": 118.71,
+      "coordinator_betweenness": 0.528,
+      "graph_density": 0.414,
+      "reciprocity": 0.763
     },
     {
       "topology": "CHAIN",
-      "runs": 35,
-      "accuracy_pct": 17.14,
-      "ci_95_lower": 4.66,
-      "ci_95_upper": 29.63,
-      "mean_tokens": 12679,
-      "mean_cost_usd": 0.0033,
-      "mean_latency_sec": 118.12,
-      "coordinator_betweenness": 0.071,
-      "graph_density": 0.036,
-      "reciprocity": 0.0
+      "runs": 135,
+      "accuracy_pct": 39.26,
+      "ci_95_lower": 31.02,
+      "ci_95_upper": 47.5,
+      "mean_tokens": 11293,
+      "mean_cost_usd": 0.0023,
+      "mean_latency_sec": 133.45,
+      "coordinator_betweenness": 0.296,
+      "graph_density": 0.338,
+      "reciprocity": 0.111
     },
     {
       "topology": "TREE",
-      "runs": 35,
-      "accuracy_pct": 31.43,
-      "ci_95_lower": 16.05,
-      "ci_95_upper": 46.81,
-      "mean_tokens": 14456,
-      "mean_cost_usd": 0.0024,
-      "mean_latency_sec": 116.91,
-      "coordinator_betweenness": 0.095,
-      "graph_density": 0.057,
-      "reciprocity": 0.143
+      "runs": 135,
+      "accuracy_pct": 45.19,
+      "ci_95_lower": 36.79,
+      "ci_95_upper": 53.58,
+      "mean_tokens": 12545,
+      "mean_cost_usd": 0.0019,
+      "mean_latency_sec": 122.82,
+      "coordinator_betweenness": 0.471,
+      "graph_density": 0.42,
+      "reciprocity": 0.778
     },
     {
       "topology": "MESH",
-      "runs": 35,
-      "accuracy_pct": 20.0,
-      "ci_95_lower": 6.75,
-      "ci_95_upper": 33.25,
-      "mean_tokens": 12687,
-      "mean_cost_usd": 0.0032,
-      "mean_latency_sec": 119.91,
-      "coordinator_betweenness": 0.071,
-      "graph_density": 0.086,
-      "reciprocity": 0.029
+      "runs": 135,
+      "accuracy_pct": 40.74,
+      "ci_95_lower": 32.45,
+      "ci_95_upper": 49.03,
+      "mean_tokens": 10992,
+      "mean_cost_usd": 0.0022,
+      "mean_latency_sec": 121.68,
+      "coordinator_betweenness": 0.123,
+      "graph_density": 0.538,
+      "reciprocity": 0.452
     },
     {
       "topology": "EMERGENT",
-      "runs": 35,
-      "accuracy_pct": 28.57,
-      "ci_95_lower": 13.6,
-      "ci_95_upper": 43.54,
-      "mean_tokens": 19945,
-      "mean_cost_usd": 0.0043,
-      "mean_latency_sec": 118.01,
-      "coordinator_betweenness": 0.06,
-      "graph_density": 0.062,
-      "reciprocity": 0.076
+      "runs": 135,
+      "accuracy_pct": 48.15,
+      "ci_95_lower": 39.72,
+      "ci_95_upper": 56.58,
+      "mean_tokens": 14684,
+      "mean_cost_usd": 0.0027,
+      "mean_latency_sec": 121.72,
+      "coordinator_betweenness": 0.071,
+      "graph_density": 0.365,
+      "reciprocity": 0.404
     }
   ],
   "failure_signatures_by_mode": [
     {
       "failure_mode": "FM-1.1",
-      "dissent_ratio": 0.229,
-      "clarification_rate": 0.567,
-      "lexical_decay_rate": -0.288,
-      "step_repetition_index": 0.248,
-      "early_termination_index": 0.0,
-      "coordinator_dominance": 0.0,
-      "participation_entropy": 0.0
+      "dissent_ratio": 0.238,
+      "clarification_rate": 0.841,
+      "lexical_decay_rate": -0.162,
+      "step_repetition_index": 0.229,
+      "early_termination_index": 0.003,
+      "coordinator_dominance": 0.112,
+      "participation_entropy": 0.396
+    },
+    {
+      "failure_mode": "FM-1.2",
+      "dissent_ratio": 0.093,
+      "clarification_rate": 0.425,
+      "lexical_decay_rate": -0.088,
+      "step_repetition_index": 0.224,
+      "early_termination_index": 0.023,
+      "coordinator_dominance": 0.348,
+      "participation_entropy": 0.94
     },
     {
       "failure_mode": "FM-1.3",
-      "dissent_ratio": 0.413,
-      "clarification_rate": 0.614,
-      "lexical_decay_rate": 0.034,
-      "step_repetition_index": 0.178,
-      "early_termination_index": 0.0,
-      "coordinator_dominance": 0.13,
-      "participation_entropy": 0.233
+      "dissent_ratio": 0.356,
+      "clarification_rate": 0.52,
+      "lexical_decay_rate": -0.166,
+      "step_repetition_index": 0.228,
+      "early_termination_index": 0.003,
+      "coordinator_dominance": 0.191,
+      "participation_entropy": 0.725
     },
     {
       "failure_mode": "FM-1.4",
-      "dissent_ratio": 0.164,
-      "clarification_rate": 0.477,
-      "lexical_decay_rate": -0.239,
-      "step_repetition_index": 0.227,
-      "early_termination_index": 0.003,
-      "coordinator_dominance": 0.026,
-      "participation_entropy": 0.057
+      "dissent_ratio": 0.295,
+      "clarification_rate": 0.334,
+      "lexical_decay_rate": -0.08,
+      "step_repetition_index": 0.22,
+      "early_termination_index": 0.004,
+      "coordinator_dominance": 0.153,
+      "participation_entropy": 0.55
     },
     {
       "failure_mode": "FM-1.5",
-      "dissent_ratio": 0.08,
-      "clarification_rate": 0.417,
-      "lexical_decay_rate": -0.165,
-      "step_repetition_index": 0.202,
-      "early_termination_index": 0.017,
-      "coordinator_dominance": 0.218,
-      "participation_entropy": 0.638
+      "dissent_ratio": 0.277,
+      "clarification_rate": 0.574,
+      "lexical_decay_rate": -0.196,
+      "step_repetition_index": 0.216,
+      "early_termination_index": 0.011,
+      "coordinator_dominance": 0.449,
+      "participation_entropy": 0.615
+    },
+    {
+      "failure_mode": "FM-2.1",
+      "dissent_ratio": 0.271,
+      "clarification_rate": 0.306,
+      "lexical_decay_rate": -0.075,
+      "step_repetition_index": 0.215,
+      "early_termination_index": 0.0,
+      "coordinator_dominance": 0.474,
+      "participation_entropy": 0.901
+    },
+    {
+      "failure_mode": "FM-2.2",
+      "dissent_ratio": 0.077,
+      "clarification_rate": 3.335,
+      "lexical_decay_rate": 0.131,
+      "step_repetition_index": 0.271,
+      "early_termination_index": 0.036,
+      "coordinator_dominance": 0.572,
+      "participation_entropy": 0.933
+    },
+    {
+      "failure_mode": "FM-2.3",
+      "dissent_ratio": 0.078,
+      "clarification_rate": 0.275,
+      "lexical_decay_rate": 0.129,
+      "step_repetition_index": 0.273,
+      "early_termination_index": 0.092,
+      "coordinator_dominance": 0.508,
+      "participation_entropy": 0.879
     }
   ],
   "sna_correlations": {
     "coordinator_betweenness": {
       "success": {
-        "pearson_r": -0.095,
-        "p_value": 0.2129584183318278,
-        "significant_0_05": false,
-        "significant_0_01": false
-      },
-      "dissent_ratio": {
-        "pearson_r": -0.163,
-        "p_value": 0.0308175915602171,
-        "significant_0_05": true,
-        "significant_0_01": false
-      },
-      "clarification_rate": {
-        "pearson_r": -0.181,
-        "p_value": 0.016345201297801662,
-        "significant_0_05": true,
-        "significant_0_01": false
-      },
-      "lexical_decay_rate": {
-        "pearson_r": 0.003,
-        "p_value": 0.9653446742107588,
-        "significant_0_05": false,
-        "significant_0_01": false
-      },
-      "step_repetition_index": {
-        "pearson_r": -0.34,
-        "p_value": 4.029553358385564e-06,
+        "pearson_r": 0.13,
+        "p_value": 0.0007403526748311922,
         "significant_0_05": true,
         "significant_0_01": true
       },
+      "dissent_ratio": {
+        "pearson_r": 0.069,
+        "p_value": 0.07383973811472497,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
+      "clarification_rate": {
+        "pearson_r": -0.236,
+        "p_value": 5.118812918776293e-10,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
+      "lexical_decay_rate": {
+        "pearson_r": 0.103,
+        "p_value": 0.007564471871157881,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
+      "step_repetition_index": {
+        "pearson_r": -0.033,
+        "p_value": 0.3912405544202224,
+        "significant_0_05": false,
+        "significant_0_01": false
+      },
       "coordinator_dominance": {
-        "pearson_r": 0.89,
-        "p_value": 6.727207897658322e-61,
+        "pearson_r": 0.369,
+        "p_value": 3.55242072480776e-23,
         "significant_0_05": true,
         "significant_0_01": true
       }
     },
     "graph_density": {
       "success": {
-        "pearson_r": 0.042,
-        "p_value": 0.5821418600670666,
-        "significant_0_05": false,
-        "significant_0_01": false
+        "pearson_r": 0.333,
+        "p_value": 5.559942391062176e-19,
+        "significant_0_05": true,
+        "significant_0_01": true
       },
       "dissent_ratio": {
-        "pearson_r": -0.16,
-        "p_value": 0.03403090961635309,
+        "pearson_r": -0.266,
+        "p_value": 2.141266034397915e-12,
         "significant_0_05": true,
-        "significant_0_01": false
+        "significant_0_01": true
       },
       "clarification_rate": {
-        "pearson_r": -0.136,
-        "p_value": 0.07318354138375256,
-        "significant_0_05": false,
-        "significant_0_01": false
+        "pearson_r": 0.314,
+        "p_value": 5.917792805102204e-17,
+        "significant_0_05": true,
+        "significant_0_01": true
       },
       "lexical_decay_rate": {
-        "pearson_r": 0.033,
-        "p_value": 0.6675633863426846,
-        "significant_0_05": false,
-        "significant_0_01": false
+        "pearson_r": 0.183,
+        "p_value": 1.6006525706467642e-06,
+        "significant_0_05": true,
+        "significant_0_01": true
       },
       "step_repetition_index": {
-        "pearson_r": -0.177,
-        "p_value": 0.01885467912999767,
+        "pearson_r": 0.156,
+        "p_value": 4.668334875392399e-05,
         "significant_0_05": true,
-        "significant_0_01": false
+        "significant_0_01": true
       },
       "coordinator_dominance": {
-        "pearson_r": 0.823,
-        "p_value": 2.1862734697483463e-44,
+        "pearson_r": 0.626,
+        "p_value": 1.2033766825937486e-74,
         "significant_0_05": true,
         "significant_0_01": true
       }
     },
     "reciprocity": {
       "success": {
-        "pearson_r": 0.087,
-        "p_value": 0.2534112247716301,
-        "significant_0_05": false,
-        "significant_0_01": false
+        "pearson_r": 0.229,
+        "p_value": 1.6412463149649593e-09,
+        "significant_0_05": true,
+        "significant_0_01": true
       },
       "dissent_ratio": {
         "pearson_r": -0.137,
-        "p_value": 0.07146582260825675,
-        "significant_0_05": false,
-        "significant_0_01": false
+        "p_value": 0.0003414977063798142,
+        "significant_0_05": true,
+        "significant_0_01": true
       },
       "clarification_rate": {
-        "pearson_r": -0.139,
-        "p_value": 0.06635753799357444,
-        "significant_0_05": false,
-        "significant_0_01": false
+        "pearson_r": 0.112,
+        "p_value": 0.0036740166581854996,
+        "significant_0_05": true,
+        "significant_0_01": true
       },
       "lexical_decay_rate": {
-        "pearson_r": 0.119,
-        "p_value": 0.11712186783673255,
-        "significant_0_05": false,
-        "significant_0_01": false
+        "pearson_r": 0.126,
+        "p_value": 0.0010369718561701526,
+        "significant_0_05": true,
+        "significant_0_01": true
       },
       "step_repetition_index": {
-        "pearson_r": -0.179,
-        "p_value": 0.017889373805894008,
+        "pearson_r": 0.218,
+        "p_value": 1.038986880672723e-08,
         "significant_0_05": true,
-        "significant_0_01": false
+        "significant_0_01": true
       },
       "coordinator_dominance": {
-        "pearson_r": 0.625,
-        "p_value": 2.5007309895225824e-20,
+        "pearson_r": 0.52,
+        "p_value": 3.9539356797025297e-48,
         "significant_0_05": true,
         "significant_0_01": true
       }
     },
     "total_messages": {
       "success": {
-        "pearson_r": -0.602,
-        "p_value": 1.16441802544683e-18,
+        "pearson_r": -0.379,
+        "p_value": 1.7779307259270205e-24,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
-        "pearson_r": 0.158,
-        "p_value": 0.036804493238845375,
-        "significant_0_05": true,
-        "significant_0_01": false
-      },
-      "clarification_rate": {
-        "pearson_r": -0.091,
-        "p_value": 0.23326436943125056,
-        "significant_0_05": false,
-        "significant_0_01": false
-      },
-      "lexical_decay_rate": {
-        "pearson_r": -0.028,
-        "p_value": 0.7116652028585357,
-        "significant_0_05": false,
-        "significant_0_01": false
-      },
-      "step_repetition_index": {
-        "pearson_r": -0.284,
-        "p_value": 0.00014077240898111368,
+        "pearson_r": 0.32,
+        "p_value": 1.58352558930344e-17,
         "significant_0_05": true,
         "significant_0_01": true
       },
-      "coordinator_dominance": {
-        "pearson_r": 0.02,
-        "p_value": 0.7879781636263973,
+      "clarification_rate": {
+        "pearson_r": -0.523,
+        "p_value": 1.0496969392500871e-48,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
+      "lexical_decay_rate": {
+        "pearson_r": -0.131,
+        "p_value": 0.0006733737774820094,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
+      "step_repetition_index": {
+        "pearson_r": -0.073,
+        "p_value": 0.05800673561398422,
         "significant_0_05": false,
         "significant_0_01": false
+      },
+      "coordinator_dominance": {
+        "pearson_r": -0.592,
+        "p_value": 5.677107105251674e-65,
+        "significant_0_05": true,
+        "significant_0_01": true
       }
     }
   },
   "model_robustness_summary": [
     {
       "model": "heterogeneous",
-      "total_runs": 175,
-      "overall_accuracy_pct": 24.0,
-      "topological_sensitivity_std": 5.92,
-      "mean_tokens_per_task": 15278,
-      "mean_cost_usd": 0.0031,
-      "mean_latency_sec": 117.65
+      "total_runs": 675,
+      "overall_accuracy_pct": 43.56,
+      "topological_sensitivity_std": 3.57,
+      "mean_tokens_per_task": 12628,
+      "mean_cost_usd": 0.0022,
+      "mean_latency_sec": 123.67
     }
   ]
 }
