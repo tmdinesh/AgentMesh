@@ -202,37 +202,37 @@
     "coordinator_betweenness": {
       "success": {
         "pearson_r": -0.018,
-        "p_value": 0.5502754872814822,
+        "p_value": 0.5502754872814836,
         "significant_0_05": false,
         "significant_0_01": false
       },
       "dissent_ratio": {
         "pearson_r": 0.09,
-        "p_value": 0.0022263350880851705,
+        "p_value": 0.0022263350880851566,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "clarification_rate": {
         "pearson_r": -0.083,
-        "p_value": 0.00488499503301967,
+        "p_value": 0.00488499503301971,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
         "pearson_r": 0.122,
-        "p_value": 3.1742500062918024e-05,
+        "p_value": 3.1742500062918166e-05,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "step_repetition_index": {
         "pearson_r": 0.032,
-        "p_value": 0.2813297801777139,
+        "p_value": 0.2813297801777126,
         "significant_0_05": false,
         "significant_0_01": false
       },
       "coordinator_dominance": {
         "pearson_r": 0.241,
-        "p_value": 1.0823227125079598e-16,
+        "p_value": 1.0823227125079507e-16,
         "significant_0_05": true,
         "significant_0_01": true
       }
@@ -240,37 +240,37 @@
     "graph_density": {
       "success": {
         "pearson_r": 0.278,
-        "p_value": 6.847404469853064e-22,
+        "p_value": 6.847404469852294e-22,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
         "pearson_r": -0.277,
-        "p_value": 1.1526196189277971e-21,
+        "p_value": 1.1526196189278453e-21,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "clarification_rate": {
         "pearson_r": 0.246,
-        "p_value": 3.1952196013584925e-17,
+        "p_value": 3.195219601358407e-17,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
         "pearson_r": 0.139,
-        "p_value": 2.191580851440901e-06,
+        "p_value": 2.1915808514409607e-06,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "step_repetition_index": {
         "pearson_r": 0.124,
-        "p_value": 2.373443701046472e-05,
+        "p_value": 2.3734437010464434e-05,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "coordinator_dominance": {
         "pearson_r": 0.548,
-        "p_value": 4.177989849788988e-91,
+        "p_value": 4.1779898497888945e-91,
         "significant_0_05": true,
         "significant_0_01": true
       }
@@ -278,37 +278,37 @@
     "reciprocity": {
       "success": {
         "pearson_r": 0.156,
-        "p_value": 1.108595083868435e-07,
+        "p_value": 1.1085950838684339e-07,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
         "pearson_r": -0.146,
-        "p_value": 7.083169588081309e-07,
+        "p_value": 7.083169588081539e-07,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "clarification_rate": {
         "pearson_r": 0.115,
-        "p_value": 9.502131152418042e-05,
+        "p_value": 9.502131152418049e-05,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
         "pearson_r": 0.067,
-        "p_value": 0.02218950118556633,
+        "p_value": 0.022189501185566753,
         "significant_0_05": true,
         "significant_0_01": false
       },
       "step_repetition_index": {
         "pearson_r": 0.197,
-        "p_value": 1.808390169099233e-11,
+        "p_value": 1.8083901690992576e-11,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "coordinator_dominance": {
         "pearson_r": 0.412,
-        "p_value": 2.8460420147978e-48,
+        "p_value": 2.846042014798403e-48,
         "significant_0_05": true,
         "significant_0_01": true
       }
@@ -316,37 +316,37 @@
     "total_messages": {
       "success": {
         "pearson_r": -0.337,
-        "p_value": 8.074361956375711e-32,
+        "p_value": 8.074361956374131e-32,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
         "pearson_r": 0.305,
-        "p_value": 4.0224917665663997e-26,
+        "p_value": 4.0224917665661695e-26,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "clarification_rate": {
         "pearson_r": -0.28,
-        "p_value": 3.6915465827691074e-22,
+        "p_value": 3.69154658276933e-22,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
         "pearson_r": -0.041,
-        "p_value": 0.16648918283750538,
+        "p_value": 0.16648918283750536,
         "significant_0_05": false,
         "significant_0_01": false
       },
       "step_repetition_index": {
         "pearson_r": 0.092,
-        "p_value": 0.0017511681799847018,
+        "p_value": 0.0017511681799846964,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "coordinator_dominance": {
         "pearson_r": -0.617,
-        "p_value": 1.6926657984498361e-121,
+        "p_value": 1.6926657984496551e-121,
         "significant_0_05": true,
         "significant_0_01": true
       }
