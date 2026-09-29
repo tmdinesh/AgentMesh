@@ -2,301 +2,351 @@
   "topologies_success_summary": [
     {
       "topology": "STAR",
-      "runs": 135,
-      "accuracy_pct": 44.44,
-      "ci_95_lower": 36.06,
-      "ci_95_upper": 52.83,
-      "mean_tokens": 13625,
-      "mean_cost_usd": 0.0018,
-      "mean_latency_sec": 118.71,
-      "coordinator_betweenness": 0.528,
-      "graph_density": 0.414,
-      "reciprocity": 0.763
+      "runs": 230,
+      "accuracy_pct": 42.61,
+      "ci_95_lower": 36.22,
+      "ci_95_upper": 49.0,
+      "mean_tokens": 13289,
+      "mean_cost_usd": 0.0017,
+      "mean_latency_sec": 118.34,
+      "coordinator_betweenness": 0.612,
+      "graph_density": 0.497,
+      "reciprocity": 0.861
     },
     {
       "topology": "CHAIN",
-      "runs": 135,
-      "accuracy_pct": 39.26,
-      "ci_95_lower": 31.02,
-      "ci_95_upper": 47.5,
-      "mean_tokens": 11293,
-      "mean_cost_usd": 0.0023,
-      "mean_latency_sec": 133.45,
-      "coordinator_betweenness": 0.296,
-      "graph_density": 0.338,
-      "reciprocity": 0.111
+      "runs": 230,
+      "accuracy_pct": 41.74,
+      "ci_95_lower": 35.37,
+      "ci_95_upper": 48.11,
+      "mean_tokens": 11239,
+      "mean_cost_usd": 0.002,
+      "mean_latency_sec": 134.47,
+      "coordinator_betweenness": 0.337,
+      "graph_density": 0.405,
+      "reciprocity": 0.152
     },
     {
       "topology": "TREE",
-      "runs": 135,
-      "accuracy_pct": 45.19,
-      "ci_95_lower": 36.79,
-      "ci_95_upper": 53.58,
-      "mean_tokens": 12545,
-      "mean_cost_usd": 0.0019,
-      "mean_latency_sec": 122.82,
-      "coordinator_betweenness": 0.471,
-      "graph_density": 0.42,
-      "reciprocity": 0.778
+      "runs": 230,
+      "accuracy_pct": 42.61,
+      "ci_95_lower": 36.22,
+      "ci_95_upper": 49.0,
+      "mean_tokens": 12261,
+      "mean_cost_usd": 0.0018,
+      "mean_latency_sec": 126.07,
+      "coordinator_betweenness": 0.532,
+      "graph_density": 0.5,
+      "reciprocity": 0.87
     },
     {
       "topology": "MESH",
-      "runs": 135,
-      "accuracy_pct": 40.74,
-      "ci_95_lower": 32.45,
-      "ci_95_upper": 49.03,
-      "mean_tokens": 10992,
-      "mean_cost_usd": 0.0022,
-      "mean_latency_sec": 121.68,
-      "coordinator_betweenness": 0.123,
-      "graph_density": 0.538,
-      "reciprocity": 0.452
+      "runs": 229,
+      "accuracy_pct": 40.61,
+      "ci_95_lower": 34.25,
+      "ci_95_upper": 46.97,
+      "mean_tokens": 10939,
+      "mean_cost_usd": 0.002,
+      "mean_latency_sec": 123.13,
+      "coordinator_betweenness": 0.146,
+      "graph_density": 0.626,
+      "reciprocity": 0.524
     },
     {
       "topology": "EMERGENT",
-      "runs": 135,
-      "accuracy_pct": 48.15,
-      "ci_95_lower": 39.72,
-      "ci_95_upper": 56.58,
-      "mean_tokens": 14684,
-      "mean_cost_usd": 0.0027,
-      "mean_latency_sec": 121.72,
-      "coordinator_betweenness": 0.071,
-      "graph_density": 0.365,
-      "reciprocity": 0.404
+      "runs": 229,
+      "accuracy_pct": 47.6,
+      "ci_95_lower": 41.13,
+      "ci_95_upper": 54.07,
+      "mean_tokens": 13835,
+      "mean_cost_usd": 0.0023,
+      "mean_latency_sec": 117.27,
+      "coordinator_betweenness": 0.072,
+      "graph_density": 0.426,
+      "reciprocity": 0.44
     }
   ],
   "failure_signatures_by_mode": [
     {
       "failure_mode": "FM-1.1",
-      "dissent_ratio": 0.238,
-      "clarification_rate": 0.841,
-      "lexical_decay_rate": -0.162,
-      "step_repetition_index": 0.229,
-      "early_termination_index": 0.003,
-      "coordinator_dominance": 0.112,
-      "participation_entropy": 0.396
+      "dissent_ratio": 0.256,
+      "clarification_rate": 1.15,
+      "lexical_decay_rate": -0.105,
+      "step_repetition_index": 0.24,
+      "early_termination_index": 0.005,
+      "coordinator_dominance": 0.179,
+      "participation_entropy": 0.547
     },
     {
       "failure_mode": "FM-1.2",
-      "dissent_ratio": 0.093,
-      "clarification_rate": 0.425,
-      "lexical_decay_rate": -0.088,
-      "step_repetition_index": 0.224,
-      "early_termination_index": 0.023,
-      "coordinator_dominance": 0.348,
-      "participation_entropy": 0.94
+      "dissent_ratio": 0.203,
+      "clarification_rate": 0.459,
+      "lexical_decay_rate": 0.02,
+      "step_repetition_index": 0.24,
+      "early_termination_index": 0.015,
+      "coordinator_dominance": 0.309,
+      "participation_entropy": 0.932
     },
     {
       "failure_mode": "FM-1.3",
-      "dissent_ratio": 0.356,
-      "clarification_rate": 0.52,
-      "lexical_decay_rate": -0.166,
-      "step_repetition_index": 0.228,
-      "early_termination_index": 0.003,
-      "coordinator_dominance": 0.191,
-      "participation_entropy": 0.725
+      "dissent_ratio": 0.36,
+      "clarification_rate": 0.511,
+      "lexical_decay_rate": -0.157,
+      "step_repetition_index": 0.226,
+      "early_termination_index": 0.005,
+      "coordinator_dominance": 0.208,
+      "participation_entropy": 0.741
     },
     {
       "failure_mode": "FM-1.4",
-      "dissent_ratio": 0.295,
-      "clarification_rate": 0.334,
+      "dissent_ratio": 0.293,
+      "clarification_rate": 0.332,
       "lexical_decay_rate": -0.08,
       "step_repetition_index": 0.22,
-      "early_termination_index": 0.004,
-      "coordinator_dominance": 0.153,
-      "participation_entropy": 0.55
+      "early_termination_index": 0.005,
+      "coordinator_dominance": 0.154,
+      "participation_entropy": 0.558
     },
     {
       "failure_mode": "FM-1.5",
-      "dissent_ratio": 0.277,
-      "clarification_rate": 0.574,
-      "lexical_decay_rate": -0.196,
+      "dissent_ratio": 0.258,
+      "clarification_rate": 0.532,
+      "lexical_decay_rate": -0.2,
       "step_repetition_index": 0.216,
-      "early_termination_index": 0.011,
-      "coordinator_dominance": 0.449,
-      "participation_entropy": 0.615
+      "early_termination_index": 0.015,
+      "coordinator_dominance": 0.429,
+      "participation_entropy": 0.661
     },
     {
       "failure_mode": "FM-2.1",
-      "dissent_ratio": 0.271,
-      "clarification_rate": 0.306,
-      "lexical_decay_rate": -0.075,
-      "step_repetition_index": 0.215,
-      "early_termination_index": 0.0,
-      "coordinator_dominance": 0.474,
-      "participation_entropy": 0.901
+      "dissent_ratio": 0.156,
+      "clarification_rate": 0.287,
+      "lexical_decay_rate": 0.209,
+      "step_repetition_index": 0.223,
+      "early_termination_index": 0.004,
+      "coordinator_dominance": 0.239,
+      "participation_entropy": 0.927
     },
     {
       "failure_mode": "FM-2.2",
-      "dissent_ratio": 0.077,
-      "clarification_rate": 3.335,
-      "lexical_decay_rate": 0.131,
-      "step_repetition_index": 0.271,
-      "early_termination_index": 0.036,
-      "coordinator_dominance": 0.572,
-      "participation_entropy": 0.933
+      "dissent_ratio": 0.136,
+      "clarification_rate": 3.791,
+      "lexical_decay_rate": -0.013,
+      "step_repetition_index": 0.282,
+      "early_termination_index": 0.022,
+      "coordinator_dominance": 0.392,
+      "participation_entropy": 0.934
     },
     {
       "failure_mode": "FM-2.3",
-      "dissent_ratio": 0.078,
-      "clarification_rate": 0.275,
-      "lexical_decay_rate": 0.129,
-      "step_repetition_index": 0.273,
-      "early_termination_index": 0.092,
-      "coordinator_dominance": 0.508,
-      "participation_entropy": 0.879
+      "dissent_ratio": 0.11,
+      "clarification_rate": 0.38,
+      "lexical_decay_rate": 0.101,
+      "step_repetition_index": 0.255,
+      "early_termination_index": 0.035,
+      "coordinator_dominance": 0.418,
+      "participation_entropy": 0.908
+    },
+    {
+      "failure_mode": "FM-2.4",
+      "dissent_ratio": 0.098,
+      "clarification_rate": 0.469,
+      "lexical_decay_rate": 0.015,
+      "step_repetition_index": 0.217,
+      "early_termination_index": 0.018,
+      "coordinator_dominance": 0.304,
+      "participation_entropy": 0.945
+    },
+    {
+      "failure_mode": "FM-2.5",
+      "dissent_ratio": 0.07,
+      "clarification_rate": 0.22,
+      "lexical_decay_rate": 0.001,
+      "step_repetition_index": 0.239,
+      "early_termination_index": 0.024,
+      "coordinator_dominance": 0.332,
+      "participation_entropy": 0.936
+    },
+    {
+      "failure_mode": "FM-3.1",
+      "dissent_ratio": 0.208,
+      "clarification_rate": 0.411,
+      "lexical_decay_rate": 0.087,
+      "step_repetition_index": 0.231,
+      "early_termination_index": 0.098,
+      "coordinator_dominance": 0.477,
+      "participation_entropy": 0.858
+    },
+    {
+      "failure_mode": "FM-3.2",
+      "dissent_ratio": 0.202,
+      "clarification_rate": 1.217,
+      "lexical_decay_rate": 0.102,
+      "step_repetition_index": 0.298,
+      "early_termination_index": 0.009,
+      "coordinator_dominance": 0.41,
+      "participation_entropy": 0.935
+    },
+    {
+      "failure_mode": "FM-3.3",
+      "dissent_ratio": 0.0,
+      "clarification_rate": 1.479,
+      "lexical_decay_rate": 0.429,
+      "step_repetition_index": 0.192,
+      "early_termination_index": 0.0,
+      "coordinator_dominance": 0.475,
+      "participation_entropy": 0.996
     }
   ],
   "sna_correlations": {
     "coordinator_betweenness": {
       "success": {
-        "pearson_r": 0.13,
-        "p_value": 0.0007403526748311922,
-        "significant_0_05": true,
-        "significant_0_01": true
-      },
-      "dissent_ratio": {
-        "pearson_r": 0.069,
-        "p_value": 0.07383973811472497,
+        "pearson_r": -0.018,
+        "p_value": 0.5502754872814822,
         "significant_0_05": false,
         "significant_0_01": false
       },
+      "dissent_ratio": {
+        "pearson_r": 0.09,
+        "p_value": 0.0022263350880851705,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
       "clarification_rate": {
-        "pearson_r": -0.236,
-        "p_value": 5.118812918776293e-10,
+        "pearson_r": -0.083,
+        "p_value": 0.00488499503301967,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
-        "pearson_r": 0.103,
-        "p_value": 0.007564471871157881,
+        "pearson_r": 0.122,
+        "p_value": 3.1742500062918024e-05,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "step_repetition_index": {
-        "pearson_r": -0.033,
-        "p_value": 0.3912405544202224,
+        "pearson_r": 0.032,
+        "p_value": 0.2813297801777139,
         "significant_0_05": false,
         "significant_0_01": false
       },
       "coordinator_dominance": {
-        "pearson_r": 0.369,
-        "p_value": 3.55242072480776e-23,
+        "pearson_r": 0.241,
+        "p_value": 1.0823227125079598e-16,
         "significant_0_05": true,
         "significant_0_01": true
       }
     },
     "graph_density": {
       "success": {
-        "pearson_r": 0.333,
-        "p_value": 5.559942391062176e-19,
+        "pearson_r": 0.278,
+        "p_value": 6.847404469853064e-22,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
-        "pearson_r": -0.266,
-        "p_value": 2.141266034397915e-12,
+        "pearson_r": -0.277,
+        "p_value": 1.1526196189277971e-21,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "clarification_rate": {
-        "pearson_r": 0.314,
-        "p_value": 5.917792805102204e-17,
+        "pearson_r": 0.246,
+        "p_value": 3.1952196013584925e-17,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
-        "pearson_r": 0.183,
-        "p_value": 1.6006525706467642e-06,
+        "pearson_r": 0.139,
+        "p_value": 2.191580851440901e-06,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "step_repetition_index": {
-        "pearson_r": 0.156,
-        "p_value": 4.668334875392399e-05,
+        "pearson_r": 0.124,
+        "p_value": 2.373443701046472e-05,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "coordinator_dominance": {
-        "pearson_r": 0.626,
-        "p_value": 1.2033766825937486e-74,
+        "pearson_r": 0.548,
+        "p_value": 4.177989849788988e-91,
         "significant_0_05": true,
         "significant_0_01": true
       }
     },
     "reciprocity": {
       "success": {
-        "pearson_r": 0.229,
-        "p_value": 1.6412463149649593e-09,
+        "pearson_r": 0.156,
+        "p_value": 1.108595083868435e-07,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
-        "pearson_r": -0.137,
-        "p_value": 0.0003414977063798142,
+        "pearson_r": -0.146,
+        "p_value": 7.083169588081309e-07,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "clarification_rate": {
-        "pearson_r": 0.112,
-        "p_value": 0.0036740166581854996,
+        "pearson_r": 0.115,
+        "p_value": 9.502131152418042e-05,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
-        "pearson_r": 0.126,
-        "p_value": 0.0010369718561701526,
+        "pearson_r": 0.067,
+        "p_value": 0.02218950118556633,
         "significant_0_05": true,
-        "significant_0_01": true
+        "significant_0_01": false
       },
       "step_repetition_index": {
-        "pearson_r": 0.218,
-        "p_value": 1.038986880672723e-08,
+        "pearson_r": 0.197,
+        "p_value": 1.808390169099233e-11,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "coordinator_dominance": {
-        "pearson_r": 0.52,
-        "p_value": 3.9539356797025297e-48,
+        "pearson_r": 0.412,
+        "p_value": 2.8460420147978e-48,
         "significant_0_05": true,
         "significant_0_01": true
       }
     },
     "total_messages": {
       "success": {
-        "pearson_r": -0.379,
-        "p_value": 1.7779307259270205e-24,
+        "pearson_r": -0.337,
+        "p_value": 8.074361956375711e-32,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "dissent_ratio": {
-        "pearson_r": 0.32,
-        "p_value": 1.58352558930344e-17,
+        "pearson_r": 0.305,
+        "p_value": 4.0224917665663997e-26,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "clarification_rate": {
-        "pearson_r": -0.523,
-        "p_value": 1.0496969392500871e-48,
+        "pearson_r": -0.28,
+        "p_value": 3.6915465827691074e-22,
         "significant_0_05": true,
         "significant_0_01": true
       },
       "lexical_decay_rate": {
-        "pearson_r": -0.131,
-        "p_value": 0.0006733737774820094,
-        "significant_0_05": true,
-        "significant_0_01": true
-      },
-      "step_repetition_index": {
-        "pearson_r": -0.073,
-        "p_value": 0.05800673561398422,
+        "pearson_r": -0.041,
+        "p_value": 0.16648918283750538,
         "significant_0_05": false,
         "significant_0_01": false
       },
+      "step_repetition_index": {
+        "pearson_r": 0.092,
+        "p_value": 0.0017511681799847018,
+        "significant_0_05": true,
+        "significant_0_01": true
+      },
       "coordinator_dominance": {
-        "pearson_r": -0.592,
-        "p_value": 5.677107105251674e-65,
+        "pearson_r": -0.617,
+        "p_value": 1.6926657984498361e-121,
         "significant_0_05": true,
         "significant_0_01": true
       }
@@ -305,12 +355,12 @@
   "model_robustness_summary": [
     {
       "model": "heterogeneous",
-      "total_runs": 675,
-      "overall_accuracy_pct": 43.56,
-      "topological_sensitivity_std": 3.57,
-      "mean_tokens_per_task": 12628,
-      "mean_cost_usd": 0.0022,
-      "mean_latency_sec": 123.67
+      "total_runs": 1148,
+      "overall_accuracy_pct": 43.03,
+      "topological_sensitivity_std": 2.68,
+      "mean_tokens_per_task": 12312,
+      "mean_cost_usd": 0.002,
+      "mean_latency_sec": 123.86
     }
   ]
 }
