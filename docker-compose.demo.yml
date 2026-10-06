@@ -1,0 +1,317 @@
+# =============================================================================
+# AgentMesh — Full Distributed Kafka Demo Stack (Option 3)
+# docker compose -f docker-compose.demo.yml up
+#
+# Services:
+#   kafka            - Apache Kafka message broker (KRaft mode, no ZooKeeper)
+#   kafka-ui         - Kafka UI dashboard at http://localhost:8090
+#   ollama-a         - Ollama instance for Supervisor   (llama3:8b)
+#   ollama-b         - Ollama instance for Specialists  (mistral:7b)
+#   ollama-c         - Ollama instance for Validator    (phi3:medium)
+#   supervisor       - AgentMesh Supervisor agent       (consumes: tasks)
+#   specialist-code  - AgentMesh Coding Specialist      (consumes: routing-decisions)
+#   specialist-reason- AgentMesh Reasoning Specialist   (consumes: routing-decisions)
+#   validator        - AgentMesh Validator agent        (consumes: specialist-results)
+#   backend          - FastAPI Research API             (http://localhost:8000)
+#   frontend         - React Dashboard                  (http://localhost:80)
+#   model-puller     - One-shot container to pull Ollama models on first start
+# =============================================================================
+
+version: "3.9"
+
+networks:
+  agentmesh-net:
+    driver: bridge
+
+volumes:
+  ollama_a_data:
+  ollama_b_data:
+  ollama_c_data:
+  db_data:
+
+# ─── Shared environment anchors ──────────────────────────────────────────────
+x-kafka-env: &kafka-env
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  USE_REAL_KAFKA: "false"   # Keep false to use AgentMesh InMemoryBroker on single machine
+                             # Set true when agents are on separate physical machines
+
+x-agent-build: &agent-build
+  context: ./backend
+  dockerfile: Dockerfile
+
+# ─── Services ────────────────────────────────────────────────────────────────
+services:
+
+  # ---------------------------------------------------------------------------
+  # 1. Apache Kafka (KRaft — no ZooKeeper)
+  # ---------------------------------------------------------------------------
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: agentmesh-kafka
+    networks: [agentmesh-net]
+    ports:
+      - "9092:9092"      # Internal broker
+      - "9094:9094"      # External access from host
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_CFG_NUM_PARTITIONS: 2
+      KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: 1
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ---------------------------------------------------------------------------
+  # 2. Kafka UI — visual topic/message inspector at http://localhost:8090
+  # ---------------------------------------------------------------------------
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: agentmesh-kafka-ui
+    networks: [agentmesh-net]
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: agentmesh
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # 3. Ollama instances — one per agent role with dedicated model storage
+  # ---------------------------------------------------------------------------
+  ollama-a:
+    image: ollama/ollama:latest
+    container_name: agentmesh-ollama-supervisor
+    networks: [agentmesh-net]
+    volumes:
+      - ollama_a_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    profiles: [gpu]  # Only activates GPU if --profile gpu is passed
+
+  ollama-a-cpu:
+    image: ollama/ollama:latest
+    container_name: agentmesh-ollama-supervisor
+    networks: [agentmesh-net]
+    volumes:
+      - ollama_a_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    profiles: [cpu]
+
+  ollama-b:
+    image: ollama/ollama:latest
+    container_name: agentmesh-ollama-specialist
+    networks: [agentmesh-net]
+    volumes:
+      - ollama_b_data:/root/.ollama
+    ports:
+      - "11435:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  ollama-c:
+    image: ollama/ollama:latest
+    container_name: agentmesh-ollama-validator
+    networks: [agentmesh-net]
+    volumes:
+      - ollama_c_data:/root/.ollama
+    ports:
+      - "11436:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  # ---------------------------------------------------------------------------
+  # 4. Model Puller — pulls required models on first boot, then exits
+  # ---------------------------------------------------------------------------
+  model-puller:
+    image: curlimages/curl:latest
+    container_name: agentmesh-model-puller
+    networks: [agentmesh-net]
+    depends_on:
+      ollama-b:
+        condition: service_healthy
+      ollama-c:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "
+      echo '=== Pulling Ollama models ===' &&
+      curl -s -X POST http://ollama-b:11434/api/pull -d '{\"name\":\"mistral:7b\"}' &&
+      echo 'mistral:7b pulled on ollama-b' &&
+      curl -s -X POST http://ollama-c:11434/api/pull -d '{\"name\":\"phi3:medium\"}' &&
+      echo 'phi3:medium pulled on ollama-c' &&
+      echo '=== All models ready ==='
+      "
+    restart: "no"
+
+  # ---------------------------------------------------------------------------
+  # 5. AgentMesh Kafka Agents
+  # ---------------------------------------------------------------------------
+  supervisor:
+    build: *agent-build
+    container_name: agentmesh-supervisor
+    networks: [agentmesh-net]
+    environment:
+      <<: *kafka-env
+      AGENT_1_PROVIDER: ollama
+      AGENT_1_MODEL: llama3:8b
+      AGENT_1_BASE_URL: http://ollama-a:11434/v1
+      AGENT_1_API_KEY: ollama
+    env_file:
+      - ./backend/.env.demo
+    command: ["python", "supervisor_runner.py"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  specialist-coding:
+    build: *agent-build
+    container_name: agentmesh-specialist-coding
+    networks: [agentmesh-net]
+    environment:
+      <<: *kafka-env
+      AGENT_2_PROVIDER: ollama
+      AGENT_2_MODEL: mistral:7b
+      AGENT_2_BASE_URL: http://ollama-b:11434/v1
+      AGENT_2_API_KEY: ollama
+      SPECIALIST_TYPE: coding
+    env_file:
+      - ./backend/.env.demo
+    command: ["python", "specialist_runner.py"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+      model-puller:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  specialist-reasoning:
+    build: *agent-build
+    container_name: agentmesh-specialist-reasoning
+    networks: [agentmesh-net]
+    environment:
+      <<: *kafka-env
+      AGENT_2_PROVIDER: ollama
+      AGENT_2_MODEL: mistral:7b
+      AGENT_2_BASE_URL: http://ollama-b:11434/v1
+      AGENT_2_API_KEY: ollama
+      SPECIALIST_TYPE: reasoning
+    env_file:
+      - ./backend/.env.demo
+    command: ["python", "specialist_runner.py"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+      model-puller:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  validator:
+    build: *agent-build
+    container_name: agentmesh-validator
+    networks: [agentmesh-net]
+    environment:
+      <<: *kafka-env
+      AGENT_3_PROVIDER: ollama
+      AGENT_3_MODEL: phi3:medium
+      AGENT_3_BASE_URL: http://ollama-c:11434/v1
+      AGENT_3_API_KEY: ollama
+    env_file:
+      - ./backend/.env.demo
+    command: ["python", "validator_runner.py"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+      model-puller:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # 6. FastAPI Research Backend
+  # ---------------------------------------------------------------------------
+  backend:
+    build: *agent-build
+    container_name: agentmesh-backend
+    networks: [agentmesh-net]
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////data/mast_lab.db
+      CORS_ORIGINS: "http://localhost,http://localhost:80,http://localhost:5173"
+      USE_MOCK_LLM: "false"
+      AGENT_6_PROVIDER: ollama
+      AGENT_6_MODEL: llama3:latest
+      AGENT_6_BASE_URL: http://ollama-a:11434/v1
+      AGENT_6_API_KEY: ollama
+    env_file:
+      - ./backend/.env.demo
+    volumes:
+      - db_data:/data
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # 7. React Frontend Dashboard
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
+    container_name: agentmesh-frontend
+    networks: [agentmesh-net]
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
