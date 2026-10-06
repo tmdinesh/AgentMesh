@@ -1,242 +1,192 @@
-# MAST Topology Lab 🔬🌐
-> **Multi-Agent System Topology Research Platform for LLMs**  
-> Empirical investigation of communication graph topology, network metrics, and failure modes in collaborative multi-agent LLM reasoning.
+# AgentMesh 🌐🤖
+> **Distributed Multi-Agent LLM Orchestration Platform**  
+> A high-performance, modular system for building, visualizing, and running distributed multi-agent LLM systems with configurable communication topologies and Apache Kafka event streaming.
 
 ---
 
-## 1. Project Purpose
+## 🌟 Overview
 
-In multi-agent large language model (LLM) architectures, agents collaborate to solve complex reasoning, fact verification, and decision-making tasks. While prompting and agent roles are heavily researched, **how agents communicate—their network topology—exerts a structural influence on collective reasoning outcomes.**
+**AgentMesh** is an open-source distributed platform for multi-agent LLM systems. It enables multiple autonomous LLM agents to collaborate on complex tasks through structured communication patterns, real-time message routing, and event-driven distributed streaming.
 
-**MAST Topology Lab** is an academic experimental platform designed to systematically evaluate:
-1. **Communication Topologies**: How routing constraints in **Star**, **Chain**, and **Mesh** networks affect solution accuracy and message volume.
-2. **Failure Categorization**: How topology correlates with specific failure modes (*Premature Agreement*, *Information Loss*, *Hallucination*, *Contradiction*, *Wrong Final Answer*).
-3. **Network Analysis**: NetworkX graph centrality metrics (degree, betweenness centrality, communication density) mapped directly to agent performance.
-4. **Statistical Significance**: Empirical validation using SciPy Chi-Square ($\chi^2$) tests of independence.
+Whether running locally on a single machine or across a distributed cluster of microservices, AgentMesh decouples agent roles, coordinates interactions, and provides a rich web dashboard for real-time monitoring and inspection.
 
 ---
 
-## 2. System Architecture
+## 🏗️ Architecture
 
 ```
-                                    +------------------------------------------+
-                                    |         React + Vite Research UI         |
-                                    | (Dashboard, Runner, Inspector, Compare)  |
-                                    +--------------------+---------------------+
-                                                         | REST / JSON
-                                                         v
+                               +------------------------------------------+
+                               |         React 18 + Vite Web App          |
+                               | (Dashboard, Live Inspector, Diagnostics) |
+                               +--------------------+---------------------+
+                                                    | HTTP / REST
+                                                    v
 +--------------------------------------------------------------------------------------------------------+
 |                                           FastAPI Backend                                              |
 |                                                                                                        |
 |  +---------------------+   +---------------------+   +---------------------+   +--------------------+  |
-|  |   Topology Engine   |   |    Agent Service    |   |     LLM Service     |   | Evaluation Engine  |  |
-|  |  (Star, Chain, Mesh)|   | (4-6 Defined Roles) |   | (OpenAI / Simulated)|   | (2-Stage Diagnosis)|  |
+|  |   Topology Engine   |   |    Agent Service    |   |     LLM Service     |   | Diagnostics Engine |  |
+|  | (Tree, Star, Mesh)  |   | (Supervisor/Workers)|   | (Ollama / Cloud LLM)|   | (Message Tracking) |  |
 |  +----------+----------+   +----------+----------+   +----------+----------+   +---------+----------+  |
 |             |                         |                         |                        |             |
 |             +-------------------------+------------+------------+------------------------+             |
 |                                                    |                                                   |
 |                                                    v                                                   |
 |                                   +---------------------------------+                                  |
-|                                   |    Experiment Runner Service    |                                  |
-|                                   |  - Enforces topology routing    |                                  |
-|                                   |  - Logs turns to SQLite DB      |                                  |
-|                                   |  - Computes NetworkX metrics    |                                  |
-|                                   |  - Computes SciPy Chi-Square    |                                  |
+|                                   |  Apache Kafka Event Stream Bus  |                                  |
+|                                   |  (tasks -> routing -> results)  |                                  |
 |                                   +---------------------------------+                                  |
 +----------------------------------------------------+---------------------------------------------------+
                                                      |
                                                      v
                                        +---------------------------+
-                                       |  SQLite Database Storage  |
-                                       |  (tasks, exp, messages)   |
+                                       |      SQLite / Storage     |
+                                       |  (runs, turns, messages)  |
                                        +---------------------------+
 ```
 
----
-
-## 3. Core Features
-
-- **Algorithmic Topology Engine**: Strictly enforces communication permissions for:
-  - **STAR**: Single central coordinator hub with peripheral agents; no lateral communication.
-  - **CHAIN**: Sequential deterministic pipeline ($A_1 \to A_2 \to \dots \to A_N$).
-  - **MESH**: Fully interconnected all-to-all peer network.
-- **Configurable Agent Teams (4 to 6 Roles)**:
-  - `Coordinator`: Task decomposition, synthesis, final decision.
-  - `Solver`: Analytical step-by-step logic.
-  - `Critic`: Adversarial counterexamples and flaw detection.
-  - `Fact Checker`: Boundary constraint & empirical fact verification.
-  - `Alternative Solver`: Counter-hypothesis formulation (5+ agents).
-  - `Final Reviewer`: Quality assurance & criteria validation (6 agents).
-- **Two-Stage Failure Taxonomy**:
-  - **Stage 1**: Solution correctness verification against criteria.
-  - **Stage 2**: Evaluator diagnosis into the 5 core MAST categories:
-    1. *Wrong Final Answer*
-    2. *Hallucination / Unsupported Claim*
-    3. *Contradiction*
-    4. *Premature Agreement*
-    5. *Information Loss*
-- **NetworkX Graph Metrics**:
-  - Degree & In/Out-degree per agent.
-  - Normalized Betweenness Centrality.
-  - Communication Network Density ($\rho$).
-  - Interactive SVG visual graph with directional weights.
-- **SciPy Statistical Analysis**:
-  - Real-time contingency matrix generation ($3 \text{ topologies} \times 6 \text{ failure types}$).
-  - Chi-Square test of independence ($\chi^2$, $p$-value, $df$, significance interpretation).
-- **Hybrid LLM Engine**:
-  - Configurable live API completions (OpenAI, Gemini, Ollama, Groq).
-  - Built-in persona-consistent Simulation Engine for offline testing and rapid dataset generation.
+### Core Components:
+1. **FastAPI Backend (`backend/`)**: High-throughput REST API serving orchestration workflows, agent registration, network analysis, and task routing.
+2. **React Dashboard (`frontend/`)**: Modern web UI for inspecting live agent interactions, network graphs, token consumption, and diagnostics.
+3. **Kafka Event Stream Topology (`backend/app/topologies/stream.py`)**: Distributed pub-sub pipeline supporting horizontally scalable, decoupled agent workers.
+4. **Standalone Agent Microservices (`backend/*_runner.py`)**: Dedicated workers for Supervisor, Specialists (Coding, Reasoning), and Solution Validators.
+5. **Actor & Topology Engine (`topologies/actor_system.py`)**: Algorithmic communication graph controllers enforcing Star, Chain, Tree, Mesh, and Dynamic routing constraints.
 
 ---
 
-## 4. Topologies Detailed
+## 🚀 Quickstart
 
-| Topology | Structure | Description & Characteristics |
-| :--- | :--- | :--- |
-| **STAR** | $A_1 \leftrightarrow A_i$ | **Hub-and-Spoke**: Agent 1 (Coordinator) delegates and gathers all feedback. High betweenness centrality on the hub; prone to *Premature Agreement* if coordinator locks onto early theories. |
-| **CHAIN** | $A_1 \to A_2 \to \dots \to A_N$ | **Sequential Pipeline**: High latency, linear context handoff. Vulnerable to *Information Loss* across multi-hop transmission. |
-| **MESH** | All-to-All | **Dense Network**: Maximum cross-critique and error recovery. Highest communication volume and density ($\rho \to 1.0$). |
+### Option A: 1-Click Docker Full-Stack Deployment (Recommended)
 
----
+Spawns **Apache Kafka (KRaft)**, **Kafka UI**, **3 isolated Ollama LLM nodes**, **4 autonomous agent runners**, the **FastAPI backend**, and the **React Dashboard**:
 
-## 5. Benchmark Task Categories
-
-1. **Reasoning**: Multi-step deductive logic, constraint satisfaction, Knights & Knaves, river crossings, conference scheduling.
-2. **Question Answering**: Multi-dimension factual synthesis, physics comparisons (JWST vs Hubble), distributed consensus architecture (Raft vs Paxos).
-3. **Decision / Summary**: Incident triage under resource pressure (Black Friday database triage), Emergency Department clinical triage protocols.
-
----
-
-## 6. Installation & Quick Start
-
-### 🚀 Single-Click Launcher (Recommended)
-
-Run the automated launcher script from the repository root:
-
-**Unix / macOS / Linux / Git Bash:**
-```bash
-chmod +x run-local.sh
-./run-local.sh
-```
-
-**Windows (Command Prompt / Explorer):**
-Double-click `run-local.bat` or run:
+#### Windows:
 ```cmd
-run-local.bat
+demo.bat 2
 ```
 
-The script automatically:
-1. Verifies Python 3.10+ and Node.js dependencies.
-2. Creates and activates a `.venv` Python virtual environment.
-3. Installs backend dependencies (`requirements.txt`).
-4. Generates `backend/.env` if not present.
-5. Installs frontend `node_modules` if missing.
-6. Launches FastAPI Backend (`http://127.0.0.1:8000`) and React Frontend (`http://localhost:5173`).
-7. Auto-opens your browser to the MAST Topology Lab dashboard.
+#### Linux / macOS:
+```bash
+chmod +x demo.sh
+./demo.sh 2
+```
+
+#### Direct Docker Compose:
+```bash
+docker compose -f docker-compose.demo.yml up -d
+```
+
+#### Access Web Interfaces:
+- 📊 **Web Dashboard**: [http://localhost](http://localhost)
+- 🔌 **FastAPI Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- 📨 **Kafka UI Broker Console**: [http://localhost:8090](http://localhost:8090)
+- 🤖 **Ollama Node A (Supervisor)**: [http://localhost:11434](http://localhost:11434)
+- 🤖 **Ollama Node B (Specialist)**: [http://localhost:11435](http://localhost:11435)
+- 🤖 **Ollama Node C (Validator)**: [http://localhost:11436](http://localhost:11436)
+
+#### Inject Tasks into the Live Pipeline:
+```bash
+# Windows
+demo.bat inject
+
+# Linux / macOS
+./demo.sh inject
+```
 
 ---
 
-### Manual Setup
+### Option B: Multi-Terminal Distributed Demo
 
-#### Backend Setup
+Spawns separate terminal windows showing live inter-agent message passing across Kafka topics in real time:
+
+- 🔵 **Supervisor Window**: Consumes `tasks` → publishes `routing-decisions`
+- 🟡 **Specialist (Coding)**: Consumes `routing-decisions` → publishes `specialist-results`
+- 🟠 **Specialist (Reasoning)**: Consumes `routing-decisions` → publishes `specialist-results`
+- 🟣 **Validator**: Consumes `specialist-results` → publishes `validations`
 
 ```bash
-# Navigate to backend
-cd backend
+# Windows
+demo.bat 3
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment (Optional - default runs in Simulation Mode)
-cp .env.example .env
-
-# Start FastAPI server (Auto-creates SQLite tables & seeds tasks)
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+# Linux / macOS
+./demo.sh 3
 ```
 
-Backend will be live at: `http://127.0.0.1:8000` (API Docs at `http://127.0.0.1:8000/docs`).
+---
 
-### Frontend Setup
+### Option C: Local Development Setup
 
+#### 1. Backend Setup:
 ```bash
-# Navigate to frontend
+cd backend
+python -m venv .venv
+
+# Windows:
+.venv\Scripts\activate
+# Linux / macOS:
+source .venv/bin/activate
+
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+#### 2. Frontend Setup:
+```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start Vite development server
 npm run dev
 ```
 
-Frontend will be live at: `http://localhost:5173`.
+Dashboard is available at `http://localhost:5173`.
 
 ---
 
-## 7. Environment Variables (`backend/.env`)
+## 🛠️ Configuration
 
-```ini
-# Optional: Live LLM Provider (Leave empty to use built-in offline simulation)
-LLM_API_KEY=
-LLM_MODEL=gpt-4o-mini
-LLM_BASE_URL=https://api.openai.com/v1
+Environment variables can be customized in [`backend/.env.demo`](file:///c:/Users/Dinesh.LAPTOP-OO5HEB93/Downloads/AgentMesh/backend/.env.demo) or [`backend/.env.demo.example`](file:///c:/Users/Dinesh.LAPTOP-OO5HEB93/Downloads/AgentMesh/backend/.env.demo.example):
 
-# Runtime Mode
-USE_MOCK_LLM=false
-MAX_AGENT_TURNS=10
-DATABASE_URL=sqlite:///./mast_lab.db
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173
+| Variable | Default | Description |
+|:---|:---|:---|
+| `KAFKA_BOOTSTRAP_SERVERS` | `kafka:9092` | Kafka broker endpoints |
+| `USE_REAL_KAFKA` | `false` | `false` for embedded broker; `true` for live cluster |
+| `DATABASE_URL` | `sqlite:////data/mast_lab.db` | Application database connection string |
+| `MAX_AGENT_TURNS` | `10` | Maximum deliberation cycles per task |
+| `AICREDITS_API_KEY` | — | Optional cloud LLM API key |
+| `USE_MOCK_LLM` | `false` | Enable deterministic mock responses for testing |
+
+---
+
+## 📂 Modular Repository Layout
+
+```
+AgentMesh/
+├── backend/                       # FastAPI backend & standalone Kafka agent runners
+│   ├── app/                       # Application routers, models, schemas, services
+│   ├── specialist_runner.py       # Domain specialist agent service
+│   ├── supervisor_runner.py       # Supervisor router agent service
+│   ├── validator_runner.py        # Validator agent service
+│   ├── task_injector.py           # Task injection utility
+│   ├── Dockerfile                 # Backend container definition
+│   └── requirements.txt           # Python dependencies
+│
+├── frontend/                      # React 18 + Vite web dashboard
+│   ├── src/                       # Components, state management, views
+│   ├── Dockerfile                 # Production multi-stage Nginx container
+│   └── nginx.conf                 # SPA router & reverse proxy
+│
+├── topologies/                    # Actor-based topology and communication abstractions
+├── docs/                          # Architecture workflows and guides
+│
+├── demo.bat                       # Windows one-click interactive launcher
+├── demo.sh                        # Linux/macOS one-click interactive launcher
+├── docker-compose.demo.yml        # Full distributed 11-container Docker Compose
+├── docker-compose.yml             # Lightweight local development stack
+├── task_injector.py               # Root task injector CLI wrapper
+└── README.md                      # Application documentation
 ```
 
 ---
 
-## 8. Running Automated Tests
+## 📜 License
 
-Run the complete backend test suite:
-
-```bash
-# Run pytest with PYTHONPATH
-python -m pytest backend/tests -v
-```
-
-All unit and integration tests verify:
-- Star, Chain, and Mesh routing permissions.
-- Message filtering and context visibility.
-- NetworkX graph calculation (degree, betweenness, density).
-- Failure classification logic.
-- SciPy Chi-Square calculations and contingency matrices.
-- FastAPI REST API endpoints.
-
----
-
-## 9. Demonstration Walkthrough
-
-1. **Open Dashboard** (`http://localhost:5173`):
-   - Review overall KPI statistics, accuracy charts, and recent experimental runs.
-2. **Launch a Trial** (Click **Run Experiment**):
-   - Select `Knights and Knaves Island Logic` under **Reasoning**.
-   - Select **STAR** topology, 4 agents, 6 turns.
-   - Click **Run Single Experiment**. Watch live agent dialogue stream.
-3. **Inspect Experiment**:
-   - Examine the **Communication Topology Graph** (hover nodes to view Betweenness Centrality & Degrees).
-   - Review the final answer vs expected answer and the Stage 2 failure taxonomy explanation.
-   - Read the step-by-step chronological communication transcript.
-4. **Compare Across Topologies**:
-   - Run the same task on **CHAIN** and **MESH**, or click **Run 3-Topology Sweep** to execute repeated trials.
-   - Navigate to **Compare Topologies** to inspect the Side-by-Side Matrix, the **Chi-Square ($\chi^2$) statistic & $p$-value**, and academic research takeaways.
-
----
-
-## 10. Project Limitations & Future Work
-
-- **Scope Boundary**: Focused on static Star, Chain, and Mesh graphs for 4–6 agents to guarantee clean academic rigor.
-- **Future Directions**:
-  - Dynamic/adaptive topology reconfiguration during runtime.
-  - Multi-LLM heterogeneous teams (e.g. Claude + GPT-4 + Gemini).
-  - Scaled benchmark suites (GSM8K, MATH, HumanEval).
-  - Mixed-effects regression modeling on agent token costs.
-
----
-
-## License
-Academic Research MVP - Built for Multi-Agent System Topology Studies.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

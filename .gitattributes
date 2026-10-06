@@ -1,0 +1,4 @@
+# Git attributes for AgentMesh
+# Auto-merge partitioned CSV files with union strategy to prevent any merge conflicts
+results/partitions/*.csv merge=union
+results/partitions/*.jsonl merge=union

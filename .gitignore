@@ -58,3 +58,7 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Demo local override
+backend/.env.demo.local
+
