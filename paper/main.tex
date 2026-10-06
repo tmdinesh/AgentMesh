@@ -495,10 +495,10 @@ A pervasive intuition in multi-agent system design is that full peer visibility 
 
 \topo{Star} achieved moderate accuracy (22.86\%) but proved vulnerable to premature agreement (\fm{1.5}). Because peripheral agents cannot communicate laterally, the central hub becomes an epistemic bottleneck. If the coordinator forms an incorrect initial hypothesis, peripheral agents lack the lateral visibility required to coordinate counter-evidence, resulting in authority-driven sycophancy.
 
-\subsection{Algorithm: Dynamic Topology Optimization}
+\subsection{Theoretical Framework: Dynamic Topology Optimization}
 \label{sec:algorithm}
 
-Based on the empirical findings, particularly the strong negative correlation between Total Messages and Task Success (Inverse Communication Law) and the danger of Coordinator Dominance, we propose the \textbf{AgentMesh Dynamic Topology Optimization} algorithm (\Cref{alg:dynamic_topo}). The algorithm initializes with a \topo{Tree} topology to maximize branch isolation. It continuously monitors the communication telemetry during execution. If the message volume within any subtree exceeds a dynamic threshold $\tau$, or if the localized Coordinator Betweenness $\CB$ indicates a severe bottleneck, the subtree is pruned or restructured to prevent infinite deliberation loops and groupthink.
+Based on the empirical findings, particularly the strong negative correlation between Total Messages and Task Success (Inverse Communication Law) and the danger of Coordinator Dominance, we propose the theoretical \textbf{AgentMesh Dynamic Topology Optimization} algorithm (\Cref{alg:dynamic_topo}). The algorithm initializes with a \topo{Tree} topology to maximize branch isolation. It continuously monitors the communication telemetry during execution. If the message volume within any subtree exceeds a dynamic threshold $\tau$, or if the localized Coordinator Betweenness $\CB$ indicates a severe bottleneck, the subtree is pruned or restructured to prevent infinite deliberation loops and groupthink. While we formally define the topological routing logic here, its comprehensive software implementation and empirical evaluation are deferred to future work.
 
 \begin{algorithm}[h]
 \caption{AgentMesh Dynamic Topology Optimization}
@@ -547,7 +547,7 @@ Based on our empirical observations, we formulate four actionable architectural 
 \end{itemize}
 
 \subsection{Future Directions}
-Future work will extend this framework to adaptive meta-agent topologies that dynamically rewire communication graphs based on real-time SNA telemetry, and explore causal Directed Acyclic Graph (DAG) structural equation modeling.
+Our primary direction for future work is the software implementation and comprehensive empirical evaluation of the AgentMesh Dynamic Topology Optimization algorithm proposed in Section~\ref{sec:algorithm}. This dedicated follow-up study will deploy the algorithm as an adaptive meta-agent controller that dynamically rewires communication graphs based on real-time SNA telemetry, alongside exploring causal Directed Acyclic Graph (DAG) structural equation modeling.
 
 % =============================================================================
 \section{Conclusion}
