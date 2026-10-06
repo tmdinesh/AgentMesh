@@ -62,15 +62,3 @@ Thumbs.db
 # Demo local override
 backend/.env.demo.local
 
-# Paper build artifacts
-paper/*.pdf
-paper/*.aux
-paper/*.log
-paper/*.bbl
-paper/*.blg
-paper/*.toc
-paper/*.out
-paper/*.fls
-paper/*.fdb_latexmk
-paper/*.synctex.gz
-
