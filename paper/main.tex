@@ -180,7 +180,9 @@ The impact of network topology on consensus, fault tolerance, and queueing laten
 Social Network Analysis (SNA) metrics—such as degree distribution, betweenness centrality, and graph density—have been successfully utilised in knowledge graphs~\cite{scarselli2009graph} and web citation ranking~\cite{page1999pagerank}. While AgentVerse~\cite{chen2023agentverse} examined human-like social interactions among agents, our work uniquely applies SNA graph metrics to predict cognitive failure signatures, communication bottlenecks, and decision outcomes in multi-LLM teams.
 
 \subsection{Failure Taxonomies in Multi-Agent Systems}
-Recent surveys systematically classify hallucinations and factual errors in single-model generation~\cite{ji2023survey}, while red-teaming literature highlights sycophancy and specification gaming~\cite{perez2022discovering}. In multi-agent systems, errors manifest not only from individual model hallucinations but also from emergent structural failures: unverified claim propagation, premature consensus (groupthink), and multi-hop information attenuation. We ground our diagnostic framework in the Multi-Agent System Taxonomy (MAST), systematically evaluating failures across Specification Adherence, Coordination, and Verification.
+Recent surveys systematically classify hallucinations and factual errors in single-model generation~\cite{ji2023survey}, while red-teaming literature highlights sycophancy and specification gaming~\cite{perez2022discovering}. In multi-agent systems, errors manifest not only from individual model hallucinations but also from emergent structural failures: unverified claim propagation, premature consensus (groupthink), and multi-hop information attenuation.
+
+Crucially, foundational work by Cemri et al.~\cite{cemri2025why} introduced the Multi-Agent System Failure Taxonomy (MAST), establishing a rigorous 14-mode failure taxonomy clustered into three categories: system design issues (\fc{1}), inter-agent misalignment (\fc{2}), and task verification (\fc{3}), validated through expert human annotation and an LLM-as-a-Judge pipeline across 1,600+ multi-agent traces. Our work adopts and derives its failure models directly from the MAST taxonomy of Cemri et al.~\cite{cemri2025why}. Whereas Cemri et al. established the baseline distribution of these failure modes across popular multi-agent frameworks, our work investigates how \emph{communication graph topology causally induces, amplifies, or mitigates} each of the 14 MAST failure modes.
 
 % =============================================================================
 \section{Experimental Methodology}
@@ -192,7 +194,7 @@ Recent surveys systematically classify hallucinations and factual errors in sing
 
 To systematically stress-test multi-agent reasoning vulnerabilities across communication structures, we authored and curated the \textbf{AgentMesh Benchmark Suite}. Rather than relying on generic single-turn benchmarks (e.g., standard MMLU or GSM8K) where multi-agent communication is largely superfluous, our dataset consists of 70 complex, multi-agent tasks explicitly engineered to require multi-step decomposition, mutual peer review, constraint verification, and adversarial hypothesis testing.
 
-The 70 benchmark tasks are organized across three primary failure category families (\fc{}) and 14 specific failure mode families (\fm{}), detailed in \cref{tab:taxonomy_overview}:
+Critically, the failure models and error categories governing our task specifications are derived directly from the Multi-Agent System Failure Taxonomy (MAST) established by Cemri et al.~\cite{cemri2025why}. The 70 benchmark tasks are organized across three primary failure category families (\fc{}) and 14 specific failure mode families (\fm{}), detailed in \cref{tab:taxonomy_overview}:
 
 \begin{itemize}[leftmargin=1.5em]
   \item \textbf{\fc{1} — Specification Adherence (30 tasks):} Multi-constraint combinatorial and deductive reasoning tasks (e.g., Knights \& Knaves logic puzzles with interdependent truths, river-crossing operations, resource allocation under temporal deadlines). Targets \fm{1.1} (Disobey Task Specification), \fm{1.2} (Disobey Role Specification), \fm{1.3} (Step Repetition), \fm{1.4} (Loss of Conversation History), and \fm{1.5} (Unaware of Termination Condition).
@@ -278,7 +280,7 @@ To ensure rigorous, unbiased grading, all deliberation transcripts and final syn
 
 \begin{itemize}[leftmargin=1.5em]
   \item \textbf{Stage 1 — Objective Correctness Verification:} The final synthesized answer emitted by the team is evaluated against the gold-standard ground-truth rubric by an independent LLM judge (evaluated with a low temperature $T = 0.2$ to minimise grading variance). The judge enforces a binary pass/fail decision ($S \in \{0, 1\}$) requiring strict fulfillment of all stated numerical, logical, and formatting constraints.
-  \item \textbf{Stage 2 — Multi-Turn Failure Mode Diagnosis:} When an experiment is marked as failed ($S = 0$), the entire turn-by-turn dialogue trace undergoes a second diagnostic evaluation pass. The evaluator analyzes the transcript against the full 14-mode MAST taxonomy (covering \fm{1.1} through \fm{3.3}), isolating the root cause (e.g., whether the failure originated from a coordinator bottleneck, unverified hallucination propagation, or clarification omission).
+  \item \textbf{Stage 2 — Multi-Turn Failure Mode Diagnosis:} When an experiment is marked as failed ($S = 0$), the entire turn-by-turn dialogue trace undergoes a second diagnostic evaluation pass. Adopting the LLM-as-a-Judge protocol demonstrated by Cemri et al.~\cite{cemri2025why}, an independent evaluator model analyzes the transcript against the full 14-mode MAST taxonomy (covering \fm{1.1} through \fm{3.3}), isolating the root cause (e.g., whether the failure originated from a coordinator bottleneck, unverified hallucination propagation, or clarification omission).
 \end{itemize}
 
 \subsection{Linguistic and Behavioral Failure Signature Metrics}
@@ -562,6 +564,9 @@ Z.~Ji, N.~Lee, R.~Frieske, T.~Yu, D.~Su, Y.~Xu, E.~Ishii, Y.~J.~Bang, A.~Madotto
 
 \bibitem{perez2022discovering}
 E.~Perez, S.~Huang, F.~Song, T.~Cai, R.~Ring, J.~Aslanides, A.~Glaese, N.~McAleese, and G.~Irving, ``Red teaming language models with language models,'' \emph{arXiv preprint arXiv:2202.03286}, 2022.
+
+\bibitem{cemri2025why}
+M.~Cemri, M.~Z.~Pan, S.~Yang, L.~A.~Agrawal, B.~Chopra, R.~Tiwari, K.~Keutzer, A.~Parameswaran, D.~Klein, K.~Ramchandran, M.~Zaharia, J.~E.~Gonzalez, and I.~Stoica, ``Why do multi-agent {LLM} systems fail?,'' \emph{arXiv preprint arXiv:2503.13657}, 2025.
 
 \bibitem{parnas1972decomposition}
 D.~L.~Parnas, ``On the criteria to be used in decomposing systems into modules,'' \emph{Commun. ACM}, vol.~15, no.~12, pp.~1053--1058, 1972.
