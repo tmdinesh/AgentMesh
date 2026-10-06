@@ -32,6 +32,9 @@ All figures referenced in `main.tex` are located in `../results/figures/`:
 | **Figure 4** | `fig4_sna_correlation_matrix.png` | Pearson correlation matrix between graph metrics and reasoning outcomes ($r=-0.602$ messages vs. success, $r=+0.890$ betweenness vs. dominance) |
 | **Figure 5** | `fig5_model_robustness_interaction.png` | Topology robustness profiles showing topology accounts for ~41% of performance variance |
 | **Figure 6** | `fig6_cost_accuracy_pareto.png` | Communication overhead (tokens) vs. reasoning fidelity Pareto frontier |
+| **Figure 7** | `fig7_topology_architectures.png` | Structural graph diagrams of the 5 communication network topologies |
+| **Figure 8** | `fig8_evaluation_pipeline.png` | Two-Stage Evaluation and MAST Failure Diagnosis Pipeline flowchart |
+| **Figure 9** | `fig9_latency_token_distributions.png` | Empirical distributions of token consumption and wall-clock latency |
 
 ---
 

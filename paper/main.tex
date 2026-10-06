@@ -246,8 +246,14 @@ We formally model a multi-agent system as a directed communication graph $G = (V
   \item[\topo{Chain} (Sequential Pipeline):] Deterministic linear pipeline where information flows strictly forward: $E = \{(A_i, A_{i+1}) \mid 1 \le i < N\}$. Information traverses $N-1$ hops with zero reciprocity ($\RCP = 0$) and minimal density ($D = 1/N$).
   \item[\topo{Tree} (Hierarchical Branching):] A rooted tree hierarchy where the root Coordinator decomposes tasks into sub-problems assigned to branch coordinators, who aggregate findings from sub-agents. Edge permissions are bidirectional between parent and child nodes only.
   \item[\topo{Mesh} (Fully Connected Peer Network):] An all-to-all complete digraph where $E = \{(A_i, A_j) \mid i \ne j\}$. Maximises graph density ($D = 1.0$) and reciprocity ($\RCP = 1.0$) with quadratic message complexity $O(N^2)$.
-  \item[\topo{Emergent} (Dynamic Content-Based Routing):] A dynamic graph $G_t = (V, E_t)$ where edge connections are instantiated on-the-fly per turn. Agents inspect candidate peer profiles and dynamically route queries based on perceived relevance and sub-task progress.
 \end{description}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{../results/figures/fig7_topology_architectures.png}
+\caption{Structural graph representations of the five evaluated communication topologies across a heterogeneous ensemble of $N=6$ agents ($A_1$: Coordinator, $A_2$: Solver, $A_3$: Critic, $A_4$: Fact Checker, $A_5$: Alternative Solver, $A_6$: QA Reviewer). (a)~\topo{Star}: hub-and-spoke routing with bidirectional coordinator links ($\CB \to 1.0, D=0.034$); (b)~\topo{Chain}: strict sequential forward pipeline ($\RCP=0, D=0.036$); (c)~\topo{Tree}: hierarchical branching isolating sub-problem branches ($D=0.057$); (d)~\topo{Mesh}: complete digraph with quadratic edge growth $O(N^2)$ ($D=0.086$); (e)~\topo{Emergent}: dynamic content-conditioned routing with active (solid) and dormant (dashed) links ($D=0.062$).}
+\label{fig:topologies}
+\end{figure*}
 
 \subsection{Heterogeneous Multi-LLM Team Configuration}
 \label{sec:team}
@@ -282,6 +288,13 @@ To ensure rigorous, unbiased grading, all deliberation transcripts and final syn
   \item \textbf{Stage 1 — Objective Correctness Verification:} The final synthesized answer emitted by the team is evaluated against the gold-standard ground-truth rubric by an independent LLM judge (evaluated with a low temperature $T = 0.2$ to minimise grading variance). The judge enforces a binary pass/fail decision ($S \in \{0, 1\}$) requiring strict fulfillment of all stated numerical, logical, and formatting constraints.
   \item \textbf{Stage 2 — Multi-Turn Failure Mode Diagnosis:} When an experiment is marked as failed ($S = 0$), the entire turn-by-turn dialogue trace undergoes a second diagnostic evaluation pass. Adopting the LLM-as-a-Judge protocol demonstrated by Cemri et al.~\cite{cemri2025why}, an independent evaluator model analyzes the transcript against the full 14-mode MAST taxonomy (covering \fm{1.1} through \fm{3.3}), isolating the root cause (e.g., whether the failure originated from a coordinator bottleneck, unverified hallucination propagation, or clarification omission).
 \end{itemize}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{../results/figures/fig8_evaluation_pipeline.png}
+\caption{Two-stage evaluation and diagnostic failure classification pipeline. Benchmark tasks ($T_k$) are executed across the enforced communication topology $G=(V, E)$. The team's synthesized output is graded via Stage~1 Objective Verification (independent LLM judge, $T=0.2$, binary pass/fail). For failed runs ($S=0$), Stage~2 performs multi-turn transcript diagnosis against the 14-mode MAST failure taxonomy~\cite{cemri2025why} while extracting six continuous behavioural and linguistic failure signature metrics.}
+\label{fig:eval_pipeline}
+\end{figure*}
 
 \subsection{Linguistic and Behavioral Failure Signature Metrics}
 \label{sec:signatures}
@@ -348,6 +361,13 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
   \item \textbf{\topo{Emergent} Routing Incurs High Token Overhead:} Dynamic topology achieves the second-highest accuracy (28.57\%), but incurs a substantial token premium (19,945 tokens vs. 14,456 for \topo{Tree}), driven by routing exploration overhead.
   \item \textbf{The Density Paradox of \topo{Mesh}:} Dense peer communication fails to improve reasoning: \topo{Mesh} underperforms \topo{Tree} by over 11 percentage points, refuting the assumption that maximal inter-agent visibility improves collective intelligence.
 \end{enumerate}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{../results/figures/fig9_latency_token_distributions.png}
+\caption{Empirical distributions of computational overhead across the five communication topologies over 175 experimental trials. (a)~Communication overhead: Total token expenditure per task, showing that dynamic routing in \topo{Emergent} incurs the highest overhead while \topo{Chain} and \topo{Mesh} consume the lowest; (b)~Deliberation latency: End-to-end wall-clock time in seconds, demonstrating comparable median latencies ($\approx 117\text{s}$) with wider dispersion under dense and emergent graphs.}
+\label{fig:latency_tokens}
+\end{figure*}
 
 \subsection{Failure Signatures and Taxonomy Distribution}
 \label{sec:failure_results}
