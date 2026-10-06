@@ -250,7 +250,7 @@ To eliminate single-model idiosyncratic bias and reflect realistic enterprise mu
 \small
 \caption{Heterogeneous Multi-LLM Ensemble Configuration.}
 \label{tab:agent_team}
-\begin{tabular}{clll}
+\begin{tabularx}{\linewidth}{cllX}
 \toprule
 \textbf{Node} & \textbf{Assigned Persona} & \textbf{Underlying LLM Architecture} & \textbf{Inference Gateway} \\
 \midrule
@@ -261,7 +261,7 @@ $A_4$ & Fact \& Constraint Checker & \texttt{google/gemini-2.0-flash} & AICredit
 $A_5$ & Alternative Solver       & \texttt{nex-agi/nex-n2-mini} & AICredits API \\
 $A_6$ & Quality Assurance Reviewer & \texttt{llama3:8b} & Dedicated Ollama Node \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Two-Stage Evaluation Protocol}
@@ -334,7 +334,7 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{../figures/fig1_accuracy_by_topology_and_model.png}
+\includegraphics[width=\linewidth]{../figures/fig1_accuracy_by_topology_and_model.png}
 \caption{Task success rate (\%) by communication topology for the heterogeneous multi-LLM ensemble. \topo{Tree} topology achieves the highest accuracy (31.43\%), while \topo{Chain} displays the lowest (17.14\%). Error bars represent 95\% Wilson score confidence intervals.}
 \label{fig:accuracy_bar}
 \end{figure}
@@ -359,7 +359,7 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
 
 \Cref{tab:failure_signatures} details the quantified behavioral markers across representative failure modes from \fc{1}, \fc{2}, and \fc{3}. \Cref{fig:failure_heatmap} visualises the signature heatmap, and \Cref{fig:failure_dist} illustrates the distribution of failure modes across topologies.
 
-\begin{table}[H]
+\begin{table*}[t]
 \centering
 \caption{Quantified failure signature profiles across representative MAST failure modes extracted from deliberation transcripts.}
 \label{tab:failure_signatures}
@@ -377,18 +377,18 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
 \fm{3.3} (Faulty Ver.) & \textbf{0.354} & 0.562 & $+0.128$ & 0.255 & 0.384 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.88\textwidth]{../figures/fig2_failure_signatures_heatmap.png}
+\includegraphics[width=\linewidth]{../figures/fig2_failure_signatures_heatmap.png}
 \caption{Failure Signature heatmap displaying normalised intensities of behavioural markers across distinct failure modes. \fm{1.5} (Premature Agreement/Groupthink) exhibits the highest Coordinator Dominance, while \fm{1.3} displays high unresolved dissent.}
 \label{fig:failure_heatmap}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{../figures/fig3_failure_distribution_by_topology.png}
+\includegraphics[width=\linewidth]{../figures/fig3_failure_distribution_by_topology.png}
 \caption{Proportional distribution of diagnosed failure modes across topologies. \topo{Star} is overwhelmingly dominated by Coordinator Dominance and Premature Agreement (\fm{1.5}), whereas \topo{Chain} suffers primarily from Information Attenuation (\fm{1.4}).}
 \label{fig:failure_dist}
 \end{figure}
@@ -431,7 +431,7 @@ Total Message Count          & Step Repetition Index & $-0.284$ & 0.0001 & ** \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.88\textwidth]{../figures/fig4_sna_correlation_matrix.png}
+\includegraphics[width=\linewidth]{../figures/fig4_sna_correlation_matrix.png}
 \caption{SNA correlation matrix: Pearson $r$ between network graph properties and reasoning metrics. The dominant patterns are the strong positive correlation between $\CB$ and Coordinator Dominance ($r = +0.890^{**}$) and the decisive negative correlation between Total Messages and Success ($r = -0.602^{**}$).}
 \label{fig:sna_heatmap}
 \end{figure}
@@ -447,7 +447,7 @@ Total Message Count          & Step Repetition Index & $-0.284$ & 0.0001 & ** \\
 
 \Cref{tab:model_robustness} summarises overall heterogeneous team robustness. \Cref{fig:robustness_interaction} and \Cref{fig:pareto} illustrate per-topology stability and the cost-accuracy Pareto frontier.
 
-\begin{table}[H]
+\begin{table*}[t]
 \centering
 \caption{Overall team performance summary. Topological sensitivity ($\sigma_{\mathrm{acc}}$) represents the standard deviation of accuracy across topologies.}
 \label{tab:model_robustness}
@@ -458,18 +458,18 @@ Total Message Count          & Step Repetition Index & $-0.284$ & 0.0001 & ** \\
 Heterogeneous Ensemble & 175 & 24.00 & 5.92 & 15{,}278 & \$0.0031 & 117.65s \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.78\textwidth]{../figures/fig5_model_robustness_interaction.png}
+\includegraphics[width=\linewidth]{../figures/fig5_model_robustness_interaction.png}
 \caption{Model robustness interaction profile across communication topologies. The substantial standard deviation ($\sigma = 5.92\%$) confirms that topology accounts for over 40\% of inter-run variance.}
 \label{fig:robustness_interaction}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.78\textwidth]{../figures/fig6_cost_accuracy_pareto.png}
+\includegraphics[width=\linewidth]{../figures/fig6_cost_accuracy_pareto.png}
 \caption{Pareto frontier of communication overhead (tokens per task) versus reasoning fidelity (accuracy \%). \topo{Tree} topology dominates the Pareto frontier, providing optimal accuracy at moderate token expenditure.}
 \label{fig:pareto}
 \end{figure}
