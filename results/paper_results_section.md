@@ -1,7 +1,7 @@
 # Empirical Results: Communication Topologies, Failure Signatures, and Model Robustness in Multi-Agent LLMs
 
 ## 1. Executive Summary of Experimental Observations
-- **Total Experimental Runs**: 175
+- **Total Experimental Runs**: 1550
 - **Network Topologies**: STAR, CHAIN, TREE, MESH, EMERGENT
 - **Frontier LLM Architectures**: heterogeneous
 - **Failure Categories Covered**: FC1 (Specification Adherence), FC2 (Context & Coordination, including FC2.2 Clarification Inquiries), FC3 (Convergence & Verification)
@@ -12,11 +12,11 @@
 
 | Topology | Runs | Success Rate (%) | 95% Confidence Interval | Mean Tokens | Mean Cost ($) | Mean Latency (s) | Betweenness $C_B$ | Graph Density |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **STAR** | 35 | **22.86%** | [8.95%, 36.77%] | 16,623 | $0.0023 | 115.3s | 0.086 | 0.034 |
-| **CHAIN** | 35 | **17.14%** | [4.66%, 29.63%] | 12,679 | $0.0033 | 118.12s | 0.071 | 0.036 |
-| **TREE** | 35 | **31.43%** | [16.05%, 46.81%] | 14,456 | $0.0024 | 116.91s | 0.095 | 0.057 |
-| **MESH** | 35 | **20.0%** | [6.75%, 33.25%] | 12,687 | $0.0032 | 119.91s | 0.071 | 0.086 |
-| **EMERGENT** | 35 | **28.57%** | [13.6%, 43.54%] | 19,945 | $0.0043 | 118.01s | 0.060 | 0.062 |
+| **STAR** | 310 | **45.16%** | [39.62%, 50.7%] | 13,462 | $0.0017 | 122.2s | 0.605 | 0.477 |
+| **CHAIN** | 310 | **44.52%** | [38.98%, 50.05%] | 11,144 | $0.0019 | 139.62s | 0.355 | 0.389 |
+| **TREE** | 310 | **43.23%** | [37.71%, 48.74%] | 12,329 | $0.0017 | 126.96s | 0.519 | 0.480 |
+| **MESH** | 310 | **40.65%** | [35.18%, 46.11%] | 10,869 | $0.0019 | 155.71s | 0.185 | 0.591 |
+| **EMERGENT** | 310 | **48.06%** | [42.5%, 53.63%] | 14,394 | $0.0023 | 114.48s | 0.103 | 0.413 |
 
 ### Key Findings on Topologies:
 1. **Sequential / Chain**: Experiences strong information attenuation across multi-hop handoffs, leading to high failure rates on multi-constraint tasks (FC1.1 and FC1.4).
@@ -38,10 +38,20 @@ Failure signatures measure behavioral patterns extracted directly from deliberat
 
 | Failure Mode | Dissent Ratio (%) | Clarification Rate (%) | Lexical Decay | Repetition Index | Coord Dominance |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **FM-1.1** | 0.229% | 0.567% | -0.288 | 0.248 | 0.0 |
-| **FM-1.3** | 0.413% | 0.614% | 0.034 | 0.178 | 0.13 |
-| **FM-1.4** | 0.164% | 0.477% | -0.239 | 0.227 | 0.026 |
-| **FM-1.5** | 0.08% | 0.417% | -0.165 | 0.202 | 0.218 |
+| **FM-1.1** | 0.253% | 1.297% | -0.089 | 0.23 | 0.17 |
+| **FM-1.2** | 0.2% | 0.472% | 0.025 | 0.236 | 0.312 |
+| **FM-1.3** | 0.418% | 0.529% | -0.134 | 0.225 | 0.198 |
+| **FM-1.4** | 0.351% | 0.352% | -0.072 | 0.22 | 0.166 |
+| **FM-1.5** | 0.306% | 0.554% | -0.168 | 0.211 | 0.433 |
+| **FM-2.1** | 0.189% | 0.27% | 0.124 | 0.236 | 0.278 |
+| **FM-2.2** | 0.099% | 3.941% | 0.003 | 0.269 | 0.392 |
+| **FM-2.3** | 0.11% | 0.38% | 0.101 | 0.255 | 0.418 |
+| **FM-2.4** | 0.131% | 0.248% | 0.039 | 0.23 | 0.322 |
+| **FM-2.5** | 0.049% | 0.227% | -0.025 | 0.23 | 0.333 |
+| **FM-2.6** | 0.0% | 0.0% | 0.0 | 0.0 | 1.0 |
+| **FM-3.1** | 0.211% | 0.558% | 0.073 | 0.245 | 0.347 |
+| **FM-3.2** | 0.129% | 0.899% | 0.162 | 0.285 | 0.376 |
+| **FM-3.3** | 0.354% | 0.562% | 0.128 | 0.255 | 0.384 |
 
 > **Diagnostic Finding on FC2.2 (Fail to Ask for Clarification)**:
 > In tasks featuring deliberately ambiguous specifications (`FC2_2.2_002`), agents that fail to ask for clarification exhibit a near-zero Clarification Rate ($< 0.05\%$) and enter immediate screening without querying the coordinator or user.
@@ -54,30 +64,30 @@ Correlation analysis evaluating how mathematical graph properties govern reasoni
 
 | SNA Metric | Target Outcome | Pearson $r$ | $p$-value | Significance |
 | :--- | :--- | :---: | :---: | :---: |
-| `coordinator_betweenness` | `success` | -0.095 | 0.2130 | n.s. |
-| `coordinator_betweenness` | `dissent_ratio` | -0.163 | 0.0308 | *p < 0.05* |
-| `coordinator_betweenness` | `clarification_rate` | -0.181 | 0.0163 | *p < 0.05* |
-| `coordinator_betweenness` | `lexical_decay_rate` | 0.003 | 0.9653 | n.s. |
-| `coordinator_betweenness` | `step_repetition_index` | -0.34 | 0.0000 | **p < 0.01** |
-| `coordinator_betweenness` | `coordinator_dominance` | 0.89 | 0.0000 | **p < 0.01** |
-| `graph_density` | `success` | 0.042 | 0.5821 | n.s. |
-| `graph_density` | `dissent_ratio` | -0.16 | 0.0340 | *p < 0.05* |
-| `graph_density` | `clarification_rate` | -0.136 | 0.0732 | n.s. |
-| `graph_density` | `lexical_decay_rate` | 0.033 | 0.6676 | n.s. |
-| `graph_density` | `step_repetition_index` | -0.177 | 0.0189 | *p < 0.05* |
-| `graph_density` | `coordinator_dominance` | 0.823 | 0.0000 | **p < 0.01** |
-| `reciprocity` | `success` | 0.087 | 0.2534 | n.s. |
-| `reciprocity` | `dissent_ratio` | -0.137 | 0.0715 | n.s. |
-| `reciprocity` | `clarification_rate` | -0.139 | 0.0664 | n.s. |
-| `reciprocity` | `lexical_decay_rate` | 0.119 | 0.1171 | n.s. |
-| `reciprocity` | `step_repetition_index` | -0.179 | 0.0179 | *p < 0.05* |
-| `reciprocity` | `coordinator_dominance` | 0.625 | 0.0000 | **p < 0.01** |
-| `total_messages` | `success` | -0.602 | 0.0000 | **p < 0.01** |
-| `total_messages` | `dissent_ratio` | 0.158 | 0.0368 | *p < 0.05* |
-| `total_messages` | `clarification_rate` | -0.091 | 0.2333 | n.s. |
-| `total_messages` | `lexical_decay_rate` | -0.028 | 0.7117 | n.s. |
-| `total_messages` | `step_repetition_index` | -0.284 | 0.0001 | **p < 0.01** |
-| `total_messages` | `coordinator_dominance` | 0.02 | 0.7880 | n.s. |
+| `coordinator_betweenness` | `success` | -0.051 | 0.0468 | *p < 0.05* |
+| `coordinator_betweenness` | `dissent_ratio` | 0.073 | 0.0043 | **p < 0.01** |
+| `coordinator_betweenness` | `clarification_rate` | -0.104 | 0.0000 | **p < 0.01** |
+| `coordinator_betweenness` | `lexical_decay_rate` | 0.113 | 0.0000 | **p < 0.01** |
+| `coordinator_betweenness` | `step_repetition_index` | 0.032 | 0.2031 | n.s. |
+| `coordinator_betweenness` | `coordinator_dominance` | 0.21 | 0.0000 | **p < 0.01** |
+| `graph_density` | `success` | 0.213 | 0.0000 | **p < 0.01** |
+| `graph_density` | `dissent_ratio` | -0.173 | 0.0000 | **p < 0.01** |
+| `graph_density` | `clarification_rate` | 0.256 | 0.0000 | **p < 0.01** |
+| `graph_density` | `lexical_decay_rate` | 0.076 | 0.0027 | **p < 0.01** |
+| `graph_density` | `step_repetition_index` | 0.115 | 0.0000 | **p < 0.01** |
+| `graph_density` | `coordinator_dominance` | 0.511 | 0.0000 | **p < 0.01** |
+| `reciprocity` | `success` | 0.122 | 0.0000 | **p < 0.01** |
+| `reciprocity` | `dissent_ratio` | -0.082 | 0.0012 | **p < 0.01** |
+| `reciprocity` | `clarification_rate` | 0.129 | 0.0000 | **p < 0.01** |
+| `reciprocity` | `lexical_decay_rate` | 0.033 | 0.2000 | n.s. |
+| `reciprocity` | `step_repetition_index` | 0.188 | 0.0000 | **p < 0.01** |
+| `reciprocity` | `coordinator_dominance` | 0.395 | 0.0000 | **p < 0.01** |
+| `total_messages` | `success` | -0.287 | 0.0000 | **p < 0.01** |
+| `total_messages` | `dissent_ratio` | 0.2 | 0.0000 | **p < 0.01** |
+| `total_messages` | `clarification_rate` | -0.253 | 0.0000 | **p < 0.01** |
+| `total_messages` | `lexical_decay_rate` | 0.018 | 0.4836 | n.s. |
+| `total_messages` | `step_repetition_index` | 0.111 | 0.0000 | **p < 0.01** |
+| `total_messages` | `coordinator_dominance` | -0.601 | 0.0000 | **p < 0.01** |
 
 ### Architectural Insights from SNA:
 - **Coordinator Betweenness ($C_B$)**: Positively correlated with Coordinator Dominance ($p < 0.01$) and negatively correlated with lateral peer auditing.
@@ -92,7 +102,7 @@ Evaluates how frontier LLM architectures withstand topological communication con
 
 | Model Architecture | Overall Accuracy (%) | Topological Sensitivity ($\sigma_{\text{acc}}$) | Mean Tokens / Task | Cost / Task ($) | Latency (s) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **heterogeneous** | **24.0%** | $\sigma = 5.92$ | 15,278 | $0.0031 | 117.65s |
+| **heterogeneous** | **44.32%** | $\sigma = 2.71$ | 12,440 | $0.0019 | 131.8s |
 
 ---
 
@@ -108,11 +118,11 @@ Evaluates how frontier LLM architectures withstand topological communication con
 \toprule
 \textbf{Topology} & \textbf{Runs} & \textbf{Accuracy (\%)} & \textbf{95\% CI} & \textbf{Tokens} & \textbf{Cost (USD)} & \textbf{Latency (s)} & \textbf{Betweenness $C_B$} & \textbf{Density $D$} \\
 \midrule
-STAR & 35 & 22.86\% & [8.95, 36.77] & 16623 & \$0.0023 & 115.3s & 0.086 & 0.034 \\
-CHAIN & 35 & 17.14\% & [4.66, 29.63] & 12679 & \$0.0033 & 118.12s & 0.071 & 0.036 \\
-TREE & 35 & 31.43\% & [16.05, 46.81] & 14456 & \$0.0024 & 116.91s & 0.095 & 0.057 \\
-MESH & 35 & 20.0\% & [6.75, 33.25] & 12687 & \$0.0032 & 119.91s & 0.071 & 0.086 \\
-EMERGENT & 35 & 28.57\% & [13.6, 43.54] & 19945 & \$0.0043 & 118.01s & 0.060 & 0.062 \\
+STAR & 310 & 45.16\% & [39.62, 50.7] & 13462 & \$0.0017 & 122.2s & 0.605 & 0.477 \\
+CHAIN & 310 & 44.52\% & [38.98, 50.05] & 11144 & \$0.0019 & 139.62s & 0.355 & 0.389 \\
+TREE & 310 & 43.23\% & [37.71, 48.74] & 12329 & \$0.0017 & 126.96s & 0.519 & 0.480 \\
+MESH & 310 & 40.65\% & [35.18, 46.11] & 10869 & \$0.0019 & 155.71s & 0.185 & 0.591 \\
+EMERGENT & 310 & 48.06\% & [42.5, 53.63] & 14394 & \$0.0023 & 114.48s & 0.103 & 0.413 \\
 \bottomrule
 \end{tabular}
 \end{table*}
