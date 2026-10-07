@@ -7,6 +7,7 @@ from app.topologies.emergent import EmergentTopology
 from app.topologies.actor import ActorTopology
 from app.topologies.stream import StreamTopology
 from app.topologies.distributed_state import DistributedStateTopology
+from app.topologies.dynamic import DynamicTopology
 
 TOPOLOGY_MAP = {
     "STAR": StarTopology,
@@ -19,12 +20,13 @@ TOPOLOGY_MAP = {
     "STREAM": StreamTopology,
     "KAFKA": StreamTopology,
     "DISTRIBUTED_STATE": DistributedStateTopology,
-    "ETCD": DistributedStateTopology
+    "ETCD": DistributedStateTopology,
+    "DYNAMIC": DynamicTopology
 }
 
 
-def get_topology_instance(topology_name: str, agents: list[AgentInfo]) -> BaseTopology:
+def get_topology_instance(topology_name: str, agents: list[AgentInfo], **kwargs) -> BaseTopology:
     norm_name = topology_name.upper()
     if norm_name not in TOPOLOGY_MAP:
         raise ValueError(f"Unknown topology '{topology_name}'. Allowed: {list(TOPOLOGY_MAP.keys())}")
-    return TOPOLOGY_MAP[norm_name](agents)
+    return TOPOLOGY_MAP[norm_name](agents, **kwargs)

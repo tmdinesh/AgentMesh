@@ -83,27 +83,42 @@ def generate_all_artifacts(csv_path: Path, results_dir: Path, figures_dir: Path)
 
     stats_output["topologies_success_summary"] = topo_summary
 
-    # Plot Figure 1: Success Rate across Topologies & Models
-    plt.figure(figsize=(9, 5))
-    acc_df = df.groupby(["topology", "model"])["success"].mean().reset_index()
-    acc_df["accuracy_pct"] = acc_df["success"] * 100
+    # Plot Figure 1: Success Rate across Topologies with 95% Wilson Score CIs
+    plt.figure(figsize=(8, 5))
+    topos_formatted = [r["topology"].capitalize() if r["topology"].isupper() else r["topology"] for r in topo_summary]
+    accs = [r["accuracy_pct"] for r in topo_summary]
+    ci_lows = [r["ci_95_lower"] for r in topo_summary]
+    ci_upps = [r["ci_95_upper"] for r in topo_summary]
+    yerr_lower = [a - l for a, l in zip(accs, ci_lows)]
+    yerr_upper = [u - a for a, u in zip(accs, ci_upps)]
+    yerr = [yerr_lower, yerr_upper]
+    colors = ['#1b7837', '#2166ac', '#d95f02', '#7570b3', '#d73027']
 
-    sns.barplot(
-        data=acc_df,
-        x="topology",
-        y="accuracy_pct",
-        hue="model",
-        order=present_topos,
-        palette="viridis"
-    )
-    plt.title("Reasoning Task Accuracy by Communication Topology & LLM Model", weight="bold")
-    plt.xlabel("Communication Network Topology")
-    plt.ylabel("Task Success Rate (%)")
-    plt.ylim(0, 105)
-    plt.legend(title="LLM Model", bbox_to_anchor=(1.02, 1), loc="upper left")
+    bars = plt.bar(topos_formatted, accs, color=colors[:len(topos_formatted)], width=0.55, edgecolor='black', linewidth=1.0, alpha=0.9, zorder=3)
+    plt.errorbar(topos_formatted, accs, yerr=yerr, fmt='none', ecolor='#222222', elinewidth=1.6, capsize=6, capthick=1.6, zorder=4)
+
+    for bar, acc, upp in zip(bars, accs, ci_upps):
+        plt.text(bar.get_x() + bar.get_width() / 2.0, upp + 2.0, f'{acc:.2f}%', ha='center', va='bottom', fontsize=10.5, fontweight='bold', color='#111111')
+
+    plt.title("Task Success Rate by Communication Network Topology", weight="bold", pad=14, fontsize=13)
+    plt.xlabel("Communication Network Topology", weight="bold", labelpad=10)
+    plt.ylabel("Task Success Rate (%)", weight="bold", labelpad=10)
+    max_val = max(ci_upps) if ci_upps else 50
+    plt.ylim(0, max(60, max_val + 10))
+    plt.grid(axis='y', linestyle='--', alpha=0.6, zorder=0)
+    plt.gca().set_axisbelow(True)
+
+    n_runs = topo_summary[0]["runs"] if topo_summary else 35
+    plt.text(0.98, 0.95, f'Heterogeneous Multi-LLM Ensemble (N={n_runs} per topology)\nError bars: 95% Wilson Score CI',
+             transform=plt.gca().transAxes, ha='right', va='top', fontsize=9,
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#f8f9fa', edgecolor='#cccccc', alpha=0.9))
+
     plt.tight_layout()
     fig1_path = figures_dir / "fig1_accuracy_by_topology_and_model.png"
     plt.savefig(fig1_path)
+    root_fig_dir = figures_dir.resolve().parent.parent / "figures"
+    if root_fig_dir.exists() and root_fig_dir != figures_dir.resolve():
+        plt.savefig(root_fig_dir / "fig1_accuracy_by_topology_and_model.png")
     plt.close()
     print(f"  [+] Saved {fig1_path.name}")
 
@@ -267,30 +282,67 @@ def generate_all_artifacts(csv_path: Path, results_dir: Path, figures_dir: Path)
         except Exception as e:
             print(f"[-] Note on Two-Way ANOVA: {e}")
 
-    # Plot Figure: Model Robustness Interaction
-    plt.figure(figsize=(8.5, 5))
-    inter_df = df.groupby(["topology", "model"])["success"].mean().reset_index()
-    inter_df["accuracy_pct"] = inter_df["success"] * 100
+    # Plot Figure 5: Model Robustness & Topological Sensitivity Interaction
+    plt.figure(figsize=(7.8, 4.8))
+    order_sens = ["CHAIN", "MESH", "STAR", "EMERGENT", "TREE"]
+    sens_topos = [t for t in order_sens if t in df["topology"].unique()]
+    topos_display = [t.capitalize() for t in sens_topos]
 
-    sns.lineplot(
-        data=inter_df,
-        x="topology",
-        y="accuracy_pct",
-        hue="model",
-        marker="o",
-        markersize=9,
-        linewidth=2.5,
-        palette="tab10"
-    )
-    plt.title("Model Robustness: Topology × Architecture Interaction Profile", weight="bold")
-    plt.xlabel("Communication Network Topology")
-    plt.ylabel("Accuracy (%)")
-    plt.ylim(0, 105)
-    plt.grid(True, linestyle="--", alpha=0.5)
-    plt.legend(title="LLM Model", bbox_to_anchor=(1.02, 1), loc="upper left")
+    acc_by_topo = [float(df[df["topology"] == t]["success"].mean() * 100) for t in sens_topos]
+    ens_mean = float(df["success"].mean() * 100)
+    ens_std = float(pd.Series(acc_by_topo).std()) if len(acc_by_topo) > 1 else 0.0
+
+    # Shaded Topological Sensitivity Band (mu +- 1 sigma)
+    plt.axhspan(ens_mean - ens_std, ens_mean + ens_std, color='#3498db', alpha=0.18,
+                label=f'Topological Sensitivity (μ ± 1σ = {ens_mean:.1f}% ± {ens_std:.2f}%)')
+    plt.axhline(ens_mean, color='#2980b9', linestyle='--', linewidth=1.4, alpha=0.85,
+                label=f'Ensemble Baseline Mean (μ = {ens_mean:.2f}%)')
+
+    # If failure modes / prompt families exist, plot the interaction
+    if "failure_mode" in df.columns or "prompt_family" in df.columns:
+        # Step Repetition (FM-1.3)
+        rep_sub = df[df["prompt_family"].str.contains("Repetition", case=False, na=False) | (df["failure_mode"] == "1.3")]
+        if len(rep_sub) > 0:
+            acc_rep = [float(rep_sub[rep_sub["topology"] == t]["success"].mean() * 100) if len(rep_sub[rep_sub["topology"] == t]) > 0 else np.nan for t in sens_topos]
+            plt.plot(topos_display, acc_rep, marker='s', markersize=8.5, linewidth=2.4, color='#e67e22', zorder=4,
+                     label=f'Step Repetition Resistance (FM-1.3, N={len(rep_sub)})')
+            for x, y in zip(topos_display, acc_rep):
+                if not np.isnan(y):
+                    plt.annotate(f'{y:.0f}%', (x, y), textcoords='offset points', xytext=(0, 9),
+                                 ha='center', fontsize=8.5, fontweight='bold', color='#d35400')
+
+    # Aggregate ensemble line
+    plt.plot(topos_display, acc_by_topo, marker='o', markersize=9, linewidth=2.8, color='#1a365d', zorder=5,
+             label=f'Aggregate Heterogeneous Ensemble (N={len(df)})')
+
+    for i, (x, y) in enumerate(zip(topos_display, acc_by_topo)):
+        if i == 0:
+            plt.annotate(f'{y:.1f}%', (x, y), textcoords='offset points', xytext=(-16, -5),
+                         ha='right', fontsize=9, fontweight='bold', color='#1a365d')
+        else:
+            plt.annotate(f'{y:.1f}%', (x, y), textcoords='offset points', xytext=(0, 9),
+                         ha='center', fontsize=9, fontweight='bold', color='#1a365d')
+
+    # Task specification adherence if present
+    spec_sub = df[df["prompt_family"].str.contains("Specification", case=False, na=False) | (df["failure_mode"] == "1.1")]
+    if len(spec_sub) > 0:
+        acc_spec_vals = [float(spec_sub[spec_sub["topology"] == t]["success"].mean() * 100) if len(spec_sub[spec_sub["topology"] == t]) > 0 else np.nan for t in sens_topos]
+        plt.plot(topos_display, acc_spec_vals, marker='^', markersize=8.5, linewidth=2.0, color='#7f8c8d', linestyle='-.', zorder=3,
+                 label=f'Task Specification Adherence (FM-1.1, N={len(spec_sub)})')
+
+    plt.title("Topological Sensitivity & Task Failure Interaction Profile", weight="bold", pad=12, fontsize=12)
+    plt.xlabel("Communication Network Topology (Ordered by Resilience)", weight="bold", labelpad=8)
+    plt.ylabel("Task Success Rate (%)", weight="bold", labelpad=8)
+    plt.ylim(8, 72)
+    plt.grid(True, linestyle=":", alpha=0.6)
+    plt.legend(loc="upper left", fontsize=8.6, framealpha=0.92)
     plt.tight_layout()
+
     fig_robust_path = figures_dir / "fig5_model_robustness_interaction.png"
     plt.savefig(fig_robust_path)
+    root_fig_dir = figures_dir.resolve().parent.parent / "figures"
+    if root_fig_dir.exists() and root_fig_dir != figures_dir.resolve():
+        plt.savefig(root_fig_dir / "fig5_model_robustness_interaction.png")
     plt.close()
     print(f"  [+] Saved {fig_robust_path.name}")
 

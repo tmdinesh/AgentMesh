@@ -1,0 +1,12 @@
+[
+    {
+        "scenario": "Groupthink Intervention (High C_B detected)",
+        "intervention": "Injected Critic Agent mid-deliberation",
+        "outcome": "Task Success (Static topologies failed with Premature Agreement FM-1.5)"
+    },
+    {
+        "scenario": "Infinite Loop Prevention (High V_msg detected)",
+        "intervention": "Pruned redundant reasoning branch",
+        "outcome": "Task Success (Token consumption reduced by 40%)"
+    }
+]

@@ -1,0 +1,98 @@
+[
+    {
+        "tau_volume": 1000,
+        "tau_dom": 0.25,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 1000,
+        "tau_dom": 0.35,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 1000,
+        "tau_dom": 0.45,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 1000,
+        "tau_dom": 0.6,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 2000,
+        "tau_dom": 0.25,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 2000,
+        "tau_dom": 0.35,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 2000,
+        "tau_dom": 0.45,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 2000,
+        "tau_dom": 0.6,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 3000,
+        "tau_dom": 0.25,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 3000,
+        "tau_dom": 0.35,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 3000,
+        "tau_dom": 0.45,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 3000,
+        "tau_dom": 0.6,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 5000,
+        "tau_dom": 0.25,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 5000,
+        "tau_dom": 0.35,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 5000,
+        "tau_dom": 0.45,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    },
+    {
+        "tau_volume": 5000,
+        "tau_dom": 0.6,
+        "accuracy": 0.0,
+        "total_cost": 0.0
+    }
+]

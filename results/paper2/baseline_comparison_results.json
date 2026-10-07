@@ -1,0 +1,10 @@
+{
+    "static_tree": {
+        "accuracy": 0.0,
+        "tasks_run": 2
+    },
+    "dynamic": {
+        "accuracy": 0.0,
+        "tasks_run": 2
+    }
+}

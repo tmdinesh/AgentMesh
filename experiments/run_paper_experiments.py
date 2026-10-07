@@ -52,7 +52,7 @@ DATASET_FILE = ROOT_DIR / "datasets" / "dataset.json"
 ENV_FILE = ROOT_DIR / ".env"
 CONFIG_FILE = ROOT_DIR / "config.yaml"
 
-TOPOLOGIES = ["STAR", "CHAIN", "TREE", "MESH", "EMERGENT"]
+TOPOLOGIES = ["STAR", "CHAIN", "TREE", "MESH", "EMERGENT", "DYNAMIC"]
 
 MODEL_CONFIGS = {
     # Heterogeneous Multi-Agent Team (Distinct model per agent role)
@@ -432,6 +432,8 @@ class MultiModelLLMClient:
             "max_tokens": max_tok
         }
         res = await self.http_client.post(url, headers=headers, json=payload, timeout=60.0)
+        if res.status_code >= 400:
+            logger.error(f"AICredits HTTP Error: {res.status_code} - {res.text}")
         res.raise_for_status()
         data = res.json()
         choice_msg = data["choices"][0]["message"]
@@ -588,7 +590,8 @@ async def run_single_experiment(
     topology_name: str,
     model_key: str,
     replicate_id: int,
-    llm_client: MultiModelLLMClient
+    llm_client: MultiModelLLMClient,
+    topology_kwargs: Dict[str, Any] = None
 ) -> Dict[str, Any]:
     """Runs a complete multi-turn topology experiment with evaluation and graph metrics."""
     start_time = time.time()
@@ -601,7 +604,8 @@ async def run_single_experiment(
     # 1. Setup Agents & Topology with Heterogeneous Multi-LLM Bindings
     agent_roles = prompt_data.get("agents", [])
     agents = build_agent_team(agent_roles, condition_model=model_key)
-    topology: BaseTopology = get_topology_instance(topology_name, agents)
+    topology_kwargs = topology_kwargs or {}
+    topology: BaseTopology = get_topology_instance(topology_name, agents, **topology_kwargs)
 
     # 2. Deliberation Turns
     num_turns = min(len(agents) * 2, 8)

@@ -64,7 +64,14 @@
 \usepackage{enumitem}
 \usepackage{cleveref}
 \usepackage{footnote}
-\usepackage[section]{placeins}
+% Spacing & Float consistency (prevents awkward vertical gaps and stretched spacing)
+\raggedbottom
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.85}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
@@ -85,9 +92,12 @@
 {\footnotesize \textsuperscript{*}Empirical Evaluation of Graph Structure, Failure Signatures, and Social Network Analysis in Heterogeneous Agent Teams}
 }
 
-\author{\IEEEauthorblockN{Dinesh T.}
-\IEEEauthorblockA{\textit{MAST Topology Lab} \\
-agentmesh@research.lab}
+\author{
+\IEEEauthorblockN{Gopika Rani N, Dinesh T M, Harish Karthic R, Madhan KJ, and Rahul R}
+\IEEEauthorblockA{\textit{Department of Computer Science and Engineering} \\
+\textit{PSG College of Technology}\\
+Coimbatore, India \\
+Email: \{ngr.cse, 23z320, 23z324, 23z340, 24z465\}@psgtech.ac.in}
 }
 
 % =============================================================================
@@ -235,7 +245,7 @@ We formally model a multi-agent system as a directed communication graph $G = (V
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{../figures/fig7_topology_architectures.png}
+\includegraphics[width=\textwidth]{figures/fig7_topology_architectures.png}
 \caption{Structural graph representations of the five evaluated communication topologies across a heterogeneous ensemble of $N=6$ agents ($A_1$: Coordinator, $A_2$: Solver, $A_3$: Critic, $A_4$: Fact Checker, $A_5$: Alternative Solver, $A_6$: QA Reviewer). (a)~\topo{Star}: hub-and-spoke routing with bidirectional coordinator links ($\CB \to 1.0, D=0.034$); (b)~\topo{Chain}: strict sequential forward pipeline ($\RCP=0, D=0.036$); (c)~\topo{Tree}: hierarchical branching isolating sub-problem branches ($D=0.057$); (d)~\topo{Mesh}: complete digraph with quadratic edge growth $O(N^2)$ ($D=0.086$); (e)~\topo{Emergent}: dynamic content-conditioned routing with active (solid) and dormant (dashed) links ($D=0.062$).}
 \label{fig:topologies}
 \end{figure*}
@@ -245,12 +255,11 @@ We formally model a multi-agent system as a directed communication graph $G = (V
 
 To eliminate single-model idiosyncratic bias and reflect realistic enterprise multi-agent deployments, all experiments utilise a strictly fixed, heterogeneous multi-LLM team. Each agent persona is instantiated using a distinct frontier LLM architecture, as specified in \cref{tab:agent_team}:
 
-\begin{table}[H]
+\begin{table*}[t]
 \centering
-\small
 \caption{Heterogeneous Multi-LLM Ensemble Configuration.}
 \label{tab:agent_team}
-\begin{tabularx}{\linewidth}{cllX}
+\begin{tabularx}{\textwidth}{c l >{\raggedright\arraybackslash}X l}
 \toprule
 \textbf{Node} & \textbf{Assigned Persona} & \textbf{Underlying LLM Architecture} & \textbf{Inference Gateway} \\
 \midrule
@@ -262,7 +271,7 @@ $A_5$ & Alternative Solver       & \texttt{nex-agi/nex-n2-mini} & AICredits API 
 $A_6$ & Quality Assurance Reviewer & \texttt{llama3:8b} & Dedicated Ollama Node \\
 \bottomrule
 \end{tabularx}
-\end{table}
+\end{table*}
 
 \subsection{Two-Stage Evaluation Protocol}
 \label{sec:eval_protocol}
@@ -276,7 +285,7 @@ To ensure rigorous, unbiased grading, all deliberation transcripts and final syn
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.95\textwidth]{../figures/fig8_evaluation_pipeline.png}
+\includegraphics[width=0.95\textwidth]{figures/fig8_evaluation_pipeline.png}
 \caption{Two-stage evaluation and diagnostic failure classification pipeline. Benchmark tasks ($T_k$) are executed across the enforced communication topology $G=(V, E)$. The team's synthesized output is graded via Stage~1 Objective Verification (independent LLM judge, $T=0.2$, binary pass/fail). For failed runs ($S=0$), Stage~2 performs multi-turn transcript diagnosis against the 14-mode MAST failure taxonomy~\cite{cemri2025why} while extracting six continuous behavioural and linguistic failure signature metrics.}
 \label{fig:eval_pipeline}
 \end{figure*}
@@ -332,10 +341,10 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
 \end{tabular}
 \end{table*}
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig1_accuracy_by_topology_and_model.png}
-\caption{Task success rate (\%) by communication topology for the heterogeneous multi-LLM ensemble. \topo{Tree} topology achieves the highest accuracy (31.43\%), while \topo{Chain} displays the lowest (17.14\%). Error bars represent 95\% Wilson score confidence intervals.}
+\includegraphics[width=\linewidth]{figures/fig1_accuracy_by_topology_and_model.png}
+\caption{Task success rate (\%) across communication topologies for the heterogeneous multi-LLM ensemble (175 experimental runs). \topo{Tree} topology achieves peak accuracy (31.43\%), outperforming \topo{Mesh} (20.00\%) and \topo{Chain} (17.14\%). The dashed horizontal line indicates the ensemble mean baseline (24.00\%). Error bars denote 95\% Wilson score confidence intervals.}
 \label{fig:accuracy_bar}
 \end{figure}
 
@@ -349,7 +358,7 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{../figures/fig9_latency_token_distributions.png}
+\includegraphics[width=0.92\textwidth]{figures/fig9_latency_token_distributions.png}
 \caption{Empirical distributions of computational overhead across the five communication topologies over 175 experimental trials. (a)~Communication overhead: Total token expenditure per task, showing that dynamic routing in \topo{Emergent} incurs the highest overhead while \topo{Chain} and \topo{Mesh} consume the lowest; (b)~Deliberation latency: End-to-end wall-clock time in seconds, demonstrating comparable median latencies ($\approx 117\text{s}$) with wider dispersion under dense and emergent graphs.}
 \label{fig:latency_tokens}
 \end{figure*}
@@ -359,11 +368,12 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
 
 \Cref{tab:failure_signatures} details the quantified behavioral markers across representative failure modes from \fc{1}, \fc{2}, and \fc{3}. \Cref{fig:failure_heatmap} visualises the signature heatmap, and \Cref{fig:failure_dist} illustrates the distribution of failure modes across topologies.
 
-\begin{table*}[t]
+\begin{table}[!t]
 \centering
 \caption{Quantified failure signature profiles across representative MAST failure modes extracted from deliberation transcripts.}
 \label{tab:failure_signatures}
-\begin{tabular}{lcccccc}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
 \toprule
 \textbf{Failure Mode} & \textbf{Dissent (\%)} & \textbf{Clarif. (\%)} & \textbf{Lex. Decay} & \textbf{Repetition} & \textbf{Coord. Dom.} \\
 \midrule
@@ -376,19 +386,20 @@ We conducted 175 primary experimental trials (35 trials per topology across the 
 \fm{2.4} (Withholding) & 0.131 & 0.248 & $+0.039$ & 0.230 & 0.322 \\
 \fm{3.3} (Faulty Ver.) & \textbf{0.354} & 0.562 & $+0.128$ & 0.255 & 0.384 \\
 \bottomrule
-\end{tabular}
-\end{table*}
+\end{tabular}%
+}
+\end{table}
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig2_failure_signatures_heatmap.png}
-\caption{Failure Signature heatmap displaying normalised intensities of behavioural markers across distinct failure modes. \fm{1.5} (Premature Agreement/Groupthink) exhibits the highest Coordinator Dominance, while \fm{1.3} displays high unresolved dissent.}
+\includegraphics[width=\linewidth]{figures/fig2_failure_signatures_heatmap.png}
+\caption{Failure Signature heatmap displaying normalised intensities of behavioural markers across representative MAST failure modes. \fm{1.5} (Premature Agreement/Groupthink) exhibits maximal Coordinator Dominance (0.433), \fm{2.2} triggers elevated Clarification Rates (3.94\%), and \fm{3.3} exhibits heightened Dissent (0.354).}
 \label{fig:failure_heatmap}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig3_failure_distribution_by_topology.png}
+\includegraphics[width=\linewidth]{figures/fig3_failure_distribution_by_topology.png}
 \caption{Proportional distribution of diagnosed failure modes across topologies. \topo{Star} is overwhelmingly dominated by Coordinator Dominance and Premature Agreement (\fm{1.5}), whereas \topo{Chain} suffers primarily from Information Attenuation (\fm{1.4}).}
 \label{fig:failure_dist}
 \end{figure}
@@ -429,9 +440,9 @@ Total Message Count          & Step Repetition Index & $-0.284$ & 0.0001 & ** \\
 \end{tabular}
 \end{table*}
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig4_sna_correlation_matrix.png}
+\includegraphics[width=\linewidth]{figures/fig4_sna_correlation_matrix.png}
 \caption{SNA correlation matrix: Pearson $r$ between network graph properties and reasoning metrics. The dominant patterns are the strong positive correlation between $\CB$ and Coordinator Dominance ($r = +0.890^{**}$) and the decisive negative correlation between Total Messages and Success ($r = -0.602^{**}$).}
 \label{fig:sna_heatmap}
 \end{figure}
@@ -445,32 +456,34 @@ Total Message Count          & Step Repetition Index & $-0.284$ & 0.0001 & ** \\
 \subsection{Robustness and Pareto Frontier Analysis}
 \label{sec:pareto_results}
 
-\Cref{tab:model_robustness} summarises overall heterogeneous team robustness. \Cref{fig:robustness_interaction} and \Cref{fig:pareto} illustrate per-topology stability and the cost-accuracy Pareto frontier.
+\Cref{tab:model_robustness} summarises overall heterogeneous team robustness. \Cref{fig:robustness_interaction} and \Cref{fig:pareto} illustrate per-topology stability and the cost-accuracy Pareto frontier. The empirical standard deviation across topologies ($\sigma_{\mathrm{acc}} = 5.92\%$) confirms that communication topology alone accounts for over 40\% of inter-run performance variance across the 175 trials. Decomposing accuracy by benchmark failure challenge in \Cref{fig:robustness_interaction} reveals a striking interaction effect: while strict specification adherence (\fm{1.1}) presents uniform difficulty across all structures (16.0\% to 20.0\%), hierarchical isolation in \topo{Tree} yields decisive gains against circular step repetition (\fm{1.3}, reaching 60.0\% vs.\ 20.0\% in \topo{Chain} and \topo{Mesh}).
 
-\begin{table*}[t]
+\begin{table}[!t]
 \centering
-\caption{Overall team performance summary. Topological sensitivity ($\sigma_{\mathrm{acc}}$) represents the standard deviation of accuracy across topologies.}
+\caption{Overall team performance summary across 175 trials ($\sigma_{\mathrm{acc}}$ denotes topological sensitivity standard deviation).}
 \label{tab:model_robustness}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Team Ensemble} & \textbf{Runs} & \textbf{Accuracy (\%)} & $\boldsymbol{\sigma_{\mathrm{acc}}}$ & \textbf{Tokens/Task} & \textbf{Cost/Task (\$)} & \textbf{Latency (s)} \\
+\textbf{Ensemble} & \textbf{Runs} & \textbf{Acc (\%)} & $\boldsymbol{\sigma_{\mathrm{acc}}}$ & \textbf{Tokens} & \textbf{Cost (\$)} & \textbf{Latency} \\
 \midrule
-Heterogeneous Ensemble & 175 & 24.00 & 5.92 & 15{,}278 & \$0.0031 & 117.65s \\
+Heterogeneous & 175 & 24.00 & 5.92 & 15{,}278 & \$0.0031 & 117.65s \\
 \bottomrule
-\end{tabular}
-\end{table*}
+\end{tabular}%
+}
+\end{table}
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig5_model_robustness_interaction.png}
-\caption{Model robustness interaction profile across communication topologies. The substantial standard deviation ($\sigma = 5.92\%$) confirms that topology accounts for over 40\% of inter-run variance.}
+\includegraphics[width=\linewidth]{figures/fig5_model_robustness_interaction.png}
+\caption{Topological sensitivity and task failure interaction profile across communication topologies. The shaded envelope represents empirical topological sensitivity ($\mu \pm 1\sigma = 24.00\% \pm 5.92\%$) around the ensemble baseline mean ($\mu = 24.00\%$). Decomposing accuracy by failure challenge reveals a pronounced interaction effect: hierarchical topologies selectively eliminate step repetition loops (\fm{1.3}, rising from 20.0\% in \topo{Chain} to 60.0\% in \topo{Tree}), whereas specification adherence (\fm{1.1}) remains uniformly challenging (16.0\% to 20.0\%) across all graph structures.}
 \label{fig:robustness_interaction}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
-\includegraphics[width=\linewidth]{../figures/fig6_cost_accuracy_pareto.png}
-\caption{Pareto frontier of communication overhead (tokens per task) versus reasoning fidelity (accuracy \%). \topo{Tree} topology dominates the Pareto frontier, providing optimal accuracy at moderate token expenditure.}
+\includegraphics[width=\linewidth]{figures/fig6_cost_accuracy_pareto.png}
+\caption{Cost-accuracy Pareto frontier comparing communication overhead (tokens per task) against reasoning fidelity (accuracy \%). \topo{Tree} topology dominates the frontier, achieving peak accuracy (31.43\%) at moderate token expenditure (14{,}456 tokens), while sequential \topo{Chain} and dense \topo{Mesh} occupy suboptimal positions with inferior accuracy despite comparable token footprints.}
 \label{fig:pareto}
 \end{figure}
 
@@ -500,7 +513,7 @@ A pervasive intuition in multi-agent system design is that full peer visibility 
 
 Based on the empirical findings, particularly the strong negative correlation between Total Messages and Task Success (Inverse Communication Law) and the danger of Coordinator Dominance, we propose the theoretical \textbf{AgentMesh Dynamic Topology Optimization} algorithm (\Cref{alg:dynamic_topo}). The algorithm initializes with a \topo{Tree} topology to maximize branch isolation. It continuously monitors the communication telemetry during execution. If the message volume within any subtree exceeds a dynamic threshold $\tau$, or if the localized Coordinator Betweenness $\CB$ indicates a severe bottleneck, the subtree is pruned or restructured to prevent infinite deliberation loops and groupthink. While we formally define the topological routing logic here, its comprehensive software implementation and empirical evaluation are deferred to future work.
 
-\begin{algorithm}[h]
+\begin{algorithm}[!t]
 \caption{AgentMesh Dynamic Topology Optimization}
 \label{alg:dynamic_topo}
 \begin{algorithmic}[1]
@@ -550,11 +563,27 @@ Based on our empirical observations, we formulate four actionable architectural 
 Our primary direction for future work is the software implementation and comprehensive empirical evaluation of the AgentMesh Dynamic Topology Optimization algorithm proposed in Section~\ref{sec:algorithm}. This dedicated follow-up study will deploy the algorithm as an adaptive meta-agent controller that dynamically rewires communication graphs based on real-time SNA telemetry, alongside exploring causal Directed Acyclic Graph (DAG) structural equation modeling.
 
 % =============================================================================
+\section{Data and Code Availability}
+\label{sec:data_availability}
+% =============================================================================
+
+All relevant experimental results, including the AgentMesh Benchmark Suite, evaluation traces, and specific topology configurations used in this study, are publicly available in our repository at: \\
+\url{https://github.com/tmdinesh/AgentMesh/tree/conference-submission}
+
+% =============================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 % =============================================================================
 
 This paper establishes that communication topology is a fundamental architectural variable in multi-agent LLM systems. Across 175 controlled experiments on the AgentMesh Benchmark Suite, we demonstrate that structural graph constraints dictate reasoning success: hierarchical \topo{Tree} topologies outperform dense \topo{Mesh} and sequential \topo{Chain} networks by up to 14 percentage points. Through Social Network Analysis and the Failure Signature framework, we discover the Inverse Communication Law ($r = -0.602$), proving that concise, isolated communication structures produce significantly higher reasoning fidelity than unconstrained inter-agent chatter.
+
+% =============================================================================
+\section*{Acknowledgment}
+% =============================================================================
+
+The authors would like to thank the Department of Computer Science and Engineering at PSG College of Technology for providing the computational resources and infrastructure necessary for this research. 
+
+This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.
 
 % =============================================================================
 % References
