@@ -4,11 +4,6 @@
 # =============================================================================
 FROM python:3.11-slim AS base
 
-# System dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 # Install Python dependencies
@@ -21,9 +16,9 @@ COPY . .
 # Expose FastAPI port
 EXPOSE 8000
 
-# Health check
+# Health check using python standard library (no curl required)
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
 # Default: run the FastAPI API server
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

@@ -296,7 +296,7 @@ exit /b 0
 echo  ══════════════════════════════════════════════════════════
 echo  ✅  AgentMesh Docker Demo is UP!
 echo.
-echo  📊  Research Dashboard   ^→  http://localhost
+echo  📊  Research Dashboard   ^→  http://localhost:3000 (or http://localhost:5173)
 echo  🔌  FastAPI Docs         ^→  http://localhost:8000/docs
 echo  📨  Kafka UI             ^→  http://localhost:8090
 echo  🤖  Ollama (Supervisor)  ^→  http://localhost:11434
