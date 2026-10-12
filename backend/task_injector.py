@@ -53,8 +53,13 @@ DEMO_TASKS = [
 
 def main():
     kafka_servers = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092').split(',')
-    use_real = os.getenv('USE_REAL_KAFKA', 'false').lower() == 'true'
+    use_real = os.getenv('USE_REAL_KAFKA', 'false').lower() == 'true' or any(
+        server.strip().endswith(':9094') for server in kafka_servers
+    )
+    if use_real:
+        os.environ['USE_REAL_KAFKA'] = 'true'
     delay = float(os.getenv('TASK_INJECT_DELAY', '2.5'))
+    tasks_topic = os.getenv('AGENTMESH_TASKS_TOPIC', 'tasks')
 
     broker = None if use_real else InMemoryKafkaBroker.get_instance()
     producer = KafkaProducer(
@@ -63,15 +68,24 @@ def main():
         broker=broker
     )
 
-    logger.info(f"Injecting {len(DEMO_TASKS)} tasks (kafka={kafka_servers}, real={use_real})")
-    for task in DEMO_TASKS:
-        producer.send('tasks', task)
+    if os.getenv('TASK_INJECTOR_MODE', '').lower() == 'single':
+        tasks = [{
+            'id': f"demo_single_{int(time.time())}",
+            'category': 'coding',
+            'input': 'Coding task: Write a Python function square(n) that returns the square of n. Show one example call.'
+        }]
+    else:
+        tasks = DEMO_TASKS
+
+    logger.info(f"Injecting {len(tasks)} task(s) into '{tasks_topic}' (kafka={kafka_servers}, real={use_real})")
+    for task in tasks:
+        producer.send(tasks_topic, task)
         producer.flush()
         logger.info(f"Injected: {task['id']} [{task.get('category')}] — {task['input'][:65]}...")
         time.sleep(delay)
 
     producer.close()
-    logger.info("All demo benchmark tasks successfully injected into topic 'tasks'.")
+    logger.info(f"All demo task(s) successfully injected into topic '{tasks_topic}'.")
 
 
 if __name__ == '__main__':

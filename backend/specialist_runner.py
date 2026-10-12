@@ -11,7 +11,11 @@ def main():
     model = os.getenv('AGENT_2_MODEL', 'mistral:7b')
     stype = os.getenv('SPECIALIST_TYPE', 'coding')
     kafka_servers = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092').split(',')
-    use_real = os.getenv('USE_REAL_KAFKA', 'false').lower() == 'true'
+    use_real = os.getenv('USE_REAL_KAFKA', 'false').lower() == 'true' or any(
+        server.strip().endswith(':9094') for server in kafka_servers
+    )
+    if use_real:
+        os.environ['USE_REAL_KAFKA'] = 'true'
     logger.info(f'Specialist:{stype} | model={model} | kafka={kafka_servers} | real={use_real}')
     broker = None if use_real else InMemoryKafkaBroker.get_instance()
     specialist = SpecialistAgent(specialist_type=stype, model=model, bootstrap_servers=kafka_servers, broker=broker)

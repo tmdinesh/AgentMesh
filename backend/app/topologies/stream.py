@@ -39,6 +39,7 @@ from __future__ import annotations
 import collections
 import json
 import logging
+import os
 import threading
 import time
 from dataclasses import dataclass, field
@@ -48,6 +49,12 @@ from app.topologies.actor_system import BaseLLMClient, get_llm_client
 from app.topologies.base import AgentInfo, BaseTopology
 
 logger = logging.getLogger(__name__)
+
+TASKS_TOPIC = os.getenv("AGENTMESH_TASKS_TOPIC", "tasks")
+ROUTING_TOPIC = os.getenv("AGENTMESH_ROUTING_TOPIC", "routing-decisions")
+RESULTS_TOPIC = os.getenv("AGENTMESH_RESULTS_TOPIC", "specialist-results")
+VALIDATIONS_TOPIC = os.getenv("AGENTMESH_VALIDATIONS_TOPIC", "validations")
+DEMO_RUN_ID = os.getenv("AGENTMESH_RUN_ID", "")
 
 # Try importing real kafka if present in environment
 try:
@@ -277,7 +284,9 @@ class KafkaProducer:
         self.value_serializer = value_serializer or (lambda v: json.dumps(v).encode("utf-8") if isinstance(v, (dict, list)) else str(v).encode("utf-8"))
         self.key_serializer = key_serializer
         self.broker = broker or InMemoryKafkaBroker.get_instance()
-        self.use_real = use_real and HAS_REAL_KAFKA
+        self.use_real = use_real or os.getenv("USE_REAL_KAFKA", "false").lower() == "true"
+        if self.use_real and not HAS_REAL_KAFKA:
+            raise RuntimeError("USE_REAL_KAFKA=true but kafka-python is not installed.")
         self._real_producer = None
 
         if self.use_real and real_kafka is not None:
@@ -289,6 +298,8 @@ class KafkaProducer:
                     request_timeout_ms=2000
                 )
             except Exception as err:
+                if use_real or os.getenv("USE_REAL_KAFKA", "false").lower() == "true":
+                    raise RuntimeError(f"Could not connect to Kafka at {self.bootstrap_servers}: {err}") from err
                 logger.warning(f"Real Kafka unavailable ({err}), falling back to InMemoryKafkaBroker.")
                 self.use_real = False
 
@@ -361,7 +372,9 @@ class KafkaConsumer:
         self.group_id = group_id or f"group_{int(time.time() * 1000)}"
         self.broker = broker or InMemoryKafkaBroker.get_instance()
         self.poll_timeout = poll_timeout
-        self.use_real = use_real and HAS_REAL_KAFKA
+        self.use_real = use_real or os.getenv("USE_REAL_KAFKA", "false").lower() == "true"
+        if self.use_real and not HAS_REAL_KAFKA:
+            raise RuntimeError("USE_REAL_KAFKA=true but kafka-python is not installed.")
         self._closed = False
         self._real_consumer = None
 
@@ -373,9 +386,12 @@ class KafkaConsumer:
                     value_deserializer=self.value_deserializer,
                     key_deserializer=self.key_deserializer,
                     group_id=self.group_id,
+                    auto_offset_reset="earliest",
                     consumer_timeout_ms=1000
                 )
             except Exception as err:
+                if use_real or os.getenv("USE_REAL_KAFKA", "false").lower() == "true":
+                    raise RuntimeError(f"Could not connect to Kafka at {self.bootstrap_servers}: {err}") from err
                 logger.warning(f"Real Kafka consumer unavailable ({err}), falling back to InMemoryKafkaBroker.")
                 self.use_real = False
 
@@ -481,10 +497,10 @@ class SupervisorAgent:
             broker=broker
         )
         self.consumer = KafkaConsumer(
-            "tasks",
+            TASKS_TOPIC,
             bootstrap_servers=bootstrap_servers or ["localhost:9092"],
             value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-            group_id="supervisor",
+            group_id=f"supervisor-{DEMO_RUN_ID}" if DEMO_RUN_ID else "supervisor",
             broker=broker
         )
         self.processed_tasks: List[str] = []
@@ -493,7 +509,7 @@ class SupervisorAgent:
     def run(self) -> None:
         """Main loop: consume tasks, route them."""
         self._running = True
-        logger.info("[SupervisorAgent] Starting consumption loop on topic 'tasks'...")
+        logger.info(f"[SupervisorAgent] Starting consumption loop on topic '{TASKS_TOPIC}'...")
 
         for message in self.consumer:
             if not self._running:
@@ -503,15 +519,17 @@ class SupervisorAgent:
             task_input = task.get("input", "")
 
             # Make routing decision
+            logger.info(f"[SupervisorAgent] Received {task_id}; asking {self.model} to choose a specialist...")
             decision = self.llm_client.call(
                 system="Route this task. Return 'coding' or 'reasoning'.",
                 user=task_input
             )
 
             routing_key = "coding" if "coding" in decision.lower() else "reasoning"
+            logger.info(f"[SupervisorAgent] {task_id} routed to {routing_key}.")
 
             # Publish routing decision
-            self.producer.send("routing-decisions", {
+            self.producer.send(ROUTING_TOPIC, {
                 "task_id": task_id,
                 "route_to": routing_key,
                 "task_data": task_input
@@ -550,10 +568,10 @@ class SpecialistAgent:
             broker=broker
         )
         self.consumer = KafkaConsumer(
-            "routing-decisions",
+            ROUTING_TOPIC,
             bootstrap_servers=bootstrap_servers or ["localhost:9092"],
             value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-            group_id=f"specialist-{specialist_type}",
+            group_id=f"specialist-{specialist_type}-{DEMO_RUN_ID}" if DEMO_RUN_ID else f"specialist-{specialist_type}",
             broker=broker
         )
         self.completed_tasks: List[str] = []
@@ -562,32 +580,37 @@ class SpecialistAgent:
     def run(self) -> None:
         """Main loop: consume routing decisions, process work."""
         self._running = True
-        logger.info(f"[SpecialistAgent:{self.type}] Starting consumption on 'routing-decisions'...")
+        logger.info(f"[SpecialistAgent:{self.type}] Starting consumption on '{ROUTING_TOPIC}'...")
 
         for message in self.consumer:
             if not self._running:
                 break
             routing = message.value
+            task_id = routing.get("task_id", "unknown")
+            route_to = routing.get("route_to", "unknown")
+            logger.info(f"[SpecialistAgent:{self.type}] Saw {task_id} routed_to={route_to}.")
 
             # Filter: only process if routed to this specialist
-            if routing.get("route_to") != self.type:
+            if route_to != self.type:
                 continue
 
             # Do the work
+            logger.info(f"[SpecialistAgent:{self.type}] Received {task_id}; generating answer with {self.model}...")
             output = self.llm_client.call(
                 system=f"You are a {self.type} specialist",
                 user=routing.get("task_data", "")
             )
 
             # Publish result
-            self.producer.send("specialist-results", {
+            self.producer.send(RESULTS_TOPIC, {
                 "task_id": routing.get("task_id"),
                 "specialist_type": self.type,
                 "output": output
             })
 
             self.producer.flush()
-            self.completed_tasks.append(routing.get("task_id", ""))
+            self.completed_tasks.append(task_id)
+            logger.info(f"[SpecialistAgent:{self.type}] Finished {task_id}; result published.")
 
     def stop(self) -> None:
         """Stops the agent and closes the consumer."""
@@ -618,10 +641,10 @@ class ValidatorAgent:
             broker=broker
         )
         self.consumer = KafkaConsumer(
-            "specialist-results",
+            RESULTS_TOPIC,
             bootstrap_servers=bootstrap_servers or ["localhost:9092"],
             value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-            group_id="validator",
+            group_id=f"validator-{DEMO_RUN_ID}" if DEMO_RUN_ID else "validator",
             broker=broker
         )
         self.validated_tasks: List[Dict[str, Any]] = []
@@ -630,7 +653,7 @@ class ValidatorAgent:
     def run(self) -> None:
         """Main loop: consume specialist results, validate output."""
         self._running = True
-        logger.info("[ValidatorAgent] Starting consumption on 'specialist-results'...")
+        logger.info(f"[ValidatorAgent] Starting consumption on '{RESULTS_TOPIC}'...")
 
         for message in self.consumer:
             if not self._running:
@@ -642,6 +665,7 @@ class ValidatorAgent:
             spec_type = result.get("specialist_type", "unknown")
 
             # Validate output via LLM
+            logger.info(f"[ValidatorAgent] Received result for {task_id} from {spec_type}; validating with {self.model}...")
             validation = self.llm_client.call(
                 system=f"You are the Validator. Evaluate if the output meets criteria: '{self.criteria}'. Reply 'YES' or 'NO' with diagnostic reasoning.",
                 user=output
@@ -657,9 +681,10 @@ class ValidatorAgent:
                 "reason": validation.strip(),
                 "output": output
             }
-            self.producer.send("validations", payload)
+            self.producer.send(VALIDATIONS_TOPIC, payload)
             self.producer.flush()
             self.validated_tasks.append(payload)
+            logger.info(f"[ValidatorAgent] {task_id} validation complete: {'valid' if is_valid else 'needs review'}.")
 
     def stop(self) -> None:
         """Stops the agent and closes the consumer."""
